@@ -78,7 +78,7 @@ const Navbar: React.FC = () => {
                 ) : (
                     <div className="flex items-center">
                         <button 
-                            className="bg-white hover:bg-white hover:text-white border border-white cursor-pointer  text-white py-2 px-4 rounded"
+                            className="bg-white hover:bg-white hover:text-black border border-black cursor-pointer  text-black py-2 px-4 rounded"
                             onClick={() => navigate('/login')}
                         >
                             Login
