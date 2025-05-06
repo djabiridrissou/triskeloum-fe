@@ -65,7 +65,7 @@ const AdminEducationDashboard = () => {
     }, [darkMode]);
 
     // Handler functions
-    const toggleTheme = () => setDarkMode(!darkMode);
+    //const toggleTheme = () => setDarkMode(!darkMode);
 
     const handleSearch = (type: string, value: string) => {
         const params = {
