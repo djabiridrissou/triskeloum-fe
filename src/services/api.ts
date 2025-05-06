@@ -151,6 +151,64 @@ export const api = createApi({
             }),
         }),
 
+        getTutor: builder.query({
+            query: (id) => ({
+                url: `/tutors/one`,
+                method: "GET",
+                params: { id }
+            }),
+        }),
+
+        getConversations: builder.query({
+            query: (params) => ({
+                url: `/chat/conversations`,
+                method: "GET",
+                params
+            }),
+        }),
+
+        createOrGetConversation: builder.mutation({
+            query: (params) => ({
+                url: `/chat/conversations`,
+                method: "POST",
+                body: params
+            }),
+        }),
+
+        getMessages: builder.query({
+            query: (params) => ({
+                url: `/chat/conversations/messages`,
+                method: "GET",
+                params
+            }),
+        }),
+
+        sendMessage: builder.mutation({
+            query: (params) => ({
+                url: `/chat/messages/text`,
+                method: "POST",
+                body: params
+            }),
+        }),
+
+        searchUsers: builder.query({
+            query: (params) => ({
+                url: `/user/search`,
+                method: "GET",
+                params
+            }),
+        }),
+        
+        updateTutor: builder.mutation({
+            query: (params) => ({
+                url: `/tutors/update`,
+                method: "PUT",
+                body: params
+            }),
+        }),
+
+
+
     }),
 });
 
@@ -170,5 +228,12 @@ export const {
     useGetDepartmentsQuery,
     useGetLevelsByDepartmentQuery,
     useGetClassesByLevelQuery,
-    useAdminLoginMutation
+    useAdminLoginMutation,
+    useGetTutorQuery,
+    useGetConversationsQuery,
+    useGetMessagesQuery,
+    useSendMessageMutation,
+    useSearchUsersQuery,
+    useCreateOrGetConversationMutation,
+    useUpdateTutorMutation
 } = api;

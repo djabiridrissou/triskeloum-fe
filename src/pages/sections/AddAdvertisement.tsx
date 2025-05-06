@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, DatePicker, TimePicker, Upload, message, Radio, Spin, Row, Col, Card } from 'antd';
+import { Form, Input, Select, DatePicker, TimePicker, Upload, message, Row, Col, Card } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import Swal from 'sweetalert2';
-import { useGetClassesByLevelQuery, useGetDepartmentsQuery, useGetLevelsByDepartmentQuery } from '../../services/api';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -47,25 +46,15 @@ const AdvertisementForm: React.FC<AdvertisementFormProps> = ({
     initialData?.departmentId ? 'department' : 'general'
   );
   const [isNow, setIsNow] = useState<boolean>(initialData?.isNow || false);
+  //@ts-ignore
   const [selectedDepartment, setSelectedDepartment] = useState<string | undefined>(initialData?.departmentId);
+  //@ts-ignore
   const [selectedLevel, setSelectedLevel] = useState<string | undefined>(initialData?.levelId);
 
   // Fetch data from API with dependencies
-  const { data: departmentsData, isLoading: isLoadingDepartments } = useGetDepartmentsQuery({});
-  const { data: levelsData, isLoading: isLoadingLevels } = useGetLevelsByDepartmentQuery(
-    { departmentId: selectedDepartment || '' },
-    { skip: !selectedDepartment }
-  );
-  const { data: classesData, isLoading: isLoadingClasses } = useGetClassesByLevelQuery(
-    { levelId: selectedLevel || '' },
-    { skip: !selectedLevel }
-  );
 
   // Extract data from API responses
-  const departments = departmentsData?.data || [];
-  const levels = levelsData?.data || [];
-  const classes = classesData?.data || [];
-
+  
   useEffect(() => {
     if (initialData) {
       // Prepare initial values
@@ -247,7 +236,7 @@ const AdvertisementForm: React.FC<AdvertisementFormProps> = ({
     setLinks(newLinks);
   };
 
-  const handleAudienceTypeChange = (e: any) => {
+/*   const handleAudienceTypeChange = (e: any) => {
     setAudienceType(e.target.value);
     // Reset dependent fields when audience type changes
     if (e.target.value === 'general') {
@@ -275,15 +264,13 @@ const AdvertisementForm: React.FC<AdvertisementFormProps> = ({
     form.setFieldsValue({
       classId: undefined
     });
-  };
+  }; */
 
   const handleIsNowChange = (e: any) => {
     setIsNow(e.target.checked);
   };
 
-  if (isLoadingDepartments) {
-    return <div className="flex justify-center p-8"><Spin size="large" /></div>;
-  }
+
 
   return (
     <div className="p-4">
@@ -332,7 +319,7 @@ const AdvertisementForm: React.FC<AdvertisementFormProps> = ({
           </Form.Item>
 
           {/* Audience Selection Section */}
-          <div className="bg-gray-50 p-4 rounded-lg">
+         {/*  <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-medium text-gray-700 mb-3">Target Audience</h3>
             <Radio.Group 
               value={audienceType} 
@@ -346,7 +333,6 @@ const AdvertisementForm: React.FC<AdvertisementFormProps> = ({
               <Radio.Button value="class">Class</Radio.Button>
             </Radio.Group>
 
-            {/* Department Selection - Always required for department, level and class targeting */}
             {(audienceType === 'department' || audienceType === 'level' || audienceType === 'class') && (
               <Form.Item
                 name="departmentId"
@@ -367,7 +353,7 @@ const AdvertisementForm: React.FC<AdvertisementFormProps> = ({
               </Form.Item>
             )}
 
-            {/* Level Selection - Required for level and class targeting */}
+           
             {(audienceType === 'level' || audienceType === 'class') && (
               <Form.Item
                 name="levelId"
@@ -389,7 +375,7 @@ const AdvertisementForm: React.FC<AdvertisementFormProps> = ({
               </Form.Item>
             )}
 
-            {/* Class Selection - Only required for class targeting */}
+         
             {audienceType === 'class' && (
               <Form.Item
                 name="classId"
@@ -409,7 +395,7 @@ const AdvertisementForm: React.FC<AdvertisementFormProps> = ({
               </Form.Item>
             )}
           </div>
-
+ */}
           {/* Date and Time Section */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-medium text-gray-700 mb-3">Schedule</h3>

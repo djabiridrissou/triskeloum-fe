@@ -3,33 +3,17 @@ import {
     Table,
     Typography,
     Input,
-    Space,
     Button,
-    Modal,
-    message,
     Tabs,
-    Form,
-    Select,
-    Popconfirm
 } from 'antd';
 import {
-    DeleteOutlined,
-    EditOutlined,
-    PlusOutlined,
-    SearchOutlined,
-    BulbOutlined,
-    BulbFilled,
-    TeamOutlined,
-    BankOutlined,
-    ReadOutlined
+    SearchOutlined
 } from '@ant-design/icons';
+import { useGetAdvertisementsQuery, useGetStudentsQuery, useGetTutorsQuery } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
-const { Option } = Select;
-
-
-
 
 interface SearchParams {
     page: number;
@@ -41,102 +25,38 @@ interface SearchParams {
     levelId?: string;
 }
 
-// Mock API hooks
-// @ts-ignore
-const useGetDepartmentsQuery = (params: SearchParams) => {
-    // @ts-ignore
-    const [data, setData] = useState({
-        data: [
-            { _id: '1', name: 'Computer Science', code: 'CS', description: 'Computer Science Department', createdAt: '2023-01-01' },
-            { _id: '2', name: 'Business Administration', code: 'BA', description: 'Business Administration Department', createdAt: '2023-01-02' },
-        ],
-        pagination: { page: 1, limit: 10, total: 2 }
-    });
-    return { data, isLoading: false, refetch: () => {} };
-};
-
-const useGetLevelsQuery = (params: SearchParams) => {
-    // @ts-ignore
-    const [data, setData] = useState({
-        data: [
-            { 
-                _id: '1', 
-                name: 'First Year', 
-                department: params.departmentId || '1', 
-                departmentName: 'Computer Science', 
-                year: 1, 
-                description: 'First year students', 
-                createdAt: '2023-01-01' 
-            },
-        ],
-        pagination: { page: 1, limit: 10, total: 1 }
-    });
-    return { data, isLoading: false, refetch: () => {} };
-};
-
-const useGetClassesQuery = (params: SearchParams) => {
-    // @ts-ignore
-    const [data, setData] = useState({
-        data: [
-            { 
-                _id: '1', 
-                name: 'CS101', 
-                level: params.levelId || '1', 
-                levelName: 'First Year', 
-                department: '1', 
-                departmentName: 'Computer Science', 
-                capacity: 40, 
-                description: 'Introduction to Programming', 
-                createdAt: '2023-01-01' 
-            },
-        ],
-        pagination: { page: 1, limit: 10, total: 1 }
-    });
-    return { data, isLoading: false, refetch: () => {} };
-};
 
 const AdminEducationDashboard = () => {
-    const [activeTab, setActiveTab] = useState('departments');
+    const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState('students');
     const [darkMode, setDarkMode] = useState(() => {
         return localStorage.getItem('theme') === 'dark';
     });
-    
+
     const [departmentSearchParams, setDepartmentSearchParams] = useState<SearchParams>({
         page: 1,
         limit: 10,
     });
-    
+
     const [levelSearchParams, setLevelSearchParams] = useState<SearchParams>({
         page: 1,
         limit: 10,
     });
-    
+
     const [classSearchParams, setClassSearchParams] = useState<SearchParams>({
         page: 1,
         limit: 10,
     });
-    
-    // Modal states
-    const [isAddDepartmentModalOpen, setIsAddDepartmentModalOpen] = useState(false);
-    const [isAddLevelModalOpen, setIsAddLevelModalOpen] = useState(false);
-    const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [currentItem, setCurrentItem] = useState<any>(null);
-    
-    // Form instances
-    const [departmentForm] = Form.useForm();
-    const [levelForm] = Form.useForm();
-    const [classForm] = Form.useForm();
-    
-    // Search inputs
-    const [departmentSearchInput, setDepartmentSearchInput] = useState('');
-    const [levelSearchInput, setLevelSearchInput] = useState('');
-    const [classSearchInput, setClassSearchInput] = useState('');
-    
+
     // Fetch data
-    const { data: departmentsData } = useGetDepartmentsQuery(departmentSearchParams);
-    const { data: levelsData } = useGetLevelsQuery(levelSearchParams);
-    const { data: classesData } = useGetClassesQuery(classSearchParams);
+    const [studentSearchInput, setStudentSearchInput] = useState('');
+    const { data: studentData } = useGetStudentsQuery({
+        searchQuery: studentSearchInput
+    })
+
+    const { data: advertsData } = useGetAdvertisementsQuery({});
+
+    const { data: tutorsData } = useGetTutorsQuery({});
 
     // Apply theme
     useEffect(() => {
@@ -148,13 +68,13 @@ const AdminEducationDashboard = () => {
     const toggleTheme = () => setDarkMode(!darkMode);
 
     const handleSearch = (type: string, value: string) => {
-        const params = { 
-            ...(type === 'department' ? departmentSearchParams : 
+        const params = {
+            ...(type === 'department' ? departmentSearchParams :
                 type === 'level' ? levelSearchParams : classSearchParams),
             searchQuery: value,
             page: 1
         };
-        
+
         if (type === 'department') {
             setDepartmentSearchParams(params);
         } else if (type === 'level') {
@@ -166,14 +86,14 @@ const AdminEducationDashboard = () => {
 
     const handleTableChange = (type: string, pagination: any, sorter: any) => {
         const params: any = {
-            ...(type === 'department' ? departmentSearchParams : 
+            ...(type === 'department' ? departmentSearchParams :
                 type === 'level' ? levelSearchParams : classSearchParams),
             page: pagination.current,
             limit: pagination.pageSize,
             sortField: sorter.field,
             sortOrder: sorter.order === 'ascend' ? 'asc' : 'desc'
         };
-        
+
         if (type === 'department') {
             setDepartmentSearchParams(params);
         } else if (type === 'level') {
@@ -183,64 +103,18 @@ const AdminEducationDashboard = () => {
         }
     };
 
-    // @ts-ignore
-    const handleFormSubmit = async (values: any, type: string) => {
-        try {
-            // Ici vous feriez normalement un appel API pour créer/mettre à jour
-            message.success(`${type} ${currentItem ? 'updated' : 'added'} successfully`);
-            
-            if (type === 'department') {
-                setIsAddDepartmentModalOpen(false);
-                departmentForm.resetFields();
-            } else if (type === 'level') {
-                setIsAddLevelModalOpen(false);
-                levelForm.resetFields();
-            } else {
-                setIsAddClassModalOpen(false);
-                classForm.resetFields();
-            }
-            
-            if (isEditModalOpen) {
-                setIsEditModalOpen(false);
-                setCurrentItem(null);
-            }
-        } catch (error) {
-            message.error(`Failed to ${currentItem ? 'update' : 'add'} ${type}`);
-        }
-    };
 
     // Columns configuration
     const getColumns = (type: string) => {
-        const baseColumns = [
-            {
-                title: 'Name',
-                dataIndex: 'name',
-                key: 'name',
-                sorter: true,
-                ellipsis: true,
-                render: (text: string) => <span className="truncate">{text}</span>
-            },
-            {
-                title: 'Description',
-                dataIndex: 'description',
-                key: 'description',
-                ellipsis: true,
-                render: (text: string) => <span className="truncate">{text}</span>
-            },
-            {
-                title: 'Created At',
-                dataIndex: 'createdAt',
-                key: 'createdAt',
-                sorter: true,
-                render: (date: string) => new Date(date).toLocaleDateString()
-            },
-            {
+        const baseColumns: any = [
+
+            /* {
                 title: 'Actions',
                 key: 'actions',
                 render: (_: any, record: any) => (
                     <Space size="middle">
-                        <Button 
-                            icon={<EditOutlined />} 
+                        <Button
+                            icon={<EditOutlined />}
                             onClick={() => {
                                 setCurrentItem(record);
                                 if (type === 'department') {
@@ -261,22 +135,36 @@ const AdminEducationDashboard = () => {
                         </Popconfirm>
                     </Space>
                 ),
-            },
+            }, */
         ];
 
         if (type === 'level') {
-            baseColumns.splice(1, 0,{
+            baseColumns.splice(1, 0, {
                 title: 'Department',
                 dataIndex: 'departmentName',
                 key: 'department',
                 sorter: false,
                 render: (text: string) => <span className="truncate">{text}</span> as any,
-              });
-        } else if (type === 'class') {
-            baseColumns.splice(1, 0, 
-                { title: 'Department', dataIndex: 'departmentName', key: 'department', sorter: false, ellipsis: true, render: (text: string) => <span className="truncate">{text}</span> as any },
-{ title: 'Level', dataIndex: 'levelName', key: 'level', sorter: false, ellipsis: true, render: (text: string) => <span className="truncate">{text}</span> as any },
-{ title: 'Capacity', dataIndex: 'capacity', key: 'capacity', sorter: true, ellipsis: true, render: (text: string) => <span className="truncate">{text}</span> as any }
+            });
+        } else if (type === 'advertisements') {
+            baseColumns.splice(1, 0,
+                { title: 'Type', dataIndex: 'type', key: 'type', sorter: false, ellipsis: true, render: (text: string) => <span className="truncate">{text}</span> as any },
+                { title: 'Title', dataIndex: 'title', key: 'title', sorter: false, ellipsis: true, render: (text: string) => <span className="truncate">{text}</span> as any },
+                { title: 'Description', dataIndex: 'description', key: 'description', sorter: true, ellipsis: true, render: (text: string) => <span className="truncate">{text}</span> as any },
+                { title: 'Location', dataIndex: 'location', key: 'location', sorter: true, ellipsis: true, render: (text: string) => <span className="truncate">{text}</span> as any },
+                { title: 'Created By', dataIndex: ['adminId', 'name'], key: 'createdBy', sorter: true, ellipsis: true, render: (text: string) => <span className="truncate">{text}</span> }
+            );
+        } else if (type === 'student') {
+            baseColumns.splice(1, 0,
+                { title: 'Name', dataIndex: 'name', key: 'name', sorter: false, ellipsis: true, render: (text: string) => <span className="truncate">{text}</span> as any },
+                { title: 'Created At', dataIndex: 'createdAt', key: 'createdAt', sorter: false, ellipsis: true, render: (text: string) => <span className="truncate">{text}</span> as any },
+            );
+        } else if (type === 'tutors') {
+            baseColumns.splice(1, 0,
+                { title: 'Name', dataIndex: 'name', key: 'name', sorter: false, ellipsis: true, render: (text: string) => <span className="truncate">{text}</span> as any },
+                { title: 'Phone Number', dataIndex: 'phoneNumber', key: 'phoneNumber', sorter: false, ellipsis: true, render: (text: string) => <span className="truncate">{text}</span> as any },
+                { title: 'Email', dataIndex: 'email', key: 'email', sorter: false, ellipsis: true, render: (text: string) => <span className="truncate">{text}</span> as any },
+                //{ title: 'Created At', dataIndex: 'createdAt', key: 'createdAt', sorter: false, ellipsis: true, render: (text: string) => <span className="truncate">{text}</span> as any },
             );
         }
 
@@ -286,14 +174,98 @@ const AdminEducationDashboard = () => {
     return (
         <div className={`p-4 ${darkMode ? 'dark' : ''}`}>
             <div className="flex justify-between items-center mb-6">
-                <Title level={2} className="!mb-0">Education Management</Title>
-                <Button 
-                    icon={darkMode ? <BulbFilled /> : <BulbOutlined />} 
-                    onClick={toggleTheme}
-                />
+                <Title level={3} className="!mb-0">Administration</Title>
+                <Button
+                    onClick={() => navigate('/login')}
+                >Logout</Button>
             </div>
 
-            <Tabs activeKey={activeTab} onChange={setActiveTab}>
+            <div>
+                <Tabs activeKey={activeTab} onChange={setActiveTab}>
+                    <TabPane
+                        tab={<span>Students</span>}
+                        key="students"
+                    >
+                        <div className="mb-4 flex gap-4 w-[25%]">
+                            <Input
+                                placeholder="Search students"
+                                prefix={<SearchOutlined />}
+                                value={studentSearchInput}
+                                onChange={(e) => {
+                                    setStudentSearchInput(e.target.value);
+                                    handleSearch('student', e.target.value);
+                                }}
+                                className='w-1/2'
+                            />
+                        </div>
+                        <Table
+                            columns={getColumns('student')}
+                            dataSource={studentData?.data}
+                            rowKey="_id"
+                            onChange={(pagination, _, sorter) =>
+                                handleTableChange('student', pagination, sorter)
+                            }
+                            pagination={studentData?.pagination}
+                        />
+                    </TabPane>
+
+                    <TabPane
+                        tab={<span>Advertisements</span>}
+                        key="advertisements"
+                    >
+                        <div className="mb-4 flex gap-4 w-[25%]">
+                            <Input
+                                placeholder="Search advertisements"
+                                prefix={<SearchOutlined />}
+                                value={studentSearchInput}
+                                onChange={(e) => {
+                                    setStudentSearchInput(e.target.value);
+                                    handleSearch('advertisements', e.target.value);
+                                }}
+                                className='w-1/2'
+                            />
+                        </div>
+                        <Table
+                            columns={getColumns('advertisements')}
+                            dataSource={advertsData?.data}
+                            rowKey="_id"
+                            onChange={(pagination, _, sorter) =>
+                                handleTableChange('advertisements', pagination, sorter)
+                            }
+                            pagination={studentData?.pagination}
+                        />
+                    </TabPane>
+
+                    <TabPane
+                        tab={<span>Tutors</span>}
+                        key="tutors"
+                    >
+                        <div className="mb-4 flex gap-4 w-[25%]">
+                            <Input
+                                placeholder="Search tutors"
+                                prefix={<SearchOutlined />}
+                                value={studentSearchInput}
+                                onChange={(e) => {
+                                    setStudentSearchInput(e.target.value);
+                                    handleSearch('tutors', e.target.value);
+                                }}
+                                className='w-1/2'
+                            />
+                        </div>
+                        <Table
+                            columns={getColumns('tutors')}
+                            dataSource={tutorsData?.data}
+                            rowKey="_id"
+                            onChange={(pagination, _, sorter) =>
+                                handleTableChange('tutors', pagination, sorter)
+                            }
+                            pagination={tutorsData?.pagination}
+                        />
+                    </TabPane>
+                </Tabs>
+            </div>
+
+            {/*  <Tabs activeKey={activeTab} onChange={setActiveTab}>
                 <TabPane 
                     tab={<span><BankOutlined /> Departments</span>} 
                     key="departments"
@@ -394,7 +366,7 @@ const AdminEducationDashboard = () => {
                 </TabPane>
             </Tabs>
 
-            {/* Department Modal */}
+
             <Modal
                 title={`${currentItem ? 'Edit' : 'Add'} Department`}
                 open={isAddDepartmentModalOpen || (isEditModalOpen && activeTab === 'departments')}
@@ -425,7 +397,7 @@ const AdminEducationDashboard = () => {
                 </Form>
             </Modal>
 
-            {/* Level Modal */}
+           
             <Modal
                 title={`${currentItem ? 'Edit' : 'Add'} Level`}
                 open={isAddLevelModalOpen || (isEditModalOpen && activeTab === 'levels')}
@@ -465,7 +437,7 @@ const AdminEducationDashboard = () => {
                 </Form>
             </Modal>
 
-            {/* Class Modal */}
+   
             <Modal
                 title={`${currentItem ? 'Edit' : 'Add'} Class`}
                 open={isAddClassModalOpen || (isEditModalOpen && activeTab === 'classes')}
@@ -512,7 +484,7 @@ const AdminEducationDashboard = () => {
                         Submit
                     </Button>
                 </Form>
-            </Modal>
+            </Modal> */}
         </div>
     );
 };

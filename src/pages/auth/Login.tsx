@@ -13,7 +13,11 @@ const Login: React.FC = () => {
     const [adminLogin, { isLoading: isAdminLoading }] = useAdminLoginMutation();
 
     useEffect(() => {
-        localStorage.removeItem('user');
+       
+        const user = localStorage.getItem("user");
+        if (user) {
+            navigate("/");
+        }
     }, []);
 
     const handleLogin = async (values: any, userType: string) => {

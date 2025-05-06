@@ -14,13 +14,13 @@ const Footer = () => {
     }
 
     return (
-        <footer className="bg-black border-t border-neutral-200 mt-10">
+        <footer className="bg-white border-t border-neutral-200 mt-10">
             <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div>
                         <div className="flex items-center mb-4">
 
-                            <span className="ml-2 text-xl font-semibold text-white">TutorFind</span>
+                            <span className="ml-2 text-xl font-semibold text-black">Tutor Finder And Advertisement</span>
                         </div>
                         <p className="text-neutral-600 text-sm text-justify">Connecting students with resources, events, and tutors to enhance their educational journey.</p>
                     </div>

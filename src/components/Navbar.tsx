@@ -32,7 +32,13 @@ const Navbar: React.FC = () => {
     const menu = (
         <Menu>
             <Menu.Divider />
-            <Menu.Item key="dashboard" icon={<SettingOutlined />} onClick={() => navigate('students/dashboard')}>
+            <Menu.Item key="dashboard" icon={<SettingOutlined />} onClick={() => {
+                if (user.role === 'student') {
+                    navigate('/students/dashboard');
+                } else if (user.role === 'tutor') {
+                    navigate('/tutors/dashboard');
+                }
+            }}>
                 Dashboard
             </Menu.Item>
             <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
@@ -44,8 +50,8 @@ const Navbar: React.FC = () => {
     return (
         <nav className="bg-white shadow-md py-2">
             <div className="container mx-auto px-4 flex justify-between items-center">
-                <div className="text-xs font-bold text-blue-600 w-[50px]">
-                   <img src="images/logob.png" alt="" />
+                <div onClick={() => navigate('/')} className="cursor-pointerbg-white text-xs font-bold text-blue-600 w-[50px]">
+                   <img src="images/logob.png" alt="" /> <span className='text-white text-xs flex'></span>
                 </div>
                 
                 {user ? (
@@ -64,7 +70,7 @@ const Navbar: React.FC = () => {
                                 src={user.picture} 
                                 className="mr-2"
                             />
-                            <span className="font-medium">
+                            <span className="ml-2 text-gray-800 font-medium">
                                 {user.name || 'User'}
                             </span>
                         </div>
@@ -72,7 +78,7 @@ const Navbar: React.FC = () => {
                 ) : (
                     <div className="flex items-center">
                         <button 
-                            className="bg-blue-600 text-white py-2 px-4 rounded"
+                            className="bg-white hover:bg-white hover:text-white border border-white cursor-pointer  text-white py-2 px-4 rounded"
                             onClick={() => navigate('/login')}
                         >
                             Login

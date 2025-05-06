@@ -14,8 +14,6 @@ import {
     PlusOutlined,
     SearchOutlined,
     CalendarOutlined,
-    BulbOutlined,
-    BulbFilled
 } from '@ant-design/icons';
 import { useGetStudentsAdvertisementsQuery } from '../services/api';
 import SideModal from '../components/SideModal';
@@ -52,6 +50,7 @@ const StudentDashboard = () => {
         endDate: null,
     });
     const [searchInput, setSearchInput] = useState('');
+    // @ts-ignore
     const [darkMode, setDarkMode] = useState(() => {
         const savedTheme = localStorage.getItem('theme');
         return savedTheme === 'dark';
@@ -132,10 +131,6 @@ const StudentDashboard = () => {
             endDate: dateStrings[1] || null,
             page: 1
         }));
-    };
-
-    const toggleTheme = () => {
-        setDarkMode(!darkMode);
     };
 
     // @ts-ignore
@@ -323,17 +318,18 @@ const StudentDashboard = () => {
     return (
         <div className={`dashboard-container mx-auto px-4 max-w-screen-3xl ${darkMode ? 'dark-theme' : ''}`}>
             <div className="dashboard-header py-6 flex justify-between items-center">
-                <Title onClick={() => navigate('/')} level={2} className="cursor-pointer dashboard-title text-2xl md:text-3xl">
-                    Advertisement
+                <Title onClick={() => navigate('/')} level={4} className="cursor-pointer dashboard-title text-2xl md:text-3xl">
+                    HOME
                 </Title>
-                <Tooltip title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}>
+                <Tooltip title={"Messages"}>
                     <Button
-                        type="text"
-                        icon={darkMode ? <BulbFilled /> : <BulbOutlined />}
-                        onClick={toggleTheme}
-                        className="theme-toggle-btn"
+                        type="primary"
+                        onClick={() => navigate('/messages')}
+                        className="message-button"
                         size="large"
-                    />
+
+                    >  Messages
+                    </Button>
                 </Tooltip>
             </div>
 

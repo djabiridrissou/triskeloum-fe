@@ -1,44 +1,62 @@
-
-import {  Users } from 'lucide-react';
+import { Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const HeroSection = () => {
+    const navigate = useNavigate();
+
     return (
-        <div className="relative bg-gradient-to-br from-yellow-600 via-yello-300 to-black overflow-hidden shadow-2xl">
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-10 blur-3xl"></div>
+        <div className="relative bg-white min-h-screen flex items-center">
+            {/* Subtle gradient accent */}
+            <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-gray-100 to-gray-200 opacity-20 blur-2xl"></div>
 
-            <div className="relative z-10 px-6 py-16 sm:px-12 sm:py-20 lg:flex lg:items-center lg:justify-between">
-                <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
-                    <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight mb-6">
-                        Elevate Your Learning Journey
-                    </h1>
+            <div className="container mx-auto px-8 py-20">
+                <div className="flex flex-col lg:flex-row items-center justify-between">
+                    {/* Left content */}
+                    <div className="w-full lg:w-1/2 mb-16 lg:mb-0">
+                        <div className="max-w-lg">
+                            <h1 className="font-light text-5xl lg:text-6xl text-black tracking-tight leading-none mb-6">
+                                <span className="block">Excellence.</span>
+                                <span className="block font-normal mt-2">Education.</span>
+                                <span className="block mt-2">Exclusivity.</span>
+                            </h1>
 
-                    <p className="text-xl text-indigo-100 mb-8 max-w-lg mx-auto lg:mx-0">
-                        Discover personalized tutoring, collaborative events, and resources
-                        that transform your educational experience.
-                    </p>
+                            <div className="w-20 h-px bg-gray-600 my-8"></div>
 
-                </div>
+                            <p className="text-gray-700 text-lg font-light leading-relaxed mb-10">
+                                A refined learning experience, designed for those who aspire to excellence.
+                            </p>
 
-                <div className="hidden lg:block lg:w-1/3 mt-10 lg:mt-0">
-                    <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-xl">
-                        <div className="flex items-center mb-4">
-                            <Users className="w-8 h-8 text-white mr-3" />
-                            <h3 className="text-xl font-bold text-white">Community Highlights</h3>
+                            <button onClick={() => navigate('/discover')} className="border border-black text-black px-8 py-3 hover:bg-black hover:text-white transition duration-300 ease-in-out">
+                                Discover
+                            </button>
                         </div>
-                        <ul className="space-y-2 text-indigo-100">
-                            <li className="flex items-center">
-                                <span className="w-2 h-2 bg-green-400 rounded-full mr-3"></span>
-                                <span>500+ Expert Tutors</span>
-                            </li>
-                            <li className="flex items-center">
-                                <span className="w-2 h-2 bg-green-400 rounded-full mr-3"></span>
-                                <span>100+ Learning Events</span>
-                            </li>
-                            <li className="flex items-center">
-                                <span className="w-2 h-2 bg-green-400 rounded-full mr-3"></span>
-                                <span>Personalized Matching</span>
-                            </li>
-                        </ul>
+                    </div>
+
+                    {/* Right content - subtle stats in elegant format */}
+                    <div className="w-full lg:w-1/3">
+                        <div className="border border-gray-200 p-8 backdrop-blur-sm bg-white/50">
+                            <div className="flex items-center mb-8">
+                                <Users className="w-5 h-5 text-gray-600 mr-3" />
+                                <h3 className="text-sm uppercase tracking-widest text-gray-600 font-light">Our Community</h3>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="border-b border-gray-200 pb-4">
+                                    <p className="text-3xl font-light text-black">500+</p>
+                                    <p className="text-sm text-gray-600 mt-1">Expert Tutors</p>
+                                </div>
+
+                                <div className="border-b border-gray-200 pb-4">
+                                    <p className="text-3xl font-light text-black">100+</p>
+                                    <p className="text-sm text-gray-600 mt-1">Learning Events</p>
+                                </div>
+
+                                <div>
+                                    <p className="text-3xl font-light text-black">Personalized</p>
+                                    <p className="text-sm text-gray-600 mt-1">Matching Service</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
