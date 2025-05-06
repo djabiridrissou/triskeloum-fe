@@ -55,72 +55,72 @@ const MessagePage = () => {
     // Initialisation de Socket.IO
     useEffect(() => {
         if (!user._id) return;
-      
+
         const newSocket = io(import.meta.env.VITE_BASE_URL, {
-          withCredentials: true,
-          auth: { userId: user._id }
+            withCredentials: true,
+            auth: { userId: user._id }
         });
-        
+
         newSocket.on('connect', () => {
-          console.log('Socket connected with ID:', newSocket.id);
-          newSocket.emit('joinUserRoom', user._id);
+            console.log('Socket connected with ID:', newSocket.id);
+            newSocket.emit('joinUserRoom', user._id);
         });
-        
+
         newSocket.on('connect_error', (error) => {
-          console.error('Socket connection error:', error);
+            console.error('Socket connection error:', error);
         });
-        
+
         setSocket(newSocket);
-      
+
         return () => {
-          console.log('Disconnecting socket');
-          newSocket.disconnect();
+            console.log('Disconnecting socket');
+            newSocket.disconnect();
         };
     }, [user._id]);
 
     // Gestion des événements Socket.IO
     useEffect(() => {
         if (!socket) return;
-      
+
         const handleReceiveMessage = (newMessage: any) => {
-          console.log('Received message event:', newMessage);
-          if (selectedConversation?._id === newMessage.conversation) {
-            refetchMessages();
-          }
-          refetchConversations();
+            console.log('Received message event:', newMessage);
+            if (selectedConversation?._id === newMessage.conversation) {
+                refetchMessages();
+            }
+            refetchConversations();
         };
-      
+
         const handleUpdateConversation = (data: any) => {
-          console.log('Received updateConversation event:', data);
-          if (selectedConversation?._id === data.conversationId) {
-            refetchMessages();
-          }
-          refetchConversations();
+            console.log('Received updateConversation event:', data);
+            if (selectedConversation?._id === data.conversationId) {
+                refetchMessages();
+            }
+            refetchConversations();
         };
-      
+
         const handleMessagesRead = (data: any) => {
-          console.log('Received messagesRead event:', data);
-          if (selectedConversation?._id === data.conversationId) {
-            refetchMessages();
-          }
-          refetchConversations();
+            console.log('Received messagesRead event:', data);
+            if (selectedConversation?._id === data.conversationId) {
+                refetchMessages();
+            }
+            refetchConversations();
         };
-      
+
         const handleNewConversation = (conversation: any) => {
-          console.log('Received newConversation event:', conversation);
-          refetchConversations();
+            console.log('Received newConversation event:', conversation);
+            refetchConversations();
         };
-      
+
         socket.on("receiveMessage", handleReceiveMessage);
         socket.on("updateConversation", handleUpdateConversation);
         socket.on("messagesRead", handleMessagesRead);
         socket.on("newConversation", handleNewConversation);
-      
+
         return () => {
-          socket.off("receiveMessage", handleReceiveMessage);
-          socket.off("updateConversation", handleUpdateConversation);
-          socket.off("messagesRead", handleMessagesRead);
-          socket.off("newConversation", handleNewConversation);
+            socket.off("receiveMessage", handleReceiveMessage);
+            socket.off("updateConversation", handleUpdateConversation);
+            socket.off("messagesRead", handleMessagesRead);
+            socket.off("newConversation", handleNewConversation);
         };
     }, [socket, selectedConversation, refetchMessages, refetchConversations]);
 
@@ -165,8 +165,9 @@ const MessagePage = () => {
         setSelectedUser(null);
     };
 
-    const handleUserSelect = (option: any) => {
-        setSelectedUser(option.user);
+    // @ts-ignore
+    const handleUserSelect = (value: string, option: any) => {
+        setSelectedUser(option.user); // option.user contient l'objet utilisateur complet
     };
 
     const handleCreateConversation = async () => {
@@ -222,7 +223,7 @@ const MessagePage = () => {
     const formatTime = (date: string) => {
         const today = dayjs().startOf('day');
         const messageDate = dayjs(date);
-        
+
         if (messageDate.isAfter(today)) {
             return messageDate.format('HH:mm');
         } else if (messageDate.isAfter(today.subtract(7, 'day'))) {
@@ -235,7 +236,7 @@ const MessagePage = () => {
     const renderMessageDate = (messages: any[], index: number) => {
         const currentMessage = messages[index];
         const prevMessage = index > 0 ? messages[index - 1] : null;
-        
+
         if (!prevMessage) {
             return (
                 <div className="text-center my-4">
@@ -314,11 +315,10 @@ const MessagePage = () => {
                                 dataSource={filteredConversations}
                                 renderItem={(conv: any) => (
                                     <List.Item
-                                        className={`cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${
-                                            selectedConversation?._id === conv._id 
-                                                ? "bg-blue-50 border-l-4 border-blue-500" 
+                                        className={`cursor-pointer hover:bg-gray-100 transition-colors duration-200 ${selectedConversation?._id === conv._id
+                                                ? "bg-blue-50 border-l-4 border-blue-500"
                                                 : "border-l-4 border-transparent"
-                                        }`}
+                                            }`}
                                         onClick={() => setSelectedConversation(conv)}
                                     >
                                         <List.Item.Meta
@@ -337,17 +337,17 @@ const MessagePage = () => {
                                             }
                                             description={
                                                 <div className="flex justify-between items-center">
-                                                    <Text 
-                                                        type="secondary" 
-                                                        ellipsis 
+                                                    <Text
+                                                        type="secondary"
+                                                        ellipsis
                                                         className="max-w-48"
                                                         strong={conv.unreadCount > 0}
                                                     >
                                                         {conv.lastMessage?.content || 'No messages yet'}
                                                     </Text>
                                                     {conv.unreadCount > 0 && (
-                                                        <Badge 
-                                                            count={conv.unreadCount} 
+                                                        <Badge
+                                                            count={conv.unreadCount}
                                                             size="small"
                                                             className="ml-2"
                                                             style={{ backgroundColor: '#1890ff' }}
@@ -391,8 +391,8 @@ const MessagePage = () => {
                                         </div>
                                     ) : (
                                         <div className="text-xs text-gray-500">
-                                            {getOtherParticipant(selectedConversation)?.isOnline 
-                                                ? <span className="text-green-500">Online</span> 
+                                            {getOtherParticipant(selectedConversation)?.isOnline
+                                                ? <span className="text-green-500">Online</span>
                                                 : 'Offline'}
                                         </div>
                                     )}
@@ -415,25 +415,23 @@ const MessagePage = () => {
                                                 {renderMessageDate(messages, index)}
                                                 <div className={`mb-2 flex ${isMyMessage(msg) ? "justify-end" : "justify-start"}`}>
                                                     {!isMyMessage(msg) && (
-                                                        <Avatar 
-                                                            src={msg.sender.picture} 
-                                                            size={32} 
+                                                        <Avatar
+                                                            src={msg.sender.picture}
+                                                            size={32}
                                                             className="mr-2 self-end mb-1"
                                                         />
                                                     )}
-                                                    <div 
-                                                        className={`px-4 py-2 rounded-2xl max-w-md ${
-                                                            isMyMessage(msg) 
-                                                                ? "bg-blue-500 text-white rounded-tr-none" 
+                                                    <div
+                                                        className={`px-4 py-2 rounded-2xl max-w-md ${isMyMessage(msg)
+                                                                ? "bg-blue-500 text-white rounded-tr-none"
                                                                 : "bg-white shadow-sm rounded-tl-none"
-                                                        }`}
+                                                            }`}
                                                     >
                                                         <div className={isMyMessage(msg) ? "text-white" : ""}>
                                                             {msg.content}
                                                         </div>
-                                                        <div className={`text-xs mt-1 text-right ${
-                                                            isMyMessage(msg) ? "text-blue-100" : "text-gray-400"
-                                                        }`}>
+                                                        <div className={`text-xs mt-1 text-right ${isMyMessage(msg) ? "text-blue-100" : "text-gray-400"
+                                                            }`}>
                                                             {dayjs(msg.createdAt).format('HH:mm')}
                                                             {isMyMessage(msg) && (
                                                                 <span className="ml-1">
@@ -493,9 +491,9 @@ const MessagePage = () => {
                                 <Text type="secondary" className="mb-6 block">
                                     Choose an existing conversation or start a new one
                                 </Text>
-                                <Button 
-                                    type="primary" 
-                                    icon={<PlusOutlined />} 
+                                <Button
+                                    type="primary"
+                                    icon={<PlusOutlined />}
                                     onClick={showModal}
                                     size="large"
                                 >
@@ -524,13 +522,14 @@ const MessagePage = () => {
                 <Select
                     showSearch
                     placeholder="Search by name or email..."
-                    style={{ width: '100%' }}
+                    style={{ width: '100%', height: '55px', overflow: 'auto' }}
                     value={selectedUser ? selectedUser._id : undefined}
                     onSearch={setUserSearchInput}
-                    onChange={handleUserSelect}
+                    onChange={(value, option) => handleUserSelect(value, option)} // Modification ici
                     filterOption={false}
                     loading={isSearching}
                     size="large"
+                    optionLabelProp="label"
                     notFoundContent={
                         userSearchInput ? (
                             <div className="p-2 text-center">
@@ -545,7 +544,12 @@ const MessagePage = () => {
                     }
                 >
                     {searchResults?.data?.map((user: any) => (
-                        <Option key={user._id} value={user._id} user={user}>
+                        <Option
+                            key={user._id}
+                            value={user._id}
+                            user={user}
+                            label={user.name} // Ajout pour une meilleure visibilité
+                        >
                             <div className="flex items-center py-1">
                                 <Avatar src={user.picture} size="small" className="mr-3" />
                                 <div>
