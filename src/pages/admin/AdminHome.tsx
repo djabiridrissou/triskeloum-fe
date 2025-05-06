@@ -29,6 +29,7 @@ interface SearchParams {
 const AdminEducationDashboard = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('students');
+    // @ts-ignore
     const [darkMode, setDarkMode] = useState(() => {
         return localStorage.getItem('theme') === 'dark';
     });
