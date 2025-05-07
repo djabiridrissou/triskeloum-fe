@@ -38,9 +38,9 @@ const Verify: React.FC = () => {
                 confirmButtonText: "Continue",
             }).then(() => {
                 if (userType === "student") {
-                    window.location.href = "/students/dashboard";
+                    window.location.href = "/login";
                 } else {
-                    window.location.href = "/tutors/dashboard";
+                    window.location.href = "/login";
                 }
             })
 
