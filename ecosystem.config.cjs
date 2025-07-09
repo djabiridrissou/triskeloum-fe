@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'vite-preview',
       script: 'npx',
-      args: 'vite preview --port 6162 --host 0.0.0.0',
+      args: 'vite preview --port 2021 --host 0.0.0.0',
       env: {
         NODE_ENV: 'production',
       },
