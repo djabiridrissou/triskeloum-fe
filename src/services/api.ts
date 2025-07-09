@@ -28,212 +28,40 @@ export const api = createApi({
                 url: "/auth/login",
                 method: "POST",
                 body: credentials,
-            }),
+            })
         }),
-
-        tutorLogin: builder.mutation({
-            query: (credentials) => ({
-                url: "/auth/tutor-login",
+        createPayRequest: builder.mutation({
+            query: (data) => ({
+                url: "/registration-fee/create-pay",
                 method: "POST",
-                body: credentials,
+                body: data,
             }),
         }),
-
-        studentRegister: builder.mutation({
-            query: (credentials) => ({
-                url: `/students/write`,
+        validatePayment: builder.mutation({
+            query: (data) => ({
+                url: `/registration-fee/make-payment?feeId=${data.feeId}`,
                 method: "POST",
-                body: credentials,
             }),
         }),
-
-        tutorRegister: builder.mutation({
-            query: (credentials) => ({
-                url: `/tutors/write`,
-                method: "POST",
-                body: credentials
-            }),
-        }),
-
-        verifyStudent: builder.mutation({
-            query: (credentials) => ({
-                url: `/students/verify`,
-                method: "POST",
-                body: credentials
-            }),
-        }),
-
-        verifyTutor: builder.mutation({
-            query: (credentials) => ({
-                url: `/tutors/verify`,
-                method: "POST",
-                body: credentials
-            }),
-        }),
-
         loadUser: builder.query({
             query: () => ({
                 url: "/auth/load-user",
                 method: "GET",
             }),
         }),
-
-        // STUDENTS
-        getStudents: builder.query({
-            query: (params) => ({
-                url: "/students/all",
+        getProducts: builder.query({
+            query: () => ({
+                url: "/product/all",
                 method: "GET",
-                params,
             }),
         }),
-
-        deleteDepartment: builder.mutation({
-            query: (id) => ({
-                url: `/department/delete?id=${id}`,
-                method: "DELETE",
-            }),
-        }),
-
-
-        getTutors: builder.query({
-            query: (params) => ({
-                url: "/tutors/all",
-                method: "GET",
-                params,
-            }),
-        }),
-
-        getAdvertisements: builder.query({
-            query: (params) => ({
-                url: "/advertisements/all",
-                method: "GET",
-                params,
-            }),
-        }),
-
-        getStudentsAdvertisements: builder.query({
-            query: (params) => ({
-                url: "/advertisements/all",
-                method: "GET",
-                params,
-            }),
-        }),
-
-        getDepartments: builder.query({
-            query: (params) => ({
-                url: "/department/all",
-                method: "GET",
-                params,
-            }),
-        }),
-
-        getLevelsByDepartment: builder.query({
-            query: (params) => ({
-                url: "/level/all",
-                method: "GET",
-                params,
-            }),
-        }),
-
-        getClassesByLevel: builder.query({
-            query: (params) => ({
-                url: "/class/all",
-                method: "GET",
-                params,
-            }),
-        }),
-
-        adminLogin: builder.mutation({
-            query: (credentials) => ({
-                url: "/auth/admin/login",
-                method: "POST",
-                body: credentials,
-            }),
-        }),
-
-        getTutor: builder.query({
-            query: (id) => ({
-                url: `/tutors/one`,
-                method: "GET",
-                params: { id }
-            }),
-        }),
-
-        getConversations: builder.query({
-            query: (params) => ({
-                url: `/chat/conversations`,
-                method: "GET",
-                params
-            }),
-        }),
-
-        createOrGetConversation: builder.mutation({
-            query: (params) => ({
-                url: `/chat/conversations`,
-                method: "POST",
-                body: params
-            }),
-        }),
-
-        getMessages: builder.query({
-            query: (params) => ({
-                url: `/chat/conversations/messages`,
-                method: "GET",
-                params
-            }),
-        }),
-
-        sendMessage: builder.mutation({
-            query: (params) => ({
-                url: `/chat/messages/text`,
-                method: "POST",
-                body: params
-            }),
-        }),
-
-        searchUsers: builder.query({
-            query: (params) => ({
-                url: `/user/search`,
-                method: "GET",
-                params
-            }),
-        }),
-        
-        updateTutor: builder.mutation({
-            query: (params) => ({
-                url: `/tutors/update`,
-                method: "PUT",
-                body: params
-            }),
-        }),
-
-
-
     }),
 });
 
 export const {
     useLoginMutation,
-    useGetStudentsQuery,
     useLoadUserQuery,
-    useDeleteDepartmentMutation,
-    useGetTutorsQuery,
-    useGetAdvertisementsQuery,
-    useTutorLoginMutation,
-    useStudentRegisterMutation,
-    useTutorRegisterMutation,
-    useVerifyStudentMutation,
-    useVerifyTutorMutation,
-    useGetStudentsAdvertisementsQuery,
-    useGetDepartmentsQuery,
-    useGetLevelsByDepartmentQuery,
-    useGetClassesByLevelQuery,
-    useAdminLoginMutation,
-    useGetTutorQuery,
-    useGetConversationsQuery,
-    useGetMessagesQuery,
-    useSendMessageMutation,
-    useSearchUsersQuery,
-    useCreateOrGetConversationMutation,
-    useUpdateTutorMutation
+    useGetProductsQuery,
+    useCreatePayRequestMutation,
+    useValidatePaymentMutation,
 } = api;

@@ -1,19 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import './App.css'
-import Home from "./pages/Home";
-import PrivateRoute from "./components/PrivateRoute";
-import Login from "./pages/auth/Login";
-import StudentRegister from "./pages/auth/StudentRegister";
-import Verify from "./pages/auth/ Verify";
-import StudentDashboard from "./pages/StudentDashboard";
 import { Toaster } from "react-hot-toast";
+import Home from "./pages/home/Home";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
+import CreatePayRequest from "./pages/payment/CreatePayRequest";
+import ConfirmPay from "./pages/payment/ConfirmPay";
+import AdminLayout from "./layouts/AdminLayout";
 import AdminHome from "./pages/admin/AdminHome";
-import DiscoverPage from "./pages/pages/Discover";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import TutorPublicProfile from "./pages/pages/TutorPublicProfile";
-import MessagePage from "./pages/MessagePage";
-import TutorDashboard from "./pages/pages/TutorDashboard";
+
 
 const App = () => {
 
@@ -32,24 +27,12 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/discover" element={<div className="bg-black flex flex-col">
-            <Navbar />
-            <DiscoverPage />
-            <Footer />
-          </div>} />
           <Route path="/login" element={<Login />} />
-          <Route path="/portal" element={<StudentRegister />} />
-          <Route path="/verify" element={<Verify />} />
-          <Route path="/tutors-profile/:id" element={<div className="bg-black flex flex-col">
-            <Navbar />
-            <TutorPublicProfile />
-            <Footer />
-          </div>} />
-          <Route element={<PrivateRoute />}>
-            <Route path="/students/dashboard" element={<StudentDashboard />} />
-            <Route path="/messages" element={<MessagePage />} />
-            <Route path="/tutors/dashboard" element={<TutorDashboard />} />
-            <Route path="/admin/dashboard" element={<AdminHome />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/fees" element={<CreatePayRequest />} />
+          <Route path="/confirm-pay" element={<ConfirmPay />} />
+          <Route element={<AdminLayout />}>
+            <Route path="/admin/home" element={<AdminHome />} />
           </Route>
         </Routes>
       </Router>
