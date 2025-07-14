@@ -156,6 +156,8 @@ const Login = () => {
                 navigate('/admin/home');
             }
 
+            // Redirigez vers la page appropriée en fonction du rôle
+
         } catch (error: any) {
             console.error('Login error:', error);
             Swal.fire({
