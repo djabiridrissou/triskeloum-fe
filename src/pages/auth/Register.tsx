@@ -210,7 +210,7 @@ const Register = () => {
         switch (type) {
             case 'fournisseur-national': return 'Fournisseur National (50.000 FCFA)';
             case 'fournisseur-international': return 'Fournisseur International (100.000 FCFA)';
-            case 'revendeur': return 'Revendeur/Distributeur (20.000 FCFA)';
+            case 'revendeur': return 'Vendeur (20.000 FCFA)';
             default: return 'Sélectionnez votre type';
         }
     };
@@ -1030,7 +1030,7 @@ const Register = () => {
                                 >
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <h4 className="font-semibold text-gray-900">Revendeur/Distributeur</h4>
+                                            <h4 className="font-semibold text-gray-900">Vendeur</h4>
                                             <p className="text-sm text-gray-600">Pour les revendeurs et distributeurs</p>
                                         </div>
                                         <div className="text-blue-600 font-bold">20.000 FCFA</div>

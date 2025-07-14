@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import './App.css'
 import { Toaster } from "react-hot-toast";
 import Home from "./pages/home/Home";
@@ -8,19 +8,22 @@ import CreatePayRequest from "./pages/payment/CreatePayRequest";
 import ConfirmPay from "./pages/payment/ConfirmPay";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminHome from "./pages/admin/AdminHome";
-
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminBuyers from "./pages/admin/AdminBuyers";
+import AdminSellers from "./pages/admin/AdminSellers";
+import SupplierLayout from "./layouts/SellerLayout";
+import SupplierHome from "./pages/supplier/SupplierCatalogue";
 
 const App = () => {
-
   return (
     <div>
       <Toaster toastOptions={{
-        duration: 4000, // spd4
+        duration: 4000,
         success: {
-          duration: 2000, // sds 5
+          duration: 2000,
         },
         error: {
-          duration: 500, // 8sde
+          duration: 500,
         }
       }}
         position="top-right" />
@@ -31,9 +34,29 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/fees" element={<CreatePayRequest />} />
           <Route path="/confirm-pay" element={<ConfirmPay />} />
-          <Route element={<AdminLayout />}>
-            <Route path="/admin/home" element={<AdminHome />} />
+
+          {/* Routes protégées pour les admins */}
+          <Route element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }>
+           <Route path="/admin/home" element={<AdminHome />} />
+           <Route path="/admin/buyers" element={<AdminBuyers />} />
+           <Route path="/admin/sellers" element={<AdminSellers />} />
           </Route>
+          {/* Routes protégées pour les admins */}
+
+          {}
+          <Route element={
+            <ProtectedRoute allowedRoles={['supplier']}>
+              <SupplierLayout />
+            </ProtectedRoute>
+          }>
+           <Route path="/supplier/catalogue" element={<SupplierHome />} />
+    
+          </Route>
+          {}
         </Routes>
       </Router>
     </div>

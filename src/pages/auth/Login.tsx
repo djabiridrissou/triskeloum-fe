@@ -95,10 +95,10 @@ const Login = () => {
 
                     case 402:
                         const details = error?.data?.error?.details || {};
-                        localStorage.setItem('ressource', JSON.stringify(details.ressource || ''));
-                        localStorage.setItem('userId', JSON.stringify(details.userId || ''));
-                        localStorage.setItem('currency', JSON.stringify(details.currency || ''));
-                        localStorage.setItem('feeAmount', JSON.stringify(details.amount || ''));
+                        localStorage.setItem('ressource', details.ressource || '');
+                        localStorage.setItem('userId', details.userId || '');
+                        localStorage.setItem('currency', details.currency || '');
+                        localStorage.setItem('feeAmount', details.amount || '');
                         Swal.fire({
                             icon: 'warning',
                             title: 'Paiement requis',
@@ -140,20 +140,20 @@ const Login = () => {
             const userRole = response.data.isBuyer
                 ? 'buyer'
                 : response.data.isRepresentative
-                    ? 'seller'
+                    ? 'supplier'
                     : 'admin';
 
             localStorage.setItem('userEmail', JSON.stringify(response.data.email));
             localStorage.setItem('userId', JSON.stringify(response.data._id));
             localStorage.setItem('userName', JSON.stringify(response.data.socialReason || response.data.name));
-            localStorage.setItem('userRole', JSON.stringify(userRole));
+            localStorage.setItem('userRole', userRole);
 
             if (userRole === 'buyer') {
-                navigate('/buyer/dashboard');
-            } else if (userRole === 'seller') {
-                navigate('/seller/dashboard');
+                navigate('/buyer/home');
+            } else if (userRole === 'supplier') {
+                navigate('/supplier/catalogue');
             } else {
-                navigate('/admin/dashboard');
+                navigate('/admin/home');
             }
 
         } catch (error: any) {

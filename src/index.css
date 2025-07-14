@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+@layer utilities {
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+}
+
 :root {
   /* Couleurs de base */
   --color-primary: #2563eb;

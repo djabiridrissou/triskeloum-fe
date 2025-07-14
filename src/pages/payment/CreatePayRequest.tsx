@@ -19,10 +19,10 @@ const CreatePayRequest = () => {
     const [createPayRequest, { isLoading }] = useCreatePayRequestMutation();
     const navigate = useNavigate();
 
-    const ressource = JSON.parse(localStorage.getItem('ressource') || '""');
-    const userId = JSON.parse(localStorage.getItem('userId') || '""');
-    const currency = JSON.parse(localStorage.getItem('currency') || '"XOF"');
-    const amount = JSON.parse(localStorage.getItem('feeAmount') || '0');
+    const ressource = localStorage.getItem('ressource') || "";
+    const userId = localStorage.getItem('userId') || "";
+    const currency = localStorage.getItem('currency') || "XOF";
+    const amount = localStorage.getItem('feeAmount') || '0';
 
     const paymentMethods: PaymentMethod[] = [
         {

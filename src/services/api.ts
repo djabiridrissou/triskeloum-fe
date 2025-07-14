@@ -12,7 +12,7 @@ const baseQuery = fetchBaseQuery({
 const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
     let result = await baseQuery(args, api, extraOptions);
 
-    if (result.error?.status === 401) {
+    if (result.error?.status === 401 && window.location.pathname !== "/login") {
         window.location.href = "/login";
     }
 
@@ -30,6 +30,9 @@ export const api = createApi({
                 body: credentials,
             })
         }),
+        loadUser: builder.query({
+            query: () => '/auth/load-user',
+        }),
         createPayRequest: builder.mutation({
             query: (data) => ({
                 url: "/registration-fee/create-pay",
@@ -43,18 +46,91 @@ export const api = createApi({
                 method: "POST",
             }),
         }),
-        loadUser: builder.query({
-            query: () => ({
-                url: "/auth/load-user",
+        getBuyers: builder.query({
+            query: ({
+                page = 1,
+                limit = 10,
+                searchQuery = "",
+                sortField = "createdAt",
+                sortOrder = "desc"
+            }) => ({
+                url: "/buyer/all",
                 method: "GET",
+                params: {
+                    page,
+                    limit,
+                    searchQuery,
+                    sortField,
+                    sortOrder,
+                },
+            }),
+        }),
+        getBuyer: builder.query({
+            query: (id) => ({
+                url: `/buyer/one`,
+                method: "GET",
+                params: { id }
+            }),
+        }),
+        updateCanLogin: builder.mutation({
+            query: (data) => ({
+                url: "/user/update",
+                method: "POST",
+                body: data,
+            }),
+        }),
+        getSellers: builder.query({
+            query: ({
+                page = 1,
+                limit = 10,
+                searchQuery = "",
+                sortField = "createdAt",
+                sortOrder = "desc"
+            }) => ({
+                url: "/supplier/all",
+                method: "GET",
+                params: {
+                    page,
+                    limit,
+                    searchQuery,
+                    sortField,
+                    sortOrder,
+                },
+            }),
+        }),
+        getSeller: builder.query({
+            query: (id) => ({
+                url: `/supplier/one`,
+                method: "GET",
+                params: { id }
             }),
         }),
         getProducts: builder.query({
-            query: () => ({
+            query: ({
+                page = 1,
+                limit = 10,
+                searchQuery = "",
+                sortField = "createdAt",
+                sortOrder = "desc"
+            }) => ({
                 url: "/product/all",
                 method: "GET",
+                params: {
+                    page,
+                    limit,
+                    searchQuery,
+                    sortField,
+                    sortOrder,
+                },
             }),
         }),
+        createProduct: builder.mutation({
+            query: (formData) => ({
+              url: 'products',
+              method: 'POST',
+              body: formData,
+            }),
+          })
     }),
 });
 
@@ -64,4 +140,10 @@ export const {
     useGetProductsQuery,
     useCreatePayRequestMutation,
     useValidatePaymentMutation,
+    useGetBuyersQuery,
+    useGetBuyerQuery,
+    useUpdateCanLoginMutation,
+    useGetSellersQuery,
+    useGetSellerQuery,
+    useCreateProductMutation
 } = api;
