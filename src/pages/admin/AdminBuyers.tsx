@@ -63,7 +63,7 @@ const AdminBuyers = () => {
 
     if (error) {
         return <div className="flex items-center justify-center h-screen">
-            <div className="text-red-500">Erreur lors du chargement des acheteurs</div>
+            <div className="text-red-500">Erreur lors du chargement des revendeurs</div>
         </div>;
     }
 
@@ -253,7 +253,7 @@ const AdminBuyers = () => {
                             ) : (
                                 <tr>
                                     <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
-                                        Aucun acheteur trouvé
+                                        Aucun revendeur trouvé
                                     </td>
                                 </tr>
                             )}

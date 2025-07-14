@@ -123,7 +123,7 @@ const Navbar: React.FC = () => {
                 </div>
 
                 {/* Barre d'informations défilantes */}
-                <div className="bg-gray-300 border-t border-gray-200 py-2 overflow-hidden">
+               {/*  <div className="bg-gray-300 border-t border-gray-200 py-2 overflow-hidden">
                     <div className="flex animate-marquee whitespace-nowrap">
                         <span className="mx-4 text-sm text-gray-700">💳 <strong>Moyens de paiement:</strong> Mixx by Yas: 90291421</span>
                         <span className="mx-4 text-sm text-gray-700">💳 Flooz: 98042314</span>
@@ -135,7 +135,7 @@ const Navbar: React.FC = () => {
                         <span className="mx-4 text-sm text-gray-700">⚡ <strong>Frais de transfert:</strong> Mobile Money: 1-3%</span>
                         <span className="mx-4 text-sm text-gray-700">🎯 <strong>Terminal d'Échanges:</strong> Plateforme B2B sécurisée</span>
 
-                        {/* Répétition pour un défilement continu */}
+      
                         <span className="mx-4 text-sm text-gray-700">💳 <strong>Moyens de paiement:</strong> Mixx by Yas: 90291421</span>
                         <span className="mx-4 text-sm text-gray-700">💳 Flooz: 98042314</span>
                         <span className="mx-4 text-sm text-gray-700">🏦 NSIA Banque: 260081527014</span>
@@ -146,7 +146,7 @@ const Navbar: React.FC = () => {
                         <span className="mx-4 text-sm text-gray-700">⚡ <strong>Frais de transfert:</strong> Mobile Money: 1-3%</span>
                         <span className="mx-4 text-sm text-gray-700">🎯 <strong>Terminal d'Échanges:</strong> Plateforme B2B sécurisée</span>
                     </div>
-                </div>
+                </div> */}
             </nav>
 
             {/* Menu mobile drawer */}

@@ -244,7 +244,7 @@ const AdminSellers = () => {
                             ) : (
                                 <tr>
                                     <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
-                                        Aucun acheteur trouvé
+                                        Aucun fournisseur trouvé
                                     </td>
                                 </tr>
                             )}

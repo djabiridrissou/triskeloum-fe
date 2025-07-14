@@ -126,11 +126,17 @@ export const api = createApi({
         }),
         createProduct: builder.mutation({
             query: (formData) => ({
-              url: 'products',
-              method: 'POST',
-              body: formData,
+                url: 'products',
+                method: 'POST',
+                body: formData,
             }),
-          })
+        }),
+        getDashboardData: builder.query({
+            query: () => ({
+                url: '/admin/dashboard',
+                method: 'GET',
+            }),
+        }),
     }),
 });
 
@@ -145,5 +151,6 @@ export const {
     useUpdateCanLoginMutation,
     useGetSellersQuery,
     useGetSellerQuery,
-    useCreateProductMutation
+    useCreateProductMutation,
+    useGetDashboardDataQuery
 } = api;
