@@ -19,6 +19,7 @@ import AdminHomologation from "./pages/admin/AdminHomologation";
 import BuyerLayout from "./layouts/BuyerLayout";
 import BuyerHome from "./pages/buyer/BuyerHome";
 import { CartProvider } from "./contexts/CartContext";
+import UnderConstruction from "./pages/UnderConstruction";
 
 const App = () => {
   return (
@@ -79,6 +80,7 @@ const App = () => {
             { }
             <Route path="/logout" element={<Logout />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="*" element={<UnderConstruction />} />
           </Routes>
         </CartProvider>
       </Router>
