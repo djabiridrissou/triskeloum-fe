@@ -3,7 +3,7 @@ import { FiSearch, FiChevronLeft, FiChevronRight, FiFilter, FiX } from "react-ic
 import { useGetProductsQuery } from "../../services/api";
 import ProductCardPremium from "../../components/ProductCardPremium";
 import Loading from "../../components/Loading";
-import { useCartContext } from "../../components/Navbar";
+
 
 const BuyerHome = () => {
     // State pour la pagination et la recherche
