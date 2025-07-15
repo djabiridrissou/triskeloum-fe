@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FiPlus, FiSearch, FiChevronLeft, FiChevronRight, FiEdit2, FiTrash2, FiImage } from "react-icons/fi";
-import { useGetProductsQuery, useCreateProductMutation } from "../../services/api";
+import { useGetProductsQuery, useCreateProductMutation, useAddBatchMutation, useGetBatchesQuery } from "../../services/api";
 import Loading from "../../components/Loading";
 import Modal from "../../components/Modal";
 import Swal from "sweetalert2";
@@ -49,6 +49,14 @@ const SupplierCatalogue = () => {
     const [sortField, setSortField] = useState("createdAt");
     const [sortOrder, setSortOrder] = useState("desc");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
+    const [isViewBatchesModalOpen, setIsViewBatchesModalOpen] = useState(false);
+    const [addBatch] = useAddBatchMutation();
+    const { data: batchesResponse, isLoading: isLoadingBatches, refetch: refetchBatches } = useGetBatchesQuery(
+        { productId: selectedProduct?._id || '' },
+        { skip: !selectedProduct?._id }
+    );
 
     const { data: response, isLoading, error, refetch } = useGetProductsQuery({
         page,
@@ -57,6 +65,66 @@ const SupplierCatalogue = () => {
         sortField,
         sortOrder
     });
+
+    const batchSchema = yup.object().shape({
+        quantity: yup.number().positive("La quantité doit être positive").required("La quantité est requise"),
+        unitPrice: yup.number().positive("Le prix doit être positif").required("Le prix unitaire est requis"),
+    });
+
+    const { control: batchControl, handleSubmit: handleBatchSubmit, reset: resetBatch } = useForm({
+        resolver: yupResolver(batchSchema),
+        defaultValues: {
+            quantity: 0,
+            unitPrice: 0,
+        }
+    });
+
+    const onSubmitBatch = async (data: any) => {
+        if (!selectedProduct) return;
+
+        try {
+            await addBatch({
+                productId: selectedProduct._id,
+                quantity: data.quantity,
+                unitPrice: data.unitPrice,
+            }).unwrap();
+
+            Swal.fire({
+                title: 'Succès!',
+                text: 'Lot ajouté avec succès',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+
+            setIsBatchModalOpen(false);
+            resetBatch();
+
+            // Rafraîchir les produits
+            await refetch();
+
+            // Rafraîchir les lots pour le produit sélectionné
+            if (selectedProduct._id) {
+                await refetchBatches();
+            }
+        } catch (error: any) {
+            Swal.fire({
+                title: 'Erreur',
+                text: error.data?.message || "Une erreur est survenue",
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    }
+
+    const handleAddBatchClick = (product: Product) => {
+        setSelectedProduct(product);
+        setIsBatchModalOpen(true);
+    };
+
+    const handleViewBatchesClick = (product: Product) => {
+        setSelectedProduct(product);
+        setIsViewBatchesModalOpen(true);
+    };
 
     const { control, handleSubmit, reset, formState: { errors }, setValue }: any = useForm<any>({
         resolver: yupResolver(productSchema),
@@ -146,7 +214,7 @@ const SupplierCatalogue = () => {
     const products = response?.data || [];
     const pagination = response?.pagination;
     let imgBaseUrl = import.meta.env.VITE_BASE_WITHOUT_ORIGIN;
-    console.log("Image URL:", `${imgBaseUrl}${products[0].images[0]}`);
+    console.log("Batches ", batchesResponse)
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -270,7 +338,7 @@ const SupplierCatalogue = () => {
                                             <div className="text-sm text-gray-900">{product.brand}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900">
+                                            <div className="text-sm font-medium text-gray-900">
                                                 {product.batchStats?.totalActualQty} {product.unitOfMeasure}
                                             </div>
                                             {product.batchStats?.lossQty > 0 && (
@@ -278,13 +346,27 @@ const SupplierCatalogue = () => {
                                                     Perte: {product.batchStats?.lossQty} ({product.batchStats.lossPercentage}%)
                                                 </div>
                                             )}
+                                            <div className="flex space-x-2 mt-1">
+                                                <button
+                                                    onClick={() => handleAddBatchClick(product)}
+                                                    className="text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded"
+                                                >
+                                                    + Lot
+                                                </button>
+                                                <button
+                                                    onClick={() => handleViewBatchesClick(product)}
+                                                    className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
+                                                >
+                                                    Voir lots
+                                                </button>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-medium text-gray-900">
-                                                {product.batchStats?.avgUnitPrice.toFixed(2)} XOF
+                                                {product.batchStats?.avgUnitPrice?.toFixed(2)} XOF
                                             </div>
                                             <div className="text-xs text-gray-500">
-                                                Total: {product.batchStats?.totalValue.toFixed(2)} XOF
+                                                Total: {product.batchStats?.totalValue?.toFixed(2)} XOF
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -546,6 +628,128 @@ const SupplierCatalogue = () => {
                         </button>
                     </div>
                 </form>
+            </Modal>
+
+            {/* Modal pour ajouter un lot */}
+            <Modal
+                isOpen={isBatchModalOpen}
+                onClose={() => {
+                    setIsBatchModalOpen(false);
+                    resetBatch();
+                }}
+                title={`Ajouter un lot - ${selectedProduct?.name || ''}`}
+            >
+                <form onSubmit={handleBatchSubmit(onSubmitBatch)} className="space-y-4">
+                    <div className="grid grid-cols-1 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Quantité*</label>
+                            <Controller
+                                name="quantity"
+                                control={batchControl}
+                                render={({ field }) => (
+                                    <input
+                                        {...field}
+                                        type="number"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                        placeholder="Quantité"
+                                        min="1"
+                                    />
+                                )}
+                            />
+                            {errors.quantity && <p className="mt-1 text-sm text-red-600">{errors.quantity.message}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Prix unitaire (XOF)*</label>
+                            <Controller
+                                name="unitPrice"
+                                control={batchControl}
+                                render={({ field }) => (
+                                    <input
+                                        {...field}
+                                        type="number"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                        placeholder="0.00"
+                                        step="0.01"
+                                        min="0"
+                                    />
+                                )}
+                            />
+                            {errors.unitPrice && <p className="mt-1 text-sm text-red-600">{errors.unitPrice.message}</p>}
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end space-x-3 pt-4">
+                        <button
+                            type="button"
+                            onClick={() => setIsBatchModalOpen(false)}
+                            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition"
+                        >
+                            Annuler
+                        </button>
+                        <button
+                            type="submit"
+                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                        >
+                            Ajouter le lot
+                        </button>
+                    </div>
+                </form>
+            </Modal>
+
+            {/* Modal pour voir les lots */}
+            <Modal
+                isOpen={isViewBatchesModalOpen}
+                onClose={() => setIsViewBatchesModalOpen(false)}
+                title={`Lots - ${selectedProduct?.name || ''}`}
+                size="lg"
+            >
+                {isLoadingBatches ? (
+                    <Loading />
+                ) : (
+                    <div className="space-y-4">
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N° Lot</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qté Initiale</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qté Actuelle</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix Unitaire</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {batchesResponse?.data?.length ? (
+                                        batchesResponse.data.map((batch: any) => (
+                                            <tr key={batch._id}>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{batch._id}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{batch.initQty}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{batch.actualQty}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{batch.unitPrice?.toFixed(2)} XOF</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${batch.isEvaluated ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                                        {batch.isEvaluated ? 'Évalué' : 'Non évalué'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {new Date(batch.createdAt).toLocaleDateString()}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                                                Aucun lot trouvé pour ce produit
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
             </Modal>
         </div>
     );

@@ -1,25 +1,38 @@
+import { useEffect } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useLoadUserQuery } from "../services/api";
-import { useEffect } from "react";
 import Loading from "./Loading";
 
 const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode, allowedRoles: string[] }) => {
-  const { data: response, isLoading, error } = useLoadUserQuery({});
+  const { data: response, isLoading, error, refetch } = useLoadUserQuery({});
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isLoading) {
-      if (error || !response?.user) {
-        navigate('/login');
-        return;
-      }
+    const currentUserId = localStorage.getItem('userId');
+    const currentUserRole = localStorage.getItem('userRole');
+    
+    if (currentUserId && currentUserRole) {
+      refetch();
+    }
+  }, [refetch]);
 
-      const userRole = response.user.role.name;
+  useEffect(() => {
+    const handleStorageChange = () => {
+      refetch();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [refetch]);
+
+  useEffect(() => {
+    if (!isLoading && response?.user) {
+      const userRole = response.user?.role?.name;
       if (!allowedRoles.includes(userRole)) {
-        navigate('/https://google.com');
+        navigate('/unauthorized');
       }
     }
-  }, [isLoading, error, response, allowedRoles, navigate]);
+  }, [isLoading, response, allowedRoles, navigate]);
 
   if (isLoading) {
     return <Loading />;
@@ -34,7 +47,7 @@ const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode,
     return <Navigate to="/unauthorized" replace />;
   }
 
-  return children;
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;

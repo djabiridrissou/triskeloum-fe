@@ -13,6 +13,7 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
     let result = await baseQuery(args, api, extraOptions);
 
     if (result.error?.status === 401 && window.location.pathname !== "/login") {
+        localStorage.clear();
         window.location.href = "/login";
     }
 
@@ -22,16 +23,26 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
 export const api = createApi({
     reducerPath: "api",
     baseQuery: baseQueryWithReauth,
+    tagTypes: ['User', 'Buyer', 'Supplier', 'Product', 'Batch'],
     endpoints: (builder) => ({
         login: builder.mutation({
             query: (credentials) => ({
                 url: "/auth/login",
                 method: "POST",
                 body: credentials,
-            })
+            }),
+            invalidatesTags: ['User'], // Invalidate user cache on login
+        }),
+        logout: builder.mutation({
+            query: () => ({
+                url: "/auth/logout",
+                method: "POST",
+            }),
+            invalidatesTags: ['User', 'Buyer', 'Supplier', 'Product', 'Batch'], // Clear all cache on logout
         }),
         loadUser: builder.query({
             query: () => '/auth/load-user',
+            providesTags: ['User'], // Provide user cache tag
         }),
         createPayRequest: builder.mutation({
             query: (data) => ({
@@ -64,6 +75,7 @@ export const api = createApi({
                     sortOrder,
                 },
             }),
+            providesTags: ['Buyer'],
         }),
         getBuyer: builder.query({
             query: (id) => ({
@@ -71,6 +83,7 @@ export const api = createApi({
                 method: "GET",
                 params: { id }
             }),
+            providesTags: (result, error, id) => [{ type: 'Buyer', id }],
         }),
         updateCanLogin: builder.mutation({
             query: (data) => ({
@@ -78,6 +91,7 @@ export const api = createApi({
                 method: "POST",
                 body: data,
             }),
+            invalidatesTags: ['User', 'Buyer', 'Supplier'],
         }),
         getSellers: builder.query({
             query: ({
@@ -97,6 +111,7 @@ export const api = createApi({
                     sortOrder,
                 },
             }),
+            providesTags: ['Supplier'],
         }),
         getSeller: builder.query({
             query: (id) => ({
@@ -104,6 +119,7 @@ export const api = createApi({
                 method: "GET",
                 params: { id }
             }),
+            providesTags: (result, error, id) => [{ type: 'Supplier', id }],
         }),
         getProducts: builder.query({
             query: ({
@@ -123,6 +139,7 @@ export const api = createApi({
                     sortOrder,
                 },
             }),
+            providesTags: ['Product'],
         }),
         createProduct: builder.mutation({
             query: (formData) => ({
@@ -130,12 +147,46 @@ export const api = createApi({
                 method: 'POST',
                 body: formData,
             }),
+            invalidatesTags: ['Product'],
         }),
         getDashboardData: builder.query({
             query: () => ({
                 url: '/admin/dashboard',
                 method: 'GET',
             }),
+            providesTags: ['User', 'Buyer', 'Supplier', 'Product'],
+        }),
+        addBatch: builder.mutation({
+            query: (body) => ({
+                url: '/product/add-batch',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['Batch', 'Product'],
+        }),
+        getBatches: builder.query({
+            query: (params) => ({
+                url: '/product/list-batch',
+                method: 'GET',
+                params,
+            }),
+            providesTags: ['Batch'],
+        }),
+        getEvaluatedBatches: builder.query({
+            query: (params) => ({
+                url: '/product/evaluated-batch',
+                method: 'GET',
+                params,
+            }),
+            providesTags: ['Batch'],
+        }),
+        makeEvaluation: builder.mutation({
+            query: (body) => ({
+                url: '/evaluation/create',
+                method: 'POST',
+                body,
+            }),
+            invalidatesTags: ['Batch', 'Product'],
         }),
     }),
 });
@@ -152,5 +203,10 @@ export const {
     useGetSellersQuery,
     useGetSellerQuery,
     useCreateProductMutation,
-    useGetDashboardDataQuery
+    useGetDashboardDataQuery,
+    useAddBatchMutation,
+    useGetBatchesQuery,
+    useLogoutMutation,
+    useGetEvaluatedBatchesQuery,
+    useMakeEvaluationMutation,
 } = api;

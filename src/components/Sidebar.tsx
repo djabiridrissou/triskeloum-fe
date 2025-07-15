@@ -8,6 +8,8 @@ import {
   MenuUnfoldOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { FcSalesPerformance } from "react-icons/fc";
+import { IoPricetag } from "react-icons/io5";
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -32,10 +34,6 @@ const Sidebar = () => {
     setCollapsed(!collapsed);
   };
 
-  // Remplacez votre fonction getMenuItems par cette version corrigée :
-
-  // Remplacez votre fonction getMenuItems par cette version corrigée :
-
   const getMenuItems = () => {
     const commonItems = [
       {
@@ -46,11 +44,7 @@ const Sidebar = () => {
       },
     ];
 
-    // Nettoyage du userRole pour éviter les problèmes d'espaces et de guillemets
     const cleanUserRole = userRole?.trim().replace(/"/g, '').toLowerCase();
-
-    console.log('User Role 2:', userRole);
-    console.log('Clean User Role:', cleanUserRole); // Ajout pour déboguer
 
     if (cleanUserRole === 'admin') {
       return [
@@ -72,6 +66,12 @@ const Sidebar = () => {
           label: 'Fournisseurs',
           path: '/admin/sellers',
         },
+        {
+          key: '4',
+          icon: <IoPricetag />,
+          label: 'Homologation',
+          path: '/admin/homologation',
+        },
       ];
     } else if (cleanUserRole === 'supplier') {
       return [
@@ -83,25 +83,24 @@ const Sidebar = () => {
         },
         {
           key: '5',
-          icon: <UserOutlined />,
-          label: 'Mes Commandes',
-          path: '/seller/commandes',
+          icon: <FcSalesPerformance color='black' />,
+          label: 'Mes Ventes',
+          path: '/seller/sales',
         },
       ];
     } else { // buyer
       return [
-        ...commonItems,
         {
-          key: '6',
-          icon: <ShopOutlined />,
+          key: '8',
+          icon: <UserOutlined />,
           label: 'Catalogue',
-          path: '/buyer/catalogue',
+          path: '/buyer/home',
         },
         {
           key: '7',
           icon: <UserOutlined />,
           label: 'Mes Achats',
-          path: '/buyer/achats',
+          path: '/buyer/orders',
         },
       ];
     }
@@ -155,7 +154,7 @@ const Sidebar = () => {
         </div>
 
         {/* Bouton collapse intégré à la sidebar */}
-        <Button
+       {/*  <Button
           type="text"
           icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           onClick={toggleCollapsed}
@@ -168,7 +167,7 @@ const Sidebar = () => {
             alignItems: 'center',
             justifyContent: 'center',
           }}
-        />
+        /> */}
       </div>
 
       {/* Menu scrollable */}

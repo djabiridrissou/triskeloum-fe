@@ -5,9 +5,10 @@ interface ModalProps {
   onClose: () => void;
   children: React.ReactNode;
   title?: string;
+  size?: 'default' | 'lg'; // Ajout de la prop size
 }
 
-const Modal = ({ isOpen, onClose, children, title }: ModalProps) => {
+const Modal = ({ isOpen, onClose, children, title, size = 'default' }: ModalProps) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -22,8 +23,13 @@ const Modal = ({ isOpen, onClose, children, title }: ModalProps) => {
 
   if (!isOpen) return null;
 
+  // Déterminer la classe CSS en fonction de la taille
+  const modalSizeClass = size === 'lg' 
+    ? 'sm:max-w-4xl sm:w-full' 
+    : 'sm:max-w-lg sm:w-full';
+
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-50 overflow-y-auto mt-16">
       <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         {/* Background overlay */}
         <div 
@@ -35,7 +41,7 @@ const Modal = ({ isOpen, onClose, children, title }: ModalProps) => {
         </div>
 
         {/* Modal container */}
-        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+        <div className={`inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle ${modalSizeClass}`}>
           {/* Header */}
           <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             <button

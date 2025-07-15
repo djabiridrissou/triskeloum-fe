@@ -14,7 +14,7 @@ const ActorTypesSection = () => {
                 "Certification internationale"
             ],
             color: "from-orange-400 to-red-500",
-            popular: true
+            popular: true,
         },
         {
             type: "Fournisseurs Nationaux",

@@ -3,9 +3,10 @@ import { useState, useEffect, JSX } from "react";
 import { Button, Input, Card, Form, Checkbox, Divider } from "antd";
 import { MailOutlined, LockOutlined, UserOutlined } from "@ant-design/icons";
 import { ChevronLeft, ChevronRight, Users, TrendingUp, Shield, Globe } from "lucide-react";
-import { useLoginMutation } from "../../services/api";
+import { api, useLoginMutation } from "../../services/api";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 interface Slide {
     image: string;
@@ -18,7 +19,21 @@ const Login = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [login, { isLoading }] = useLoginMutation();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
+    // Nettoyer le localStorage seulement au montage du composant
+    useEffect(() => {
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('currency');
+        localStorage.removeItem('ressource');
+        localStorage.removeItem('feeAmount');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('userRole');
+        
+        // Invalidate all cached queries
+        dispatch(api.util.invalidateTags(['User']));
+    }, [dispatch]);
     const slides: Slide[] = [
         {
             image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
@@ -51,7 +66,7 @@ const Login = () => {
             setCurrentSlide((prev) => (prev + 1) % slides.length);
         }, 5000);
         return () => clearInterval(interval);
-    }, []);
+    }, [slides.length]);
 
     const nextSlide = () => {
         setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -128,35 +143,47 @@ const Login = () => {
 
             // Cas de succès
             const response = result.data;
+            console.log('Login successful:', response); // Debug
 
-            Swal.fire({
-                icon: 'success',
-                title: 'Connexion réussie',
-                text: response.message || 'Vous êtes connecté avec succès.',
-                timer: 3000,
-                showConfirmButton: false,
-            });
-
+            dispatch(api.util.invalidateTags(['User']));
             const userRole = response.data.isBuyer
                 ? 'buyer'
                 : response.data.isRepresentative
                     ? 'supplier'
                     : 'admin';
 
-            localStorage.setItem('userEmail', JSON.stringify(response.data.email));
-            localStorage.setItem('userId', JSON.stringify(response.data._id));
-            localStorage.setItem('userName', JSON.stringify(response.data.socialReason || response.data.name));
+            // Stocker les données utilisateur dans le localStorage (sans JSON.stringify pour les strings simples)
+            localStorage.setItem('userEmail', response.data.email);
+            localStorage.setItem('userId', response.data._id);
+            localStorage.setItem('userName', response.data.socialReason || response.data.name);
             localStorage.setItem('userRole', userRole);
 
-            if (userRole === 'buyer') {
-                navigate('/buyer/home');
-            } else if (userRole === 'supplier') {
-                navigate('/supplier/catalogue');
-            } else {
-                navigate('/admin/home');
-            }
+            console.log('Data stored in localStorage:', {
+                userEmail: localStorage.getItem('userEmail'),
+                userId: localStorage.getItem('userId'),
+                userName: localStorage.getItem('userName'),
+                userRole: localStorage.getItem('userRole')
+            }); // Debug
 
-            // Redirigez vers la page appropriée en fonction du rôle
+            // Afficher le message de succès
+            Swal.fire({
+                icon: 'success',
+                title: 'Connexion réussie',
+                text: response.message || 'Vous êtes connecté avec succès.',
+                timer: 2000,
+                showConfirmButton: false,
+            });
+
+           console.log('Navigating to user dashboard: ', userRole); // Debug
+            setTimeout(() => {
+                if (userRole === 'buyer') {
+                    navigate('/buyer/home');
+                } else if (userRole === 'supplier') {
+                    navigate('/supplier/catalogue');
+                } else {
+                    navigate('/admin/home');
+                }
+            }, 100);
 
         } catch (error: any) {
             console.error('Login error:', error);

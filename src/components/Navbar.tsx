@@ -4,15 +4,42 @@ import {
     ShopOutlined,
     TeamOutlined,
     FileTextOutlined,
+    UserOutlined,
+    LogoutOutlined,
+    DeleteOutlined,
+    PlusOutlined,
+    MinusOutlined,
 } from '@ant-design/icons';
-import { Badge, Drawer } from 'antd';
+import { Badge, Drawer, Button, Avatar, Dropdown, Empty, InputNumber } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import type { MenuProps } from 'antd';
+import { useCartContext } from '../contexts/CartContext';
+ // Import from your new CartContext
+
+interface User {
+    id: string;
+    name: string;
+    raisonSociale: string;
+    role: 'buyer' | 'supplier' | 'admin';
+    email: string;
+    picture?: string;
+}
 
 const Navbar: React.FC = () => {
-    const [user, setUser] = useState<any>(null);
-    const [cartCount, setCartCount] = useState(0);
+    const [user, setUser] = useState<User | null>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
     const navigate = useNavigate();
+    
+    // Use the cart context
+    const {
+        cartItems,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        getTotalPrice,
+        getTotalItems,
+    } = useCartContext();
 
     // Ajouter le CSS d'animation au head
     useEffect(() => {
@@ -29,32 +56,225 @@ const Navbar: React.FC = () => {
         document.head.appendChild(style);
 
         return () => {
-            document.head.removeChild(style);
+            if (document.head.contains(style)) {
+                document.head.removeChild(style);
+            }
         };
     }, []);
 
+    // Vérifier l'état de connexion
     useEffect(() => {
-        // Simulate user data
-        const mockUser = {
-            id: '1',
-            name: 'ABC Commerce SARL',
-            raisonSociale: 'ABC Commerce SARL',
-            role: 'revendeur', // 'fournisseur', 'revendeur', 'admin'
-            email: 'contact@abccommerce.com',
-            picture: null
+        const checkAuthStatus = () => {
+            const userEmail = localStorage.getItem('userEmail');
+            const userId = localStorage.getItem('userId');
+            const userName = localStorage.getItem('userName');
+            const userRole = localStorage.getItem('userRole');
+
+            if (userEmail && userId && userName && userRole) {
+                setUser({
+                    id: userId,
+                    name: userName,
+                    raisonSociale: userName,
+                    role: userRole as 'buyer' | 'supplier' | 'admin',
+                    email: userEmail,
+                });
+            } else {
+                setUser(null);
+            }
         };
-        setUser(mockUser);
 
-        // Simulate cart count
-        setCartCount(3);
+        checkAuthStatus();
+        
+        // Écouter les changements dans localStorage
+        const handleStorageChange = () => {
+            checkAuthStatus();
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
-
-  
 
     const handleNavigation = (path: string) => {
         navigate(path);
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('cart');
+        setUser(null);
+        clearCart();
+        navigate('/login');
+    };
+
+    const formatPrice = (price: number): string => {
+        return new Intl.NumberFormat('fr-FR', {
+            style: 'currency',
+            currency: 'XOF',
+            minimumFractionDigits: 0,
+        }).format(price);
+    };
+
+    // Menu utilisateur connecté
+    const userMenuItems: MenuProps['items'] = [
+        {
+            key: 'profile',
+            label: 'Mon profil',
+            icon: <UserOutlined />,
+            onClick: () => handleNavigation('/profile'),
+        },
+        {
+            key: 'orders',
+            label: 'Mes commandes',
+            icon: <FileTextOutlined />,
+            onClick: () => handleNavigation('/orders'),
+        },
+        {
+            type: 'divider',
+        },
+        {
+            key: 'logout',
+            label: 'Déconnexion',
+            icon: <LogoutOutlined />,
+            onClick: handleLogout,
+        },
+    ];
+
+    // Composant du panier
+    const CartDrawer = () => (
+        <Drawer
+            title={
+                <div className="flex items-center justify-between">
+                    <span>Panier ({getTotalItems()} articles)</span>
+                    {cartItems.length > 0 && (
+                        <Button
+                            type="text"
+                            danger
+                            size="small"
+                            icon={<DeleteOutlined />}
+                            onClick={clearCart}
+                        >
+                            Vider
+                        </Button>
+                    )}
+                </div>
+            }
+            placement="right"
+            onClose={() => setCartDrawerOpen(false)}
+            open={cartDrawerOpen}
+            width={400}
+            footer={
+                cartItems.length > 0 ? (
+                    <div className="space-y-3">
+                        <div className="flex justify-between items-center text-lg font-semibold">
+                            <span>Total:</span>
+                            <span>{formatPrice(getTotalPrice())}</span>
+                        </div>
+                        <div className="flex space-x-2">
+                            <Button
+                                type="default"
+                                size="large"
+                                className="flex-1"
+                                onClick={() => {
+                                    setCartDrawerOpen(false);
+                                    handleNavigation('/cart');
+                                }}
+                            >
+                                Voir le panier
+                            </Button>
+                            <Button
+                                type="primary"
+                                size="large"
+                                className="flex-1"
+                                onClick={() => {
+                                    setCartDrawerOpen(false);
+                                    handleNavigation('/checkout');
+                                }}
+                            >
+                                Commander
+                            </Button>
+                        </div>
+                    </div>
+                ) : null
+            }
+        >
+            {cartItems.length === 0 ? (
+                <Empty
+                    description="Votre panier est vide"
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                />
+            ) : (
+                <div className="space-y-4">
+                    {cartItems.map((item: any) => (
+                        <div key={item.id} className="border rounded-lg p-4">
+                            <div className="flex items-start space-x-3">
+                                <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
+                                    {item.image ? (
+                                        <img
+                                            src={item.image}
+                                            alt={item.name}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <ShopOutlined className="text-gray-400" />
+                                    )}
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="font-medium text-sm">{item.name}</h4>
+                                    <p className="text-xs text-gray-500 mb-2">{item.supplierName}</p>
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-semibold text-blue-600">
+                                            {formatPrice(item.price)}
+                                            {item.unit && <span className="text-gray-500">/{item.unit}</span>}
+                                        </span>
+                                        <div className="flex items-center space-x-2">
+                                            <Button
+                                                type="text"
+                                                size="small"
+                                                icon={<MinusOutlined />}
+                                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                            />
+                                            <InputNumber
+                                                min={1}
+                                                max={item.maxQuantity}
+                                                value={item.quantity}
+                                                onChange={(value) => updateQuantity(item.id, value || 1)}
+                                                size="small"
+                                                className="w-16"
+                                            />
+                                            <Button
+                                                type="text"
+                                                size="small"
+                                                icon={<PlusOutlined />}
+                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                disabled={item.maxQuantity ? item.quantity >= item.maxQuantity : false}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between mt-2">
+                                        <span className="text-xs text-gray-500">
+                                            Sous-total: {formatPrice(item.price * item.quantity)}
+                                        </span>
+                                        <Button
+                                            type="text"
+                                            danger
+                                            size="small"
+                                            icon={<DeleteOutlined />}
+                                            onClick={() => removeFromCart(item.id)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </Drawer>
+    );
+
+    // Menu mobile
     const mobileMenu = (
         <div className="space-y-4">
             <button
@@ -91,7 +311,7 @@ const Navbar: React.FC = () => {
                             onClick={() => handleNavigation('/')}
                             className="cursor-pointer flex items-center space-x-3"
                         >
-                            <div className="w-12 h-12 -to-r  rounded-lg flex items-center justify-center shadow-md">
+                            <div className="w-12 h-12 rounded-lg flex items-center justify-center shadow-md">
                                 <img src="/images/logob.png" alt="Logo" className="w-8 h-8" />
                             </div>
                             <div className="hidden sm:block">
@@ -99,55 +319,53 @@ const Navbar: React.FC = () => {
                                 <p className="text-sm text-gray-500">Plateforme B2B</p>
                             </div>
                         </div>
+
+                        {/* Actions utilisateur */}
                         <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-3">
+                            {/* Panier - Affiché uniquement pour les buyers connectés et non connectés */}
+                            {(!user || user.role === 'buyer') && (
                                 <button
-                                    onClick={() => handleNavigation('/panier')}
+                                    onClick={() => user ? setCartDrawerOpen(true) : navigate('/login')}
                                     className="relative p-2 text-gray-700 hover:text-blue-600 transition-colors rounded-lg hover:bg-gray-50"
+                                    title={user ? 'Ouvrir le panier' : 'Connectez-vous pour voir votre panier'}
                                 >
-                                    <Badge count={cartCount} size="small">
+                                    <Badge count={user ? getTotalItems() : 0} size="small">
                                         <ShoppingCartOutlined className="text-xl" />
                                     </Badge>
                                 </button>
+                            )}
 
-                                <button
-                                    className="px-6 py-2 bg-none text-black rounded-lg font-medium border cursor-pointer"
+                            {/* Utilisateur connecté */}
+                            {user ? (
+                                <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
+                                    <div className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                                        <Avatar
+                                            size="small"
+                                            icon={<UserOutlined />}
+                                            src={user.picture}
+                                        />
+                                        <div className="hidden sm:block">
+                                            <p className="text-sm font-medium text-gray-800">{user.name}</p>
+                                            <p className="text-xs text-gray-500 capitalize">{user.role}</p>
+                                        </div>
+                                    </div>
+                                </Dropdown>
+                            ) : (
+                                /* Bouton de connexion pour utilisateurs non connectés */
+                                <Button
+                                    className="bg-blue-600 text-white hover:bg-blue-700 border-blue-600 hover:border-blue-700"
                                     onClick={() => handleNavigation('/login')}
                                 >
                                     Connexion
-                                </button>
-                            </div>
-
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </div>
-
-                {/* Barre d'informations défilantes */}
-               {/*  <div className="bg-gray-300 border-t border-gray-200 py-2 overflow-hidden">
-                    <div className="flex animate-marquee whitespace-nowrap">
-                        <span className="mx-4 text-sm text-gray-700">💳 <strong>Moyens de paiement:</strong> Mixx by Yas: 90291421</span>
-                        <span className="mx-4 text-sm text-gray-700">💳 Flooz: 98042314</span>
-                        <span className="mx-4 text-sm text-gray-700">🏦 NSIA Banque: 260081527014</span>
-                        <span className="mx-4 text-sm text-gray-700">📈 <strong>Taux USD/FCFA:</strong> 1 USD = 615 FCFA</span>
-                        <span className="mx-4 text-sm text-gray-700">💰 <strong>Crypto:</strong> Bitcoin: 45,230 USD</span>
-                        <span className="mx-4 text-sm text-gray-700">🏛️ <strong>Banque Centrale:</strong> Taux directeur: 2.5%</span>
-                        <span className="mx-4 text-sm text-gray-700">🌍 <strong>Commerce:</strong> CEDEAO - Zone de libre-échange</span>
-                        <span className="mx-4 text-sm text-gray-700">⚡ <strong>Frais de transfert:</strong> Mobile Money: 1-3%</span>
-                        <span className="mx-4 text-sm text-gray-700">🎯 <strong>Terminal d'Échanges:</strong> Plateforme B2B sécurisée</span>
-
-      
-                        <span className="mx-4 text-sm text-gray-700">💳 <strong>Moyens de paiement:</strong> Mixx by Yas: 90291421</span>
-                        <span className="mx-4 text-sm text-gray-700">💳 Flooz: 98042314</span>
-                        <span className="mx-4 text-sm text-gray-700">🏦 NSIA Banque: 260081527014</span>
-                        <span className="mx-4 text-sm text-gray-700">📈 <strong>Taux USD/FCFA:</strong> 1 USD = 615 FCFA</span>
-                        <span className="mx-4 text-sm text-gray-700">💰 <strong>Crypto:</strong> Bitcoin: 45,230 USD</span>
-                        <span className="mx-4 text-sm text-gray-700">🏛️ <strong>Banque Centrale:</strong> Taux directeur: 2.5%</span>
-                        <span className="mx-4 text-sm text-gray-700">🌍 <strong>Commerce:</strong> CEDEAO - Zone de libre-échange</span>
-                        <span className="mx-4 text-sm text-gray-700">⚡ <strong>Frais de transfert:</strong> Mobile Money: 1-3%</span>
-                        <span className="mx-4 text-sm text-gray-700">🎯 <strong>Terminal d'Échanges:</strong> Plateforme B2B sécurisée</span>
-                    </div>
-                </div> */}
             </nav>
+
+            {/* Drawer du panier */}
+            <CartDrawer />
 
             {/* Menu mobile drawer */}
             <Drawer

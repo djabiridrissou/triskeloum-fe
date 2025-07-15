@@ -13,10 +13,17 @@ import AdminBuyers from "./pages/admin/AdminBuyers";
 import AdminSellers from "./pages/admin/AdminSellers";
 import SupplierLayout from "./layouts/SellerLayout";
 import SupplierHome from "./pages/supplier/SupplierCatalogue";
+import Unauthorized from "./pages/Unauthorized";
+import Logout from "./pages/auth/Logout";
+import AdminHomologation from "./pages/admin/AdminHomologation";
+import BuyerLayout from "./layouts/BuyerLayout";
+import BuyerHome from "./pages/buyer/BuyerHome";
+import { CartProvider } from "./contexts/CartContext";
 
 const App = () => {
   return (
     <div>
+
       <Toaster toastOptions={{
         duration: 4000,
         success: {
@@ -28,37 +35,54 @@ const App = () => {
       }}
         position="top-right" />
       <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/fees" element={<CreatePayRequest />} />
-          <Route path="/confirm-pay" element={<ConfirmPay />} />
+        <CartProvider>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/fees" element={<CreatePayRequest />} />
+            <Route path="/confirm-pay" element={<ConfirmPay />} />
 
-          {/* Routes protégées pour les admins */}
-          <Route element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <AdminLayout />
-            </ProtectedRoute>
-          }>
-           <Route path="/admin/home" element={<AdminHome />} />
-           <Route path="/admin/buyers" element={<AdminBuyers />} />
-           <Route path="/admin/sellers" element={<AdminSellers />} />
-          </Route>
-          {/* Routes protégées pour les admins */}
+            {/* Routes protégées pour les admins */}
+            <Route element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminLayout />
+              </ProtectedRoute>
+            }>
+              <Route path="/admin/home" element={<AdminHome />} />
+              <Route path="/admin/buyers" element={<AdminBuyers />} />
+              <Route path="/admin/sellers" element={<AdminSellers />} />
+              <Route path="/admin/homologation" element={<AdminHomologation />} />
+            </Route>
+            {/* Routes protégées pour les admins */}
 
-          {}
-          <Route element={
-            <ProtectedRoute allowedRoles={['supplier']}>
-              <SupplierLayout />
-            </ProtectedRoute>
-          }>
-           <Route path="/supplier/catalogue" element={<SupplierHome />} />
-    
-          </Route>
-          {}
-        </Routes>
+            { }
+            <Route element={
+              <ProtectedRoute allowedRoles={['supplier']}>
+                <SupplierLayout />
+              </ProtectedRoute>
+            }>
+              <Route path="/supplier/catalogue" element={<SupplierHome />} />
+
+            </Route>
+            { }
+
+            { }
+            <Route element={
+              <ProtectedRoute allowedRoles={['buyer']}>
+                <BuyerLayout />
+              </ProtectedRoute>
+            }>
+              <Route path="/buyer/home" element={<BuyerHome />} />
+
+            </Route>
+            { }
+            <Route path="/logout" element={<Logout />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
+          </Routes>
+        </CartProvider>
       </Router>
+
     </div>
   );
 };
