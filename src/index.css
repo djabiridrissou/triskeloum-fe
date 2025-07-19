@@ -40,6 +40,7 @@
   --transition-default: all 0.3s ease;
 }
 
+
 /* Mode sombre */
 .dark {
   /* Couleurs de base */
@@ -72,6 +73,15 @@
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
 }
 
+
+.force-white-icon {
+  color: black !important;
+}
+
+.force-white-icon .anticon {
+  color: black !important;
+  font-size: 1.25rem !important;
+}
 
 .ant-steps-horizontal.ant-steps-label-vertical .ant-steps-item {
   padding-left: 4px !important;

@@ -15,7 +15,7 @@ const ProductCardPremium = ({ product }: { product: any }) => {
             id: product._id,
             name: product.name,
             price: product.batchStats.avgUnitPrice,
-            image: product.images?.[0] ? `${imgBaseUrl}/${product.images[0]}` : undefined,
+            image: product.images?.[0],
             supplierId: product.supplierId._id,
             supplierName: product.supplierId.name,
             unit: product.unitOfMeasure,

@@ -20,6 +20,8 @@ import BuyerLayout from "./layouts/BuyerLayout";
 import BuyerHome from "./pages/buyer/BuyerHome";
 import { CartProvider } from "./contexts/CartContext";
 import UnderConstruction from "./pages/UnderConstruction";
+import CheckoutPage from "./pages/buyer/Checkout";
+import PromotionalModal from "./components/PromotionalModal";
 
 const App = () => {
   return (
@@ -75,6 +77,8 @@ const App = () => {
               </ProtectedRoute>
             }>
               <Route path="/buyer/home" element={<BuyerHome />} />
+              <Route path="/buyer/checkout" element={<CheckoutPage />} />
+
 
             </Route>
             { }
@@ -83,8 +87,8 @@ const App = () => {
             <Route path="*" element={<UnderConstruction />} />
           </Routes>
         </CartProvider>
+        <PromotionalModal />
       </Router>
-
     </div>
   );
 };

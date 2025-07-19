@@ -23,7 +23,7 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
 export const api = createApi({
     reducerPath: "api",
     baseQuery: baseQueryWithReauth,
-    tagTypes: ['User', 'Buyer', 'Supplier', 'Product', 'Batch'],
+    tagTypes: ['User', 'Buyer', 'Supplier', 'Product', 'Batch', 'Sales'],
     endpoints: (builder) => ({
         login: builder.mutation({
             query: (credentials) => ({
@@ -188,6 +188,70 @@ export const api = createApi({
             }),
             invalidatesTags: ['Batch', 'Product'],
         }),
+        orderItems: builder.mutation({
+            query: (body) => ({
+                url: '/buyer/order-items',
+                method: 'POST',
+                body,
+            }),
+        }),
+        updateBuyer: builder.mutation({
+            query: ({data, id}) => ({
+                url: `/buyer/update?id=${id}`,
+                method: "PATCH",
+                body: data,
+            }),
+            invalidatesTags: ['Buyer'],
+        }),
+        createOrUpdateCart: builder.mutation({
+            query: (body) => ({
+                url: '/cart/create-u',
+                method: 'POST',
+                body,
+            }),
+        }),
+        getUserCart: builder.query({
+            query: (userId) => ({
+                url: '/cart/one',
+                method: 'GET',
+                params: { userId },
+            }),
+        }),
+        clearCart: builder.mutation({
+            query: (body) => ({
+                url: '/cart/clear',
+                method: 'POST',
+                body,
+            }),
+        }),
+        getSales: builder.query({
+            query: ({
+                page = 1,
+                limit = 10,
+                searchQuery = "",
+                sortField = "createdAt",
+                sortOrder = "desc",
+                buyerId,        // Filtre pour buyerId
+                status,         // Filtre pour status
+                paymentStatus,
+                paymentMethod  // Filtre pour paymentStatus
+            }) => ({
+                url: "/product/all",
+                method: "GET",
+                params: {
+                    page,
+                    limit,
+                    searchQuery,
+                    sortField,
+                    sortOrder,
+                    buyerId,
+                    status,
+                    paymentStatus,
+                    paymentMethod
+                },
+            }),
+            providesTags: ['Sales'],
+        }),
     }),
 });
 
@@ -209,4 +273,10 @@ export const {
     useLogoutMutation,
     useGetEvaluatedBatchesQuery,
     useMakeEvaluationMutation,
+    useOrderItemsMutation,
+    useUpdateBuyerMutation,
+    useCreateOrUpdateCartMutation,
+    useGetUserCartQuery,
+    useClearCartMutation,
+    useGetSalesQuery
 } = api;

@@ -99,7 +99,7 @@ const Sidebar = () => {
         {
           key: '7',
           icon: <UserOutlined />,
-          label: 'Mes Achats',
+          label: 'Mes Commandes',
           path: '/buyer/orders',
         },
       ];

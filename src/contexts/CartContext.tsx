@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useClearCartMutation } from '../services/api';
 
 interface CartItem {
     id: string;
@@ -19,38 +20,114 @@ interface CartContextType {
     removeFromCart: (itemId: string) => void;
     updateQuantity: (itemId: string, quantity: number) => void;
     clearCart: () => void;
+    setCartItems: (items: CartItem[]) => void;
     getTotalPrice: () => number;
     getTotalItems: () => number;
+    isLoading: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const [clearCartFromApi] = useClearCartMutation();
+    
+    // Référence pour éviter les appels API multiples
+    const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const isInitialLoadRef = useRef(true);
 
-    // Charger le panier au montage
+    // Fonction pour synchroniser avec l'API (debounced)
+    const syncCartWithAPI = useCallback(async (updatedCartItems: CartItem[]) => {
+        try {
+            // Récupérer l'userId depuis localStorage
+            const userId = localStorage.getItem('userId');
+            
+            if (!userId) {
+                console.error('UserId non trouvé dans localStorage');
+                return;
+            }
+
+            // Ne pas montrer le loading pour les mises à jour rapides
+            // setIsLoading(true);
+
+            // Transformer les items du contexte au format attendu par l'API
+            const formattedCartItems = updatedCartItems.map(item => ({
+                productId: item.id,
+                quantity: item.quantity
+            }));
+
+            const response = await fetch('/api/cart/create-u', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Ajoutez vos headers d'authentification si nécessaire
+                    // 'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    cartItems: formattedCartItems
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Panier synchronisé avec succès:', result.message);
+
+        } catch (error) {
+            console.error('Erreur lors de la synchronisation du panier:', error);
+            // Vous pouvez afficher une notification d'erreur ici
+        } finally {
+            // setIsLoading(false);
+        }
+    }, []);
+
+    // Fonction debounced pour éviter trop d'appels API
+    const debouncedSync = useCallback((updatedCartItems: CartItem[]) => {
+        if (syncTimeoutRef.current) {
+            clearTimeout(syncTimeoutRef.current);
+        }
+        
+        syncTimeoutRef.current = setTimeout(() => {
+            syncCartWithAPI(updatedCartItems);
+        }, 500); // Attendre 500ms avant de synchroniser
+    }, [syncCartWithAPI]);
+
     useEffect(() => {
         const savedCart = localStorage.getItem('cart');
         if (savedCart) {
             try {
-                setCartItems(JSON.parse(savedCart));
+                const parsedCart = JSON.parse(savedCart);
+                setCartItems(parsedCart);
             } catch (error) {
                 console.error('Erreur de chargement du panier:', error);
                 setCartItems([]);
             }
         }
+        isInitialLoadRef.current = false;
     }, []);
 
-    // Sauvegarder le panier à chaque changement
     useEffect(() => {
+        // Sauvegarder dans localStorage immédiatement
         localStorage.setItem('cart', JSON.stringify(cartItems));
-    }, [cartItems]);
+        
+        // Synchroniser avec l'API seulement si ce n'est pas le chargement initial
+        if (!isInitialLoadRef.current) {
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                debouncedSync(cartItems);
+            }
+        }
+    }, [cartItems, debouncedSync]);
 
     const addToCart = useCallback((item: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
         // Vérifier si l'utilisateur est connecté
-        const user = localStorage.getItem('userEmail');
-        if (!user) {
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
             navigate('/login');
             return;
         }
@@ -82,8 +159,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         );
     }, [removeFromCart]);
 
-    const clearCart = useCallback(() => {
+    const clearCart = useCallback(async () => {
         setCartItems([]);
+        const userId = localStorage.getItem('userId') && debouncedSync([]);
+        await clearCartFromApi({ userId }); // Synchroniser avec l'API
+    }, []);
+
+    // Nouvelle méthode pour définir directement les items du panier
+    const setCartItemsDirectly = useCallback((items: CartItem[]) => {
+        isInitialLoadRef.current = true; // Marquer comme chargement initial pour éviter la sync
+        setCartItems(items);
+        setTimeout(() => {
+            isInitialLoadRef.current = false;
+        }, 100);
     }, []);
 
     const getTotalPrice = useCallback(() => {
@@ -94,6 +182,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return cartItems.reduce((total, item) => total + item.quantity, 0);
     }, [cartItems]);
 
+    // Nettoyer le timeout au démontage
+    useEffect(() => {
+        return () => {
+            if (syncTimeoutRef.current) {
+                clearTimeout(syncTimeoutRef.current);
+            }
+        };
+    }, []);
+
     return (
         <CartContext.Provider
             value={{
@@ -102,8 +199,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 removeFromCart,
                 updateQuantity,
                 clearCart,
+                setCartItems: setCartItemsDirectly,
                 getTotalPrice,
                 getTotalItems,
+                isLoading,
             }}
         >
             {children}

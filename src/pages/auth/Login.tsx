@@ -3,10 +3,11 @@ import { useState, useEffect, JSX } from "react";
 import { Button, Input, Card, Form, Checkbox, Divider } from "antd";
 import { MailOutlined, LockOutlined, UserOutlined } from "@ant-design/icons";
 import { ChevronLeft, ChevronRight, Users, TrendingUp, Shield, Globe } from "lucide-react";
-import { api, useLoginMutation } from "../../services/api";
+import { api, useLoginMutation, useGetUserCartQuery } from "../../services/api";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { useCartContext } from "../../contexts/CartContext";
 
 interface Slide {
     image: string;
@@ -17,11 +18,18 @@ interface Slide {
 
 const Login = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [userId, setUserId] = useState<string | null>(null);
     const [login, { isLoading }] = useLoginMutation();
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const { setCartItems, cartItems } = useCartContext(); // Utilisation du contexte
 
-    // Nettoyer le localStorage seulement au montage du composant
+    const { data: cartData, isSuccess: cartSuccess } = useGetUserCartQuery(userId, {
+        skip: !userId, // Skip la query si userId n'est pas défini
+    });
+
+    console.log('Cart Data:', cartData); // Debug
+
     useEffect(() => {
         localStorage.removeItem('userEmail');
         localStorage.removeItem('currency');
@@ -34,6 +42,55 @@ const Login = () => {
         // Invalidate all cached queries
         dispatch(api.util.invalidateTags(['User']));
     }, [dispatch]);
+
+    // Synchroniser le panier quand on récupère les données du serveur
+    useEffect(() => {
+        if (cartSuccess && cartData?.success && cartData?.data) {
+            const serverCartItems = cartData.data.items || [];
+            
+        
+            const formattedServerItems = formatServerCartItems(serverCartItems);
+            const localCartItems = cartItems;
+            const mergedCart = mergeCartItems(localCartItems, formattedServerItems);
+            
+    
+            setCartItems(mergedCart);
+        }
+    }, [cartSuccess, cartData, setCartItems]);
+
+    // Fonction pour transformer les items du serveur au format du contexte
+    const formatServerCartItems = (serverItems: any[]) => {
+        return serverItems.map(serverItem => ({
+            id: serverItem.productId._id || serverItem.productId,
+            name: serverItem.productId.name || serverItem.productId.designation || '',
+            price: serverItem.productId.avgPrice || 0,
+            quantity: serverItem.quantity || 1,
+            image: serverItem.productId.image || serverItem.productId.images?.[0] || '',
+            supplierId: serverItem.productId.supplierId._id || serverItem.productId.userId || '',
+            supplierName: serverItem.productId.supplierId.name || serverItem.productId.companyName || '',
+            unit: serverItem.productId.unitOfMeasure || '',
+            maxQuantity: serverItem.productId.maxQuantity || serverItem.productId.stock || 999
+        }));
+    };
+
+    // Fonction pour merger les paniers local et serveur
+    const mergeCartItems = (localItems: any[], serverItems: any[]) => {
+        const merged = [...serverItems];
+        localItems.forEach(localItem => {
+            const existsOnServer = serverItems.find(serverItem => serverItem.id === localItem.id);
+            if (!existsOnServer) {
+                merged.push(localItem);
+            } else {
+                const serverItem = merged.find(item => item.id === localItem.id);
+                if (serverItem && localItem.quantity > serverItem.quantity) {
+                    serverItem.quantity = localItem.quantity;
+                }
+            }
+        });
+        
+        return merged;
+    };
+
     const slides: Slide[] = [
         {
             image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
@@ -143,7 +200,7 @@ const Login = () => {
 
             // Cas de succès
             const response = result.data;
-            console.log('Login successful:', response); // Debug
+ // Debug
 
             dispatch(api.util.invalidateTags(['User']));
             const userRole = response.data.isBuyer
@@ -152,18 +209,14 @@ const Login = () => {
                     ? 'supplier'
                     : 'admin';
 
-            // Stocker les données utilisateur dans le localStorage (sans JSON.stringify pour les strings simples)
+            // Stocker les données utilisateur dans le localStorage
             localStorage.setItem('userEmail', response.data.email);
             localStorage.setItem('userId', response.data._id);
             localStorage.setItem('userName', response.data.socialReason || response.data.name);
             localStorage.setItem('userRole', userRole);
 
-            console.log('Data stored in localStorage:', {
-                userEmail: localStorage.getItem('userEmail'),
-                userId: localStorage.getItem('userId'),
-                userName: localStorage.getItem('userName'),
-                userRole: localStorage.getItem('userRole')
-            }); // Debug
+            // Déclencher la récupération du panier en définissant l'userId
+            setUserId(response.data._id);
 
             // Afficher le message de succès
             Swal.fire({
