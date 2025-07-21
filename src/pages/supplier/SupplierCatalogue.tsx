@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FiPlus, FiSearch, FiChevronLeft, FiChevronRight, FiEdit2, FiTrash2, FiImage } from "react-icons/fi";
-import { useGetProductsQuery, useCreateProductMutation, useAddBatchMutation, useGetBatchesQuery } from "../../services/api";
+import { useGetProductsQuery, useCreateProductMutation, useAddBatchMutation, useGetBatchesQuery, useDeleteProductMutation } from "../../services/api";
 import Loading from "../../components/Loading";
 import Modal from "../../components/Modal";
 import Swal from "sweetalert2";
@@ -52,7 +52,10 @@ const SupplierCatalogue = () => {
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
     const [isViewBatchesModalOpen, setIsViewBatchesModalOpen] = useState(false);
+    
     const [addBatch] = useAddBatchMutation();
+    const [deleteProduct] = useDeleteProductMutation();
+    
     const { data: batchesResponse, isLoading: isLoadingBatches, refetch: refetchBatches } = useGetBatchesQuery(
         { productId: selectedProduct?._id || '' },
         { skip: !selectedProduct?._id }
@@ -115,6 +118,42 @@ const SupplierCatalogue = () => {
             });
         }
     }
+
+    const handleDeleteProduct = async (product: Product) => {
+        const result = await Swal.fire({
+            title: 'Êtes-vous sûr?',
+            text: `Voulez-vous vraiment supprimer le produit "${product.name}" ? Cette action est irréversible.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Oui, supprimer',
+            cancelButtonText: 'Annuler'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await deleteProduct(product._id).unwrap();
+                
+                Swal.fire({
+                    title: 'Supprimé!',
+                    text: `Le produit "${product.name}" a été supprimé avec succès.`,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+
+                // Rafraîchir la liste des produits
+                refetch();
+            } catch (error: any) {
+                Swal.fire({
+                    title: 'Erreur',
+                    text: error.data?.message || "Une erreur est survenue lors de la suppression",
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
+    };
 
     const handleAddBatchClick = (product: Product) => {
         setSelectedProduct(product);
@@ -383,6 +422,7 @@ const SupplierCatalogue = () => {
                                                     <FiEdit2 className="w-5 h-5" />
                                                 </button>
                                                 <button
+                                                    onClick={() => handleDeleteProduct(product)}
                                                     className="p-2 text-red-600 hover:text-red-900 transition rounded-lg hover:bg-red-50"
                                                     title="Supprimer"
                                                 >

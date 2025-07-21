@@ -305,6 +305,14 @@ export const api = createApi({
             }),
             invalidatesTags: ['Sales'],
         }),
+        deleteProduct: builder.mutation({
+            query: (productId) => ({
+                url: `/product/delete`,
+                method: "DELETE",
+                params: { productId }
+            }),
+            invalidatesTags: ['Product'],
+        }),
     }),
 });
 
@@ -335,5 +343,6 @@ export const {
     useGetOrderDetailsQuery,
     useAdminOrdersQuery,
     useApproveOrderMutation,
-    useEmailPaymentRequestMutation
+    useEmailPaymentRequestMutation,
+    useDeleteProductMutation
 } = api;
