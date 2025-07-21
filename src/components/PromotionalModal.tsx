@@ -1,29 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Typography, Space, Divider } from 'antd';
+import { Modal, Button, Typography, Space } from 'antd';
 import {
     ShopOutlined,
     TeamOutlined,
-    TrophyOutlined,
     SafetyCertificateOutlined,
     StarFilled,
     ArrowRightOutlined,
     CloseOutlined,
-    GiftOutlined,
-    ThunderboltOutlined,
+    CheckCircleOutlined,
     GlobalOutlined
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 
 interface PromotionalModalProps {
     onClose?: () => void;
 }
 
-const PromotionalModal: React.FC<PromotionalModalProps> = ({ onClose }) => {
+const ProfessionalPromoModal: React.FC<PromotionalModalProps> = ({ onClose }) => {
     const [visible, setVisible] = useState(false);
-    const [currentSlide, setCurrentSlide] = useState(0);
-    const navigate = useNavigate();
+    
+    // Navigation simulée
+    const navigate = (path: string) => {
+        console.log(`Navigation vers: ${path}`);
+    };
 
     // Vérifier si l'utilisateur a déjà vu le modal aujourd'hui
     useEffect(() => {
@@ -31,31 +31,19 @@ const PromotionalModal: React.FC<PromotionalModalProps> = ({ onClose }) => {
         const today = new Date().toDateString();
         const userEmail = localStorage.getItem('userEmail');
 
-        // Afficher le modal seulement si l'utilisateur n'est pas connecté et ne l'a pas vu aujourd'hui
         if (!userEmail && lastShown !== today) {
-            setTimeout(() => setVisible(true), 1500); // Délai de 1.5s après le chargement
+            setTimeout(() => setVisible(true), 2000);
         }
     }, []);
 
-    // Rotation automatique des slides
-    useEffect(() => {
-        if (!visible) return;
-        
-        const interval = setInterval(() => {
-            setCurrentSlide((prev) => (prev + 1) % 3);
-        }, 4000);
-
-        return () => clearInterval(interval);
-    }, [visible]);
-
-    // Styles CSS avancés
+    // Styles CSS ultra-professionnels
     useEffect(() => {
         const style = document.createElement('style');
         style.textContent = `
             @keyframes modalSlideIn {
                 from {
                     opacity: 0;
-                    transform: scale(0.8) translateY(20px);
+                    transform: scale(0.95) translateY(-10px);
                 }
                 to {
                     opacity: 1;
@@ -63,222 +51,339 @@ const PromotionalModal: React.FC<PromotionalModalProps> = ({ onClose }) => {
                 }
             }
 
-            @keyframes slideInFromRight {
-                from {
-                    opacity: 0;
-                    transform: translateX(30px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateX(0);
-                }
-            }
-
-            @keyframes slideInFromLeft {
-                from {
-                    opacity: 0;
-                    transform: translateX(-30px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateX(0);
-                }
-            }
-
-            @keyframes pulseGlow {
+            @keyframes gentleFloat {
                 0%, 100% {
-                    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+                    transform: translateY(0px) rotate(0deg);
                 }
-                50% {
-                    box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+                33% {
+                    transform: translateY(-8px) rotate(120deg);
                 }
-            }
-
-            @keyframes floatAnimation {
-                0%, 100% {
-                    transform: translateY(0px);
-                }
-                50% {
-                    transform: translateY(-10px);
+                66% {
+                    transform: translateY(-4px) rotate(240deg);
                 }
             }
 
-            @keyframes sparkle {
+            @keyframes subtleGlow {
                 0%, 100% {
-                    opacity: 0;
-                    transform: scale(0);
-                }
-                50% {
-                    opacity: 1;
+                    opacity: 0.3;
                     transform: scale(1);
                 }
+                50% {
+                    opacity: 0.8;
+                    transform: scale(1.2);
+                }
             }
 
-            .promotional-modal .ant-modal-content {
-                background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
-                border-radius: 24px;
+            @keyframes gradientShift {
+                0% {
+                    background-position: 0% 50%;
+                }
+                50% {
+                    background-position: 100% 50%;
+                }
+                100% {
+                    background-position: 0% 50%;
+                }
+            }
+
+            .professional-promo-modal .ant-modal-content {
+                background: white;
+                border-radius: 20px;
                 overflow: hidden;
-                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                animation: modalSlideIn 0.6s ease-out;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                animation: modalSlideIn 0.5s ease-out;
             }
 
-            .promotional-modal .ant-modal-header {
-                background: linear-gradient(135deg, #1e40af 0%, #10b981 100%);
-                border-bottom: none;
+            .professional-promo-modal .ant-modal-body {
                 padding: 0;
             }
 
-            .promotional-modal .ant-modal-body {
-                padding: 0;
-            }
-
-            .promotional-modal .ant-modal-close {
-                top: 20px;
-                right: 20px;
+            .professional-promo-modal .ant-modal-close {
+                top: 24px;
+                right: 24px;
                 color: white;
-                background: rgba(255, 255, 255, 0.2);
+                background: rgba(255, 255, 255, 0.15);
                 border-radius: 50%;
-                width: 40px;
-                height: 30px;
+                width: 36px;
+                height: 36px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 backdrop-filter: blur(10px);
                 transition: all 0.3s ease;
+                z-index: 10;
             }
 
-            .promotional-modal .ant-modal-close:hover {
-                background: rgba(255, 255, 255, 0.3);
-                transform: scale(1.1);
+            .professional-promo-modal .ant-modal-close:hover {
+                background: rgba(255, 255, 255, 0.25);
+                transform: scale(1.05);
             }
 
-            .promo-gradient-bg {
-                background: linear-gradient(135deg, #1e40af 0%, #10b981 100%);
+            .promo-header {
+                background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #10b981 100%);
+                background-size: 200% 200%;
+                animation: gradientShift 8s ease infinite;
                 position: relative;
                 overflow: hidden;
+                padding: 48px 40px;
             }
 
-            .promo-gradient-bg::before {
-                content: '';
+            .light-particle {
                 position: absolute;
-                top: -50%;
-                left: -50%;
-                width: 200%;
-                height: 200%;
-                background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-                animation: floatAnimation 6s ease-in-out infinite;
+                width: 4px;
+                height: 4px;
+                background: white;
+                border-radius: 50%;
+                opacity: 0.4;
+                animation: subtleGlow 3s ease-in-out infinite;
+            }
+
+            .light-particle:nth-child(1) {
+                top: 15%;
+                left: 10%;
+                animation-delay: 0s;
+                animation-duration: 4s;
+            }
+
+            .light-particle:nth-child(2) {
+                top: 25%;
+                right: 15%;
+                animation-delay: 1s;
+                animation-duration: 3.5s;
+            }
+
+            .light-particle:nth-child(3) {
+                top: 60%;
+                left: 20%;
+                animation-delay: 2s;
+                animation-duration: 4.5s;
+            }
+
+            .light-particle:nth-child(4) {
+                bottom: 20%;
+                right: 25%;
+                animation-delay: 0.5s;
+                animation-duration: 3s;
+            }
+
+            .light-particle:nth-child(5) {
+                top: 40%;
+                left: 70%;
+                animation-delay: 1.5s;
+                animation-duration: 5s;
+            }
+
+            .light-particle:nth-child(6) {
+                bottom: 35%;
+                left: 15%;
+                animation-delay: 2.5s;
+                animation-duration: 3.8s;
+            }
+
+            .light-particle:nth-child(7) {
+                top: 70%;
+                right: 40%;
+                animation-delay: 0.8s;
+                animation-duration: 4.2s;
+            }
+
+            .light-particle:nth-child(8) {
+                top: 30%;
+                left: 50%;
+                animation-delay: 1.8s;
+                animation-duration: 3.3s;
+            }
+
+            .floating-element {
+                position: absolute;
+                width: 60px;
+                height: 60px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 50%;
+                animation: gentleFloat 8s ease-in-out infinite;
+                backdrop-filter: blur(5px);
+            }
+
+            .floating-element:nth-child(1) {
+                top: 10%;
+                right: 10%;
+                animation-delay: 0s;
+            }
+
+            .floating-element:nth-child(2) {
+                bottom: 15%;
+                left: 12%;
+                animation-delay: 2s;
+                width: 40px;
+                height: 40px;
+            }
+
+            .floating-element:nth-child(3) {
+                top: 50%;
+                right: 8%;
+                animation-delay: 4s;
+                width: 30px;
+                height: 30px;
             }
 
             .promo-cta-button {
                 background: linear-gradient(135deg, #10b981 0%, #059669 100%);
                 border: none;
-                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-                transition: all 0.3s ease;
-                animation: pulseGlow 3s infinite;
+                border-radius: 12px;
                 color: white;
                 font-weight: 600;
-                letter-spacing: 0.5px;
+                height: 52px;
+                padding: 0 32px;
+                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.25);
+                transition: all 0.3s ease;
+                font-size: 16px;
             }
 
             .promo-cta-button:hover {
                 background: linear-gradient(135deg, #059669 0%, #047857 100%);
-                box-shadow: 0 12px 35px rgba(5, 150, 105, 0.5);
+                box-shadow: 0 12px 35px rgba(5, 150, 105, 0.35);
                 transform: translateY(-2px);
                 color: white;
             }
 
             .promo-secondary-button {
                 background: transparent;
-                border: 2px solid rgba(255, 255, 255, 0.3);
-                color: white;
-                backdrop-filter: blur(10px);
+                border: 2px solid #e5e7eb;
+                color: #6b7280;
+                border-radius: 12px;
+                height: 52px;
+                padding: 0 24px;
+                font-weight: 500;
                 transition: all 0.3s ease;
             }
 
             .promo-secondary-button:hover {
-                background: rgba(255, 255, 255, 0.1);
-                border-color: rgba(255, 255, 255, 0.5);
-                color: white;
+                border-color: #9ca3af;
+                color: #374151;
                 transform: translateY(-1px);
             }
 
-            .feature-card {
-                background: rgba(255, 255, 255, 0.9);
-                backdrop-filter: blur(20px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                border-radius: 16px;
+            .feature-item {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                padding: 16px 0;
+                border-bottom: 1px solid #f3f4f6;
                 transition: all 0.3s ease;
-                position: relative;
-                overflow: hidden;
             }
 
-            .feature-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-                background: rgba(255, 255, 255, 0.95);
+            .feature-item:last-child {
+                border-bottom: none;
             }
 
-            .feature-card::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: -100%;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-                transition: left 0.5s;
+            .feature-item:hover {
+                background: #f8fafc;
+                padding-left: 8px;
+                border-radius: 8px;
             }
 
-            .feature-card:hover::before {
-                left: 100%;
-            }
-
-            .slide-in-right {
-                animation: slideInFromRight 0.6s ease-out;
-            }
-
-            .slide-in-left {
-                animation: slideInFromLeft 0.6s ease-out;
-            }
-
-            .sparkle-effect {
-                position: absolute;
-                width: 6px;
-                height: 6px;
-                background: white;
-                border-radius: 50%;
-                animation: sparkle 2s infinite;
-            }
-
-            .stats-counter {
-                background: rgba(255, 255, 255, 0.2);
-                backdrop-filter: blur(10px);
+            .feature-icon {
+                width: 48px;
+                height: 48px;
                 border-radius: 12px;
-                border: 1px solid rgba(255, 255, 255, 0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 20px;
+                background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+                color: #0ea5e9;
             }
 
-            .slide-indicator {
-                width: 8px;
-                height: 8px;
-                border-radius: 50%;
-                background: rgba(255, 255, 255, 0.4);
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 24px;
+                margin: 32px 0;
+            }
+
+            .stat-item {
+                text-align: center;
+                padding: 24px 16px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
                 transition: all 0.3s ease;
-                cursor: pointer;
             }
 
-            .slide-indicator.active {
-                background: white;
-                transform: scale(1.2);
+            .stat-item:hover {
+                transform: translateY(-4px);
+                background: rgba(255, 255, 255, 0.15);
             }
 
-            .promotional-badge {
-                background: linear-gradient(45deg, #ffd700, #ffed4e);
+            .stat-number {
+                font-size: 28px;
+                font-weight: 700;
+                color: white;
+                margin-bottom: 8px;
+                display: block;
+            }
+
+            .stat-label {
+                font-size: 14px;
+                color: rgba(255, 255, 255, 0.8);
+                font-weight: 500;
+            }
+
+            .premium-badge {
+                background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
                 color: #92400e;
+                padding: 8px 16px;
+                border-radius: 24px;
+                font-size: 13px;
                 font-weight: 600;
-                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
                 border: none;
-                animation: pulseGlow 2s infinite;
+                box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+            }
+
+            .content-section {
+                padding: 48px 40px;
+                background: #fafbfc;
+            }
+
+            .trust-indicators {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 32px;
+                margin-top: 32px;
+                padding-top: 24px;
+                border-top: 1px solid #e5e7eb;
+            }
+
+            .trust-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: #6b7280;
+                font-size: 14px;
+                font-weight: 500;
+            }
+
+            @media (max-width: 768px) {
+                .promo-header {
+                    padding: 32px 24px;
+                }
+
+                .content-section {
+                    padding: 32px 24px;
+                }
+
+                .stats-grid {
+                    grid-template-columns: 1fr;
+                    gap: 16px;
+                }
+
+                .trust-indicators {
+                    flex-direction: column;
+                    gap: 16px;
+                }
             }
         `;
         document.head.appendChild(style);
@@ -301,237 +406,172 @@ const PromotionalModal: React.FC<PromotionalModalProps> = ({ onClose }) => {
         navigate('/login');
     };
 
-    const slides = [
-        {
-            title: "Rejoignez la Première Plateforme B2B du Togo",
-            subtitle: "Connectez-vous avec des milliers de fournisseurs et acheteurs professionnels",
-            features: [
-                { icon: ShopOutlined, text: "Plus de 5,000 fournisseurs vérifiés", color: "#10b981" },
-                { icon: TeamOutlined, text: "Réseau de 15,000+ professionnels", color: "#3b82f6" },
-                { icon: SafetyCertificateOutlined, text: "Transactions 100% sécurisées", color: "#f59e0b" }
-            ]
-        },
-        {
-            title: "Développez Votre Business Facilement",
-            subtitle: "Outils professionnels pour maximiser vos ventes et votre visibilité",
-            features: [
-                { icon: TrophyOutlined, text: "Augmentez vos ventes de 300%", color: "#ef4444" },
-                { icon: GlobalOutlined, text: "Portée nationale et internationale", color: "#8b5cf6" },
-                { icon: ThunderboltOutlined, text: "Commandes instantanées 24h/7j", color: "#f97316" }
-            ]
-        },
-        {
-            title: "Offre Spéciale de Lancement",
-            subtitle: "Profitez de 3 mois gratuits pour tous les nouveaux membres",
-            features: [
-                { icon: GiftOutlined, text: "3 mois d'abonnement Premium offerts", color: "#ec4899" },
-                { icon: StarFilled, text: "Support client dédié prioritaire", color: "#fbbf24" },
-                { icon: SafetyCertificateOutlined, text: "Certification gratuite incluse", color: "#10b981" }
-            ]
-        }
-    ];
-
-    const currentSlideData = slides[currentSlide];
-
     return (
         <Modal
             open={visible}
             onCancel={handleClose}
             footer={null}
-            width={900}
+            width={680}
             centered
-            className="promotional-modal"
+            className="professional-promo-modal"
             maskStyle={{
-                background: 'rgba(0, 0, 0, 0.7)',
-                backdropFilter: 'blur(8px)',
+                background: 'rgba(0, 0, 0, 0.6)',
+                backdropFilter: 'blur(4px)',
             }}
             closeIcon={<CloseOutlined />}
         >
-            {/* En-tête avec dégradé */}
-            <div className="bg-black text-white relative">
-                {/* Effets de particules */}
-                <div className="sparkle-effect" style={{ top: '20%', left: '10%', animationDelay: '0s' }} />
-                <div className="sparkle-effect" style={{ top: '60%', left: '80%', animationDelay: '1s' }} />
-                <div className="sparkle-effect" style={{ top: '30%', left: '70%', animationDelay: '2s' }} />
-                <div className="sparkle-effect" style={{ top: '20%', left: '10%', animationDelay: '0s' }} />
-                <div className="sparkle-effect" style={{ top: '60%', left: '80%', animationDelay: '1s' }} />
-                <div className="sparkle-effect" style={{ top: '30%', left: '70%', animationDelay: '2s' }} />
-                <div className="relative z-10 p-8">
-                    <div className="flex items-center justify-between mb-6">
+            {/* Header avec effets lumineux */}
+            <div className="promo-header">
+                {/* Particules lumineuses subtiles */}
+                <div className="light-particle"></div>
+                <div className="light-particle"></div>
+                <div className="light-particle"></div>
+                <div className="light-particle"></div>
+                <div className="light-particle"></div>
+                <div className="light-particle"></div>
+                <div className="light-particle"></div>
+                <div className="light-particle"></div>
+
+                {/* Éléments flottants */}
+                <div className="floating-element"></div>
+                <div className="floating-element"></div>
+                <div className="floating-element"></div>
+
+                <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center space-x-4">
-                            <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center shadow-lg">
-                                <img src="/images/logob.png" alt="Logo" className="w-12 h-12" />
+                            <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center shadow-lg">
+                                <img src="/images/logob.png" alt="Logo" className="w-10 h-10" />
                             </div>
                             <div>
-                                <Title level={3} className="!mb-0 !text-white">
+                                <Title level={3} className="!mb-0 !text-white font-bold">
                                     Terminal d'Échanges
                                 </Title>
-                                <Text className="text-blue-100">Plateforme B2B #1 au Togo</Text>
+                                <Text className="text-blue-100 text-sm">Plateforme B2B Professionnelle</Text>
                             </div>
                         </div>
                         
-                        <div className="promotional-badge px-4 py-2 rounded-full text-sm font-bold">
-                            <GiftOutlined className="mr-2" />
-                          
+                        <div className="premium-badge">
+                            <StarFilled className="mr-2" />
+                            Nouveau
                         </div>
                     </div>
 
-                    {/* Contenu dynamique des slides */}
-                    <div className="mb-8">
-                        <Title level={2} className="!text-white !mb-4 slide-in-left">
-                            {currentSlideData.title}
+                    <div className="text-center mb-8">
+                        <Title level={2} className="!text-white !mb-4 font-bold">
+                            Rejoignez la révolution B2B
                         </Title>
-                        <Paragraph className="text-blue-100 text-lg mb-6 slide-in-right">
-                            {currentSlideData.subtitle}
-                        </Paragraph>
-
-                        {/* Statistiques impressionnantes */}
-                        <div className="grid grid-cols-3 gap-4 mb-6 bg-">
-                            {[
-                                { number: "5,000+", label: "Fournisseurs" },
-                                { number: "15,000+", label: "Utilisateurs" },
-                                { number: "98%", label: "Satisfaction" }
-                            ].map((stat, index) => (
-                                <div key={index} className="stats-counter p-4 text-center">
-                                    <div className="text-2xl font-bold text-white">{stat.number}</div>
-                                    <div className="text-blue-100 text-sm">{stat.label}</div>
-                                </div>
-                            ))}
-                        </div>
+                        <Text className="text-blue-100 text-lg block max-w-md mx-auto">
+                            Connectez-vous avec des milliers de professionnels et développez votre activité
+                        </Text>
                     </div>
 
-                    {/* Indicateurs de slides */}
-                    <div className="flex justify-center space-x-2 mb-6">
-                        {slides.map((_, index) => (
-                            <div
-                                key={index}
-                                className={`slide-indicator ${index === currentSlide ? 'active' : ''}`}
-                                onClick={() => setCurrentSlide(index)}
-                            />
-                        ))}
+                    {/* Statistiques */}
+                    <div className="stats-grid">
+                        <div className="stat-item">
+                            <span className="stat-number">5,000+</span>
+                            <span className="stat-label">Fournisseurs</span>
+                        </div>
+                        <div className="stat-item">
+                            <span className="stat-number">15,000+</span>
+                            <span className="stat-label">Utilisateurs</span>
+                        </div>
+                        <div className="stat-item">
+                            <span className="stat-number">98%</span>
+                            <span className="stat-label">Satisfaction</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Corps du modal */}
-            <div className="p-8 bg-gray-100">
+            {/* Section contenu */}
+            <div className="content-section">
                 {/* Fonctionnalités principales */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    {currentSlideData.features.map((feature, index) => (
-                        <div key={index} className="feature-card p-6 text-center">
-                            <div 
-                                className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                                style={{ background: `${feature.color}20`, color: feature.color }}
-                            >
-                                <feature.icon className="text-2xl" />
-                            </div>
-                            <Text strong className="block text-gray-800">
-                                {feature.text}
+                <div className="mb-8">
+                    <div className="feature-item">
+                        <div className="feature-icon">
+                            <ShopOutlined />
+                        </div>
+                        <div>
+                            <Text strong className="block text-gray-800 text-base">
+                                Catalogue vérifié
+                            </Text>
+                            <Text className="text-gray-600 text-sm">
+                                Accédez à des milliers de produits de qualité
                             </Text>
                         </div>
-                    ))}
-                </div>
-
-                <Divider />
-
-                {/* Section d'action */}
-                <div className="text-center space-y-6">
-                    <div>
-                        <Title level={3} className="!mb-2 text-gray-800">
-                            Prêt à Transformer Votre Business ?
-                        </Title>
-                        <Text className="text-gray-600 text-lg">
-                            Rejoignez des milliers d'entreprises qui font déjà confiance à Terminal d'Échanges
-                        </Text>
                     </div>
 
-                    {/* Boutons d'action */}
-                    <Space size="large" className="w-full justify-center flex-wrap">
+                    <div className="feature-item">
+                        <div className="feature-icon">
+                            <TeamOutlined />
+                        </div>
+                        <div>
+                            <Text strong className="block text-gray-800 text-base">
+                                Réseau professionnel
+                            </Text>
+                            <Text className="text-gray-600 text-sm">
+                                Connectez-vous avec des partenaires de confiance
+                            </Text>
+                        </div>
+                    </div>
+
+                    <div className="feature-item">
+                        <div className="feature-icon">
+                            <SafetyCertificateOutlined />
+                        </div>
+                        <div>
+                            <Text strong className="block text-gray-800 text-base">
+                                Transactions sécurisées
+                            </Text>
+                            <Text className="text-gray-600 text-sm">
+                                Paiements protégés et garantie qualité
+                            </Text>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Boutons d'action */}
+                <div className="text-center">
+                    <Space size="large" className="w-full justify-center">
                         <Button
-                            type="primary"
-                            size="large"
-                            className="promo-cta-button h-14 px-8"
+                            className="promo-cta-button"
                             onClick={handleJoinNow}
                             icon={<ArrowRightOutlined />}
                         >
-                            Commencer Maintenant - C'est Gratuit
+                            Commencer gratuitement
                         </Button>
                         
                         <Button
-                            size="large"
-                            className="h-14 px-6"
+                            className="promo-secondary-button"
                             onClick={() => {
                                 handleClose();
                                 navigate('/about');
                             }}
                         >
-                            En Savoir Plus
+                            En savoir plus
                         </Button>
                     </Space>
 
-                    {/* Garanties et certifications */}
-                    <div className="flex items-center justify-center space-x-8 text-sm text-gray-500 mt-6">
-                        <div className="flex items-center space-x-2">
-                            <SafetyCertificateOutlined className="text-green-500" />
-                            <span>100% Sécurisé</span>
+                    {/* Indicateurs de confiance */}
+                    <div className="trust-indicators">
+                        <div className="trust-item">
+                            <CheckCircleOutlined className="text-green-500" />
+                            <span>100% Gratuit</span>
                         </div>
-                        <div className="flex items-center space-x-2">
-                            <StarFilled className="text-yellow-500" />
+                        <div className="trust-item">
+                            <SafetyCertificateOutlined className="text-blue-500" />
+                            <span>Sécurisé</span>
+                        </div>
+                        <div className="trust-item">
+                            <GlobalOutlined className="text-purple-500" />
                             <span>Support 24h/7j</span>
                         </div>
-                        <div className="flex items-center space-x-2">
-                            <GiftOutlined className="text-blue-500" />
-                            <span>Sans Engagement</span>
-                        </div>
                     </div>
-
-                    {/* Note de confidentialité */}
-                    <Text className="text-xs text-gray-400 block mt-4">
-                        En rejoignant Terminal d'Échanges, vous acceptez nos conditions d'utilisation. 
-                        Aucune carte de crédit requise pour commencer.
-                    </Text>
                 </div>
             </div>
         </Modal>
     );
 };
 
-// Hook personnalisé pour gérer le modal promotionnel
-export const usePromotionalModal = () => {
-    const [shouldShow, setShouldShow] = useState(false);
-
-    useEffect(() => {
-        const checkShouldShow = () => {
-            const lastShown = localStorage.getItem('promotional_modal_last_shown');
-            const today = new Date().toDateString();
-            const userEmail = localStorage.getItem('userEmail');
-            const hasSeenModal = localStorage.getItem('promotional_modal_dismissed');
-
-            // Afficher le modal si :
-            // - L'utilisateur n'est pas connecté
-            // - Il ne l'a pas vu aujourd'hui
-            // - Il ne l'a jamais définitivement fermé
-            if (!userEmail && lastShown !== today && !hasSeenModal) {
-                setShouldShow(true);
-            }
-        };
-
-        // Vérifier après un court délai pour s'assurer que le localStorage est bien chargé
-        const timer = setTimeout(checkShouldShow, 1000);
-        return () => clearTimeout(timer);
-    }, []);
-
-    const hideModal = () => {
-        setShouldShow(false);
-        localStorage.setItem('promotional_modal_last_shown', new Date().toDateString());
-    };
-
-    const dismissModal = () => {
-        setShouldShow(false);
-        localStorage.setItem('promotional_modal_dismissed', 'true');
-    };
-
-    return { shouldShow, hideModal, dismissModal };
-};
-
-export default PromotionalModal;
+export default ProfessionalPromoModal;
