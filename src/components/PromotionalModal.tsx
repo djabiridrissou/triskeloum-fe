@@ -140,7 +140,7 @@ const PromotionalModal: React.FC<PromotionalModalProps> = ({ onClose }) => {
                 background: rgba(255, 255, 255, 0.2);
                 border-radius: 50%;
                 width: 40px;
-                height: 40px;
+                height: 30px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -348,12 +348,14 @@ const PromotionalModal: React.FC<PromotionalModalProps> = ({ onClose }) => {
             closeIcon={<CloseOutlined />}
         >
             {/* En-tête avec dégradé */}
-            <div className="promo-gradient-bg text-white relative">
+            <div className="bg-black text-white relative">
                 {/* Effets de particules */}
                 <div className="sparkle-effect" style={{ top: '20%', left: '10%', animationDelay: '0s' }} />
                 <div className="sparkle-effect" style={{ top: '60%', left: '80%', animationDelay: '1s' }} />
                 <div className="sparkle-effect" style={{ top: '30%', left: '70%', animationDelay: '2s' }} />
-                
+                <div className="sparkle-effect" style={{ top: '20%', left: '10%', animationDelay: '0s' }} />
+                <div className="sparkle-effect" style={{ top: '60%', left: '80%', animationDelay: '1s' }} />
+                <div className="sparkle-effect" style={{ top: '30%', left: '70%', animationDelay: '2s' }} />
                 <div className="relative z-10 p-8">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center space-x-4">
@@ -364,13 +366,13 @@ const PromotionalModal: React.FC<PromotionalModalProps> = ({ onClose }) => {
                                 <Title level={3} className="!mb-0 !text-white">
                                     Terminal d'Échanges
                                 </Title>
-                                <Text className="text-blue-100">Plateforme B2B #1 en Côte d'Ivoire</Text>
+                                <Text className="text-blue-100">Plateforme B2B #1 au Togo</Text>
                             </div>
                         </div>
                         
                         <div className="promotional-badge px-4 py-2 rounded-full text-sm font-bold">
                             <GiftOutlined className="mr-2" />
-                            OFFRE LIMITÉE
+                          
                         </div>
                     </div>
 
@@ -384,7 +386,7 @@ const PromotionalModal: React.FC<PromotionalModalProps> = ({ onClose }) => {
                         </Paragraph>
 
                         {/* Statistiques impressionnantes */}
-                        <div className="grid grid-cols-3 gap-4 mb-6">
+                        <div className="grid grid-cols-3 gap-4 mb-6 bg-">
                             {[
                                 { number: "5,000+", label: "Fournisseurs" },
                                 { number: "15,000+", label: "Utilisateurs" },
@@ -412,7 +414,7 @@ const PromotionalModal: React.FC<PromotionalModalProps> = ({ onClose }) => {
             </div>
 
             {/* Corps du modal */}
-            <div className="p-8">
+            <div className="p-8 bg-gray-100">
                 {/* Fonctionnalités principales */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     {currentSlideData.features.map((feature, index) => (

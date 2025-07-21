@@ -18,7 +18,11 @@ import {
     Descriptions,
     Empty,
     DatePicker,
-    message
+    message,
+    Modal,
+    Divider,
+    Skeleton,
+    Image
 } from 'antd';
 import {
     SearchOutlined,
@@ -31,9 +35,14 @@ import {
     UserOutlined,
     FileTextOutlined,
     ClockCircleOutlined,
-    CheckCircleOutlined
+    CheckCircleOutlined,
+    PhoneOutlined,
+    MailOutlined,
+    ShopOutlined,
+    TagOutlined,
+    BoxPlotOutlined
 } from '@ant-design/icons';
-import { useGetSalesQuery } from '../../services/api';
+import { useGetOrdersQuery, useGetOrderDetailsQuery } from '../../services/api';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
@@ -53,6 +62,11 @@ interface SaleItem {
     quantity: number;
     unitPrice: number;
     totalPrice: number;
+    supplierId: {
+        _id: string;
+        name: string;
+        socialReason: string;
+    };
 }
 
 interface Sale {
@@ -76,14 +90,19 @@ interface Sale {
     updatedAt: string;
 }
 
-interface UserSalesProps {
-    userId?: string; // Si pas fourni, prend celui du localStorage
-    showAllUsers?: boolean; // Pour admin qui veut voir toutes les ventes
+interface OrderDetails {
+    order: Sale;
+    orderItems: SaleItem[];
 }
 
-const BuyerSales: React.FC<UserSalesProps> = ({ 
-    userId, 
-    showAllUsers = false 
+interface UserSalesProps {
+    userId?: string;
+    showAllUsers?: boolean;
+}
+
+const BuyerSales: React.FC<UserSalesProps> = ({
+    userId,
+    showAllUsers = false
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -91,12 +110,11 @@ const BuyerSales: React.FC<UserSalesProps> = ({
     const [statusFilter, setStatusFilter] = useState<string>('');
     const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>('');
     const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>('');
-    const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
-    const [drawerVisible, setDrawerVisible] = useState(false);
+    const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
+    const [modalVisible, setModalVisible] = useState(false);
     const [sortField, setSortField] = useState('createdAt');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-    // Si pas d'userId fourni, prendre celui du localStorage
     const effectiveUserId = userId || localStorage.getItem('userId') || '';
 
     const {
@@ -104,7 +122,7 @@ const BuyerSales: React.FC<UserSalesProps> = ({
         isLoading,
         error,
         refetch
-    } = useGetSalesQuery({
+    } = useGetOrdersQuery({
         page: currentPage,
         limit: pageSize,
         searchQuery,
@@ -116,13 +134,22 @@ const BuyerSales: React.FC<UserSalesProps> = ({
         paymentMethod: paymentMethodFilter || undefined,
     });
 
+    // Requête pour les détails de commande
+    const {
+        data: orderDetailsData,
+        isLoading: isLoadingDetails,
+        error: detailsError
+    } = useGetOrderDetailsQuery(selectedSaleId, {
+        skip: !selectedSaleId
+    });
+
     const sales = salesData?.data || [];
     const pagination = salesData?.pagination;
+    const orderDetails: OrderDetails | null = orderDetailsData?.data || null;
 
-    // Statistiques rapides
     const stats = React.useMemo(() => {
         if (!sales.length) return { total: 0, pending: 0, completed: 0, totalAmount: 0 };
-        
+
         return {
             total: sales.length,
             pending: sales.filter((s: Sale) => s.status === 'pending').length,
@@ -131,23 +158,22 @@ const BuyerSales: React.FC<UserSalesProps> = ({
         };
     }, [sales]);
 
-    // Status colors and labels
     const getStatusConfig = (status: string) => {
         const configs = {
-            pending: { color: 'orange', label: 'En attente', icon: <ClockCircleOutlined /> },
-            'pending-payment': { color: 'blue', label: 'En attente de paiement', icon: <DollarOutlined /> },
-            completed: { color: 'green', label: 'Terminée', icon: <CheckCircleOutlined /> },
-            delivered: { color: 'cyan', label: 'Livrée', icon: <CheckCircleOutlined /> },
-            cancelled: { color: 'red', label: 'Annulée', icon: <ClockCircleOutlined /> },
+            pending: { color: '#F59E0B', label: 'En attente', icon: <ClockCircleOutlined />, bgColor: '#FEF3C7' },
+            'pending-payment': { color: '#3B82F6', label: 'En attente de paiement', icon: <DollarOutlined />, bgColor: '#DBEAFE' },
+            completed: { color: '#10B981', label: 'Terminée', icon: <CheckCircleOutlined />, bgColor: '#D1FAE5' },
+            delivered: { color: '#06B6D4', label: 'Livrée', icon: <CheckCircleOutlined />, bgColor: '#CFFAFE' },
+            cancelled: { color: '#EF4444', label: 'Annulée', icon: <ClockCircleOutlined />, bgColor: '#FEE2E2' },
         };
         return configs[status as keyof typeof configs] || configs.pending;
     };
 
     const getPaymentStatusConfig = (status: string) => {
         const configs = {
-            pending: { color: 'orange', label: 'En attente' },
-            paid: { color: 'green', label: 'Payée' },
-            partial: { color: 'blue', label: 'Partiel' },
+            pending: { color: '#F59E0B', label: 'En attente', bgColor: '#FEF3C7' },
+            paid: { color: '#10B981', label: 'Payée', bgColor: '#D1FAE5' },
+            partial: { color: '#3B82F6', label: 'Partiel', bgColor: '#DBEAFE' },
         };
         return configs[status as keyof typeof configs] || configs.pending;
     };
@@ -161,14 +187,19 @@ const BuyerSales: React.FC<UserSalesProps> = ({
     };
 
     const handleViewDetails = (sale: Sale) => {
-        setSelectedSale(sale);
-        setDrawerVisible(true);
+        setSelectedSaleId(sale._id);
+        setModalVisible(true);
+    };
+
+    const handleModalClose = () => {
+        setModalVisible(false);
+        setSelectedSaleId(null);
     };
 
     const handleTableChange = (pagination: any, filters: any, sorter: any) => {
         setCurrentPage(pagination.current);
         setPageSize(pagination.pageSize);
-        
+
         if (sorter.field) {
             setSortField(sorter.field);
             setSortOrder(sorter.order === 'ascend' ? 'asc' : 'desc');
@@ -186,12 +217,14 @@ const BuyerSales: React.FC<UserSalesProps> = ({
 
     const columns: ColumnsType<Sale> = [
         {
-            title: 'N° Vente',
+            title: 'N° Commande',
             dataIndex: 'saleNumber',
             key: 'saleNumber',
             width: 140,
             render: (text: string) => (
-                <Text strong className="text-blue-600">{text}</Text>
+                <div className="font-mono text-sm">
+                    <div className="font-semibold text-gray-900">{text}</div>
+                </div>
             ),
             sorter: true,
         },
@@ -201,10 +234,16 @@ const BuyerSales: React.FC<UserSalesProps> = ({
             key: 'buyer',
             width: 200,
             render: (buyer: any) => (
-                <div className="flex items-center space-x-2">
-                    <Avatar size="small" icon={<UserOutlined />} />
+                <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                        <Text className="text-white text-xs font-semibold">
+                            {(buyer?.fullName || buyer?.socialReason || '').charAt(0).toUpperCase()}
+                        </Text>
+                    </div>
                     <div>
-                        <div className="font-medium text-sm">{buyer?.fullName || buyer?.socialReason}</div>
+                        <div className="font-medium text-sm text-gray-900">
+                            {buyer?.fullName || buyer?.socialReason}
+                        </div>
                         <div className="text-xs text-gray-500">{buyer?.email}</div>
                     </div>
                 </div>
@@ -216,7 +255,9 @@ const BuyerSales: React.FC<UserSalesProps> = ({
             key: 'totalAmount',
             width: 120,
             render: (amount: number) => (
-                <Text strong className="text-green-600">{formatPrice(amount)}</Text>
+                <div className="text-right">
+                    <div className="font-semibold text-gray-900">{formatPrice(amount)}</div>
+                </div>
             ),
             sorter: true,
         },
@@ -228,18 +269,13 @@ const BuyerSales: React.FC<UserSalesProps> = ({
             render: (status: string) => {
                 const config = getStatusConfig(status);
                 return (
-                    <Tag color={config.color} icon={config.icon}>
-                        {config.label}
-                    </Tag>
+                    <div className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-medium"
+                        style={{ backgroundColor: config.bgColor, color: config.color }}>
+                        {config.icon}
+                        <span className="ml-1">{config.label}</span>
+                    </div>
                 );
             },
-            filters: [
-                { text: 'En attente', value: 'pending' },
-                { text: 'En attente de paiement', value: 'pending-payment' },
-                { text: 'Terminée', value: 'completed' },
-                { text: 'Livrée', value: 'delivered' },
-                { text: 'Annulée', value: 'cancelled' },
-            ],
         },
         {
             title: 'Paiement',
@@ -248,13 +284,13 @@ const BuyerSales: React.FC<UserSalesProps> = ({
             width: 120,
             render: (status: string) => {
                 const config = getPaymentStatusConfig(status);
-                return <Tag color={config.color}>{config.label}</Tag>;
+                return (
+                    <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
+                        style={{ backgroundColor: config.bgColor, color: config.color }}>
+                        {config.label}
+                    </div>
+                );
             },
-            filters: [
-                { text: 'En attente', value: 'pending' },
-                { text: 'Payée', value: 'paid' },
-                { text: 'Partiel', value: 'partial' },
-            ],
         },
         {
             title: 'Date',
@@ -262,153 +298,150 @@ const BuyerSales: React.FC<UserSalesProps> = ({
             key: 'createdAt',
             width: 120,
             render: (date: string) => (
-                <div>
-                    <div className="text-sm">{dayjs(date).format('DD/MM/YYYY')}</div>
+                <div className="text-sm">
+                    <div className="font-medium text-gray-900">{dayjs(date).format('DD/MM/YYYY')}</div>
                     <div className="text-xs text-gray-500">{dayjs(date).format('HH:mm')}</div>
                 </div>
             ),
             sorter: true,
         },
         {
-            title: 'Actions',
+            title: '',
             key: 'actions',
-            width: 100,
-            fixed: 'right',
+            width: 60,
             render: (_, record: Sale) => (
-                <Space size="small">
-                    <Tooltip title="Voir détails">
-                        <Button
-                            type="text"
-                            size="small"
-                            icon={<EyeOutlined />}
-                            onClick={() => handleViewDetails(record)}
-                            className="text-blue-600 hover:text-blue-800"
-                        />
-                    </Tooltip>
-                </Space>
+                <div>
+                    <Button
+                        size="small"
+                        onClick={() => handleViewDetails(record)}
+                        className="border border-blue-200 text-blue-600 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-300 rounded-md px-3"
+                        style={{
+                            borderColor: '#bfdbfe',
+                            color: '#2563eb',
+                            backgroundColor: 'transparent'
+                        }}
+                    >
+                        Détails
+                    </Button>
+                    {/* <Button
+                        size="small"
+                        onClick={() => handleViewDetails(record)}
+                        className="border border-yellow-200 text-blue-600 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-300 rounded-md"
+                        style={{
+                            borderColor: '#facc15',       // yellow-400
+                            color: '#ca8a04',             // yellow-600
+                            backgroundColor: '#fefce8'    // yellow-50 (très clair)
+                        }}
+
+                    >
+                        Marquer comme payé
+                    </Button> */}
+                </div>
+
             ),
-        },
+        }
     ];
 
     return (
-        <div className="w-full space-y-6">
-            {/* En-tête et statistiques */}
-            <Card className="shadow-sm">
+        <div className="w-full space-y-6 bg-gray-50 min-h-screen p-6">
+            {/* En-tête */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
                     <div>
-                        <Title level={4} className="mb-2">
-                            {showAllUsers ? 'Toutes les ventes' : 'Mes commandes'}
+                        <Title level={3} className="mb-2 text-gray-900">
+                            {showAllUsers ? 'Gestion des Ventes' : 'Mes Commandes'}
                         </Title>
-                        <Text type="secondary">
-                            Gérez et suivez vos {showAllUsers ? 'ventes' : 'commandes'}
+                        <Text className="text-gray-600">
+                            Suivez vos {showAllUsers ? 'ventes' : 'commandes'} en temps réel
                         </Text>
                     </div>
                     <Button
                         icon={<ReloadOutlined />}
                         onClick={() => refetch()}
                         loading={isLoading}
+                        className="border-gray-300 hover:border-blue-500"
                     >
                         Actualiser
                     </Button>
                 </div>
 
-                {/* Statistiques rapides */}
-                <Row gutter={[16, 16]} className="mb-6">
+                {/* Statistiques */}
+                <Row gutter={[20, 20]} className="mb-6">
                     <Col xs={12} sm={6}>
-                        <Card size="small" className="text-center bg-blue-50 border-blue-200">
-                            <Statistic
-                                title="Total"
-                                value={stats.total}
-                                prefix={<ShoppingCartOutlined className="text-blue-600" />}
-                                valueStyle={{ color: '#1890ff', fontSize: '20px' }}
-                            />
-                        </Card>
+                        <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl border border-blue-200">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <div className="text-2xl font-bold text-blue-700">{stats.total}</div>
+                                    <div className="text-sm text-blue-600">Total</div>
+                                </div>
+                                <ShoppingCartOutlined className="text-2xl text-blue-500" />
+                            </div>
+                        </div>
                     </Col>
                     <Col xs={12} sm={6}>
-                        <Card size="small" className="text-center bg-orange-50 border-orange-200">
-                            <Statistic
-                                title="En attente"
-                                value={stats.pending}
-                                prefix={<ClockCircleOutlined className="text-orange-600" />}
-                                valueStyle={{ color: '#fa8c16', fontSize: '20px' }}
-                            />
-                        </Card>
+                        <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-xl border border-orange-200">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <div className="text-2xl font-bold text-orange-700">{stats.pending}</div>
+                                    <div className="text-sm text-orange-600">En attente</div>
+                                </div>
+                                <ClockCircleOutlined className="text-2xl text-orange-500" />
+                            </div>
+                        </div>
                     </Col>
                     <Col xs={12} sm={6}>
-                        <Card size="small" className="text-center bg-green-50 border-green-200">
-                            <Statistic
-                                title="Terminées"
-                                value={stats.completed}
-                                prefix={<CheckCircleOutlined className="text-green-600" />}
-                                valueStyle={{ color: '#52c41a', fontSize: '20px' }}
-                            />
-                        </Card>
+                        <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-xl border border-green-200">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <div className="text-2xl font-bold text-green-700">{stats.completed}</div>
+                                    <div className="text-sm text-green-600">Terminées</div>
+                                </div>
+                                <CheckCircleOutlined className="text-2xl text-green-500" />
+                            </div>
+                        </div>
                     </Col>
                     <Col xs={12} sm={6}>
-                        <Card size="small" className="text-center bg-purple-50 border-purple-200">
-                            <Statistic
-                                title="Montant total"
-                                value={formatPrice(stats.totalAmount)}
-                                prefix={<DollarOutlined className="text-purple-600" />}
-                                valueStyle={{ color: '#722ed1', fontSize: '16px' }}
-                            />
-                        </Card>
+                        <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-xl border border-purple-200">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <div className="text-lg font-bold text-purple-700">{formatPrice(stats.totalAmount)}</div>
+                                    <div className="text-sm text-purple-600">Montant</div>
+                                </div>
+                                <DollarOutlined className="text-2xl text-purple-500" />
+                            </div>
+                        </div>
                     </Col>
                 </Row>
 
                 {/* Filtres */}
-                <Row gutter={[12, 12]} className="mb-4">
-                    <Col xs={24} sm={12} md={8} lg={6}>
-                        <Input
-                            placeholder="Rechercher par numéro..."
-                            prefix={<SearchOutlined />}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            allowClear
-                        />
-                    </Col>
-                    <Col xs={12} sm={6} md={4} lg={3}>
-                        <Select
-                            placeholder="Statut"
-                            value={statusFilter}
-                            onChange={setStatusFilter}
-                            allowClear
-                            className="w-full"
-                        >
-                            <Option value="pending">En attente</Option>
-                            <Option value="pending-payment">En attente paiement</Option>
-                            <Option value="completed">Terminée</Option>
-                            <Option value="delivered">Livrée</Option>
-                            <Option value="cancelled">Annulée</Option>
-                        </Select>
-                    </Col>
-                    <Col xs={12} sm={6} md={4} lg={3}>
-                        <Select
-                            placeholder="Paiement"
-                            value={paymentStatusFilter}
-                            onChange={setPaymentStatusFilter}
-                            allowClear
-                            className="w-full"
-                        >
-                            <Option value="pending">En attente</Option>
-                            <Option value="paid">Payée</Option>
-                            <Option value="partial">Partiel</Option>
-                        </Select>
-                    </Col>
-                    <Col xs={24} sm={24} md={8} lg={3}>
-                        <Button
-                            icon={<FilterOutlined />}
-                            onClick={clearFilters}
-                            className="w-full"
-                        >
-                            Réinitialiser
-                        </Button>
-                    </Col>
-                </Row>
-            </Card>
+                <div className="flex flex-wrap gap-3 items-center">
+                    <Select
+                        placeholder="Filtrer par statut"
+                        value={statusFilter}
+                        onChange={setStatusFilter}
+                        allowClear
+                        className="min-w-[180px]"
+                        style={{ borderRadius: '8px' }}
+                    >
+                        <Option value="">Tous les statuts</Option>
+                        <Option value="pending">En attente</Option>
+                        <Option value="pending-payment">En attente paiement</Option>
+                        <Option value="completed">Terminée</Option>
+                        <Option value="delivered">Livrée</Option>
+                        <Option value="cancelled">Annulée</Option>
+                    </Select>
+                    <Button
+                        icon={<FilterOutlined />}
+                        onClick={clearFilters}
+                        className="border-gray-300 hover:border-red-500 hover:text-red-500"
+                    >
+                        Réinitialiser
+                    </Button>
+                </div>
+            </div>
 
             {/* Tableau */}
-            <Card className="shadow-sm">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <Table<Sale>
                     columns={columns}
                     dataSource={sales}
@@ -430,114 +463,270 @@ const BuyerSales: React.FC<UserSalesProps> = ({
                         emptyText: (
                             <Empty
                                 image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                description="Aucune vente trouvée"
+                                description="Aucune commande trouvée"
                             />
                         ),
                     }}
+                    className="luxury-table"
                 />
-            </Card>
+            </div>
 
-            {/* Drawer des détails */}
-            <Drawer
-                title={`Détails de la vente ${selectedSale?.saleNumber}`}
-                width={600}
-                onClose={() => setDrawerVisible(false)}
-                open={drawerVisible}
-                className="[&_.ant-drawer-body]:p-0"
+            {/* Modal des détails - Design luxueux */}
+            <Modal
+                title={null}
+                open={modalVisible}
+                onCancel={handleModalClose}
+                footer={null}
+                width={800}
+                className="luxury-modal"
+                style={{ top: 20 }}
             >
-                {selectedSale && (
-                    <div className="space-y-6">
-                        {/* Informations générales */}
-                        <div className="p-6 border-b">
-                            <Descriptions
-                                title="Informations générales"
-                                column={1}
-                                size="small"
-                            >
-                                <Descriptions.Item label="Numéro">
-                                    <Text strong>{selectedSale.saleNumber}</Text>
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Date de création">
-                                    {dayjs(selectedSale.createdAt).format('DD/MM/YYYY HH:mm')}
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Statut">
-                                    <Tag color={getStatusConfig(selectedSale.status).color}>
-                                        {getStatusConfig(selectedSale.status).label}
-                                    </Tag>
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Paiement">
-                                    <Tag color={getPaymentStatusConfig(selectedSale.paymentStatus).color}>
-                                        {getPaymentStatusConfig(selectedSale.paymentStatus).label}
-                                    </Tag>
-                                </Descriptions.Item>
-                                <Descriptions.Item label="Montant total">
-                                    <Text strong className="text-green-600 text-lg">
-                                        {formatPrice(selectedSale.totalAmount)}
-                                    </Text>
-                                </Descriptions.Item>
-                                {selectedSale.notes && (
-                                    <Descriptions.Item label="Notes">
-                                        {selectedSale.notes}
-                                    </Descriptions.Item>
-                                )}
-                            </Descriptions>
+                {isLoadingDetails ? (
+                    <div className="p-8">
+                        <Skeleton active paragraph={{ rows: 8 }} />
+                    </div>
+                ) : orderDetails ? (
+                    <div className="bg-white">
+                        {/* En-tête du modal */}
+                        <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white p-6 -m-6 mb-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <div className="text-sm opacity-75 mb-1">Commande</div>
+                                    <div className="text-2xl font-light tracking-wide">
+                                        {orderDetails.order.saleNumber}
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-sm opacity-75 mb-1">Montant Total</div>
+                                    <div className="text-2xl font-light">
+                                        {formatPrice(orderDetails.order.totalAmount)}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Client (si showAllUsers) */}
-                        {showAllUsers && selectedSale.buyerId && (
-                            <div className="p-6 border-b">
-                                <Title level={5} className="mb-4">Informations client</Title>
-                                <Descriptions column={1} size="small">
-                                    <Descriptions.Item label="Nom">
-                                        {selectedSale.buyerId.fullName || selectedSale.buyerId.socialReason}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Email">
-                                        {selectedSale.buyerId.email}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Téléphone">
-                                        {selectedSale.buyerId.phoneNumber}
-                                    </Descriptions.Item>
-                                </Descriptions>
+                        {/* Informations principales */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div className="space-y-4">
+                                <div>
+                                    <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Date de commande</div>
+                                    <div className="flex items-center space-x-2">
+                                        <CalendarOutlined className="text-gray-400" />
+                                        <span className="text-gray-900">
+                                            {dayjs(orderDetails.order.createdAt).format('DD MMMM YYYY à HH:mm')}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Statut</div>
+                                    <div className="inline-flex items-center space-x-2 px-3 py-2 rounded-lg"
+                                        style={{
+                                            backgroundColor: getStatusConfig(orderDetails.order.status).bgColor,
+                                            color: getStatusConfig(orderDetails.order.status).color
+                                        }}>
+                                        {getStatusConfig(orderDetails.order.status).icon}
+                                        <span className="font-medium">
+                                            {getStatusConfig(orderDetails.order.status).label}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Paiement</div>
+                                    <div className="inline-flex items-center px-3 py-2 rounded-lg"
+                                        style={{
+                                            backgroundColor: getPaymentStatusConfig(orderDetails.order.paymentStatus).bgColor,
+                                            color: getPaymentStatusConfig(orderDetails.order.paymentStatus).color
+                                        }}>
+                                        <span className="font-medium">
+                                            {getPaymentStatusConfig(orderDetails.order.paymentStatus).label}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {orderDetails.order.paymentMethod && (
+                                    <div>
+                                        <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mode de paiement</div>
+                                        <div className="flex items-center space-x-2">
+                                            <DollarOutlined className="text-gray-400" />
+                                            <span className="text-gray-900 capitalize">
+                                                {orderDetails.order.paymentMethod}
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Informations client (si admin) */}
+                        {showAllUsers && orderDetails.order.buyerId && (
+                            <>
+                                <Divider className="my-8" />
+                                <div className="mb-8">
+                                    <div className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                                        <UserOutlined className="mr-2" />
+                                        Informations Client
+                                    </div>
+                                    <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                                        <div className="flex items-center space-x-3">
+                                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                                <Text className="text-white font-semibold">
+                                                    {(orderDetails.order.buyerId.fullName || orderDetails.order.buyerId.socialReason || '').charAt(0).toUpperCase()}
+                                                </Text>
+                                            </div>
+                                            <div>
+                                                <div className="font-medium text-gray-900">
+                                                    {orderDetails.order.buyerId.fullName || orderDetails.order.buyerId.socialReason}
+                                                </div>
+                                                <div className="text-sm text-gray-500 flex items-center space-x-4">
+                                                    <span className="flex items-center">
+                                                        <MailOutlined className="mr-1" />
+                                                        {orderDetails.order.buyerId.email}
+                                                    </span>
+                                                    <span className="flex items-center">
+                                                        <PhoneOutlined className="mr-1" />
+                                                        {orderDetails.order.buyerId.phoneNumber}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
                         )}
 
-                        {/* Articles */}
-                        <div className="p-6">
-                            <Title level={5} className="mb-4">Articles commandés</Title>
-                            <div className="space-y-3">
-                                {selectedSale.items?.map((item: SaleItem) => (
-                                    <div key={item._id} className="flex items-center space-x-3 p-3 border rounded-lg">
-                                        <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center">
-                                            {item.productId?.image ? (
-                                                <img
-                                                    src={`${import.meta.env.VITE_BASE_WITHOUT_ORIGIN}/${item.productId.image}`}
-                                                    alt={item.productId.name}
-                                                    className="w-full h-full object-cover rounded-md"
-                                                />
-                                            ) : (
-                                                <FileTextOutlined className="text-gray-400" />
-                                            )}
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="font-medium">
-                                                {item.productId?.name || item.productId?.designation}
+                        {/* Articles commandés */}
+                        <Divider className="my-8" />
+                        <div>
+                            <div className="text-lg font-medium text-gray-900 mb-6 flex items-center">
+                                <BoxPlotOutlined className="mr-2" />
+                                Articles Commandés
+                                <Badge count={orderDetails.orderItems?.length || 0} className="ml-2" />
+                            </div>
+                            <div className="space-y-4">
+                                {orderDetails.orderItems?.map((item: SaleItem, index: number) => (
+                                    <div key={item._id}
+                                        className="border border-gray-200 rounded-xl p-5 hover:shadow-sm transition-shadow">
+                                        <div className="flex items-start space-x-4">
+                                            <div className="w-16 h-16 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
+                                                {item.productId?.image ? (
+                                                    <Image
+                                                        src={`${import.meta.env.VITE_BASE_WITHOUT_ORIGIN}/${item.productId.image}`}
+                                                        alt={item.productId.name}
+                                                        className="w-full h-full object-cover"
+                                                        preview={false}
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center">
+                                                        <FileTextOutlined className="text-2xl text-gray-400" />
+                                                    </div>
+                                                )}
                                             </div>
-                                            <div className="text-sm text-gray-600">
-                                                {formatPrice(item.unitPrice)} × {item.quantity}
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="font-medium">
-                                                {formatPrice(item.totalPrice)}
+
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex justify-between items-start">
+                                                    <div className="space-y-2">
+                                                        <div>
+                                                            <div className="font-medium text-gray-900 text-lg">
+                                                                {item.productId?.name || item.productId?.designation}
+                                                            </div>
+                                                            {item.supplierId && (
+                                                                <div className="flex items-center text-sm text-gray-500 mt-1">
+                                                                    <ShopOutlined className="mr-1" />
+                                                                    {item.supplierId.name || item.supplierId.socialReason}
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="flex items-center space-x-4 text-sm">
+                                                            <div className="flex items-center space-x-1">
+                                                                <TagOutlined className="text-gray-400" />
+                                                                <span className="text-gray-600">Prix unitaire:</span>
+                                                                <span className="font-medium">{formatPrice(item.unitPrice)}</span>
+                                                            </div>
+                                                            <div className="flex items-center space-x-1">
+                                                                <BoxPlotOutlined className="text-gray-400" />
+                                                                <span className="text-gray-600">Quantité:</span>
+                                                                <span className="font-medium">{item.quantity}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="text-right">
+                                                        <div className="text-xl font-semibold text-gray-900">
+                                                            {formatPrice(item.totalPrice)}
+                                                        </div>
+                                                        <div className="text-sm text-gray-500">
+                                                            {formatPrice(item.unitPrice)} × {item.quantity}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 ))}
                             </div>
+
+                            {/* Total final */}
+                            <div className="mt-6 pt-6 border-t border-gray-200">
+                                <div className="flex justify-between items-center">
+                                    <div className="text-lg font-medium text-gray-900">Total de la commande</div>
+                                    <div className="text-2xl font-bold text-gray-900">
+                                        {formatPrice(orderDetails.order.totalAmount)}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        {/* Notes */}
+                        {orderDetails.order.notes && (
+                            <>
+                                <Divider className="my-8" />
+                                <div>
+                                    <div className="text-lg font-medium text-gray-900 mb-4">Notes</div>
+                                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                                        <Text className="text-amber-800">{orderDetails.order.notes}</Text>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                ) : (
+                    <div className="p-8 text-center">
+                        <Empty description="Aucun détail trouvé" />
                     </div>
                 )}
-            </Drawer>
+            </Modal>
+
+            <style>{`
+                .luxury-table .ant-table-thead > tr > th {
+                    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                    border-bottom: 2px solid #e2e8f0;
+                    font-weight: 600;
+                    color: #334155;
+                }
+                
+                .luxury-table .ant-table-tbody > tr:hover > td {
+                    background: #f8fafc;
+                }
+                
+                .luxury-modal .ant-modal-content {
+                    border-radius: 16px;
+                    overflow: hidden;
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                }
+                
+                .luxury-modal .ant-modal-header {
+                    display: none;
+                }
+                
+                .luxury-modal .ant-modal-body {
+                    padding: 24px;
+                }
+            `}</style>
         </div>
     );
 };

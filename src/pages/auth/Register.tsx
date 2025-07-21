@@ -16,7 +16,7 @@ import {
 import toast from "react-hot-toast";
 import { countries } from "countries-list";
 import emojiFlags from "emoji-flags";
-import { ChevronLeft, ChevronRight, Globe, Shield, TrendingUp, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, Globe, Shield, TrendingUp } from "lucide-react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
@@ -40,37 +40,31 @@ const Register = () => {
 
     const slides = [
         {
-            image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-            title: "Connectez-vous avec des Fournisseurs",
-            subtitle: "Accédez à un réseau mondial de fournisseurs de confiance",
-            icon: <Users className="w-8 h-8 text-blue-400" />
+            image: "/images/A2.jpg",
+            title: "",
+            subtitle: "",
+            icon: <Globe className="w-8 h-8 text-blue-400" />
         },
         {
-            image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-            title: "Développez votre Business",
-            subtitle: "Augmentez vos ventes grâce à notre plateforme d'échanges",
-            icon: <TrendingUp className="w-8 h-8 text-green-400" />
+            image: "/images/A4k.jpg",
+            title: "",
+            subtitle: "",
+            icon: <Shield className="w-8 h-8 text-green-400" />
         },
         {
-            image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-            title: "Sécurité Garantie",
-            subtitle: "Transactions sécurisées avec notre fiche d'échanges",
-            icon: <Shield className="w-8 h-8 text-purple-400" />
-        },
-        {
-            image: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-            title: "Portée Internationale",
-            subtitle: "Étendez votre présence sur les marchés internationaux",
-            icon: <Globe className="w-8 h-8 text-orange-400" />
+            image: "/images/A5k.jpg",
+            title: "",
+            subtitle: "",
+            icon: <TrendingUp className="w-8 h-8 text-purple-400" />
         }
     ];
 
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % slides.length);
-        }, 5000);
+        }, 6000);
         return () => clearInterval(interval);
-    }, []);
+    }, [slides.length]);
 
     const nextSlide = () => {
         setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -192,7 +186,7 @@ const Register = () => {
                 confirmButtonText: 'OK'
             });
     
-            navigate('/login'); // Rediriger vers la page de connexion après l'inscription
+            navigate('/login');
         } catch (error: any) {
             console.error('Registration error:', error);
             await Swal.fire({
@@ -259,7 +253,7 @@ const Register = () => {
         if (userType === 'fournisseur-national' || userType === 'fournisseur-international') {
             return {
                 ...commonData,
-                socialReason: `SARL ${randomString(6)}`, // Ajout de cette ligne
+                socialReason: `SARL ${randomString(6)}`,
                 representativeName: `Représentant ${randomString(8)}`,
                 representativeBirthDate: randomDate(),
                 representativeBirthPlace: `Lieu ${randomString(6)}`,
@@ -281,7 +275,6 @@ const Register = () => {
         const fields = getStepFields(currentStep);
         form.validateFields(fields)
             .then(() => {
-                // Sauvegarder les données avant de passer à l'étape suivante
                 saveFormData();
                 setCurrentStep(currentStep + 1);
             })
@@ -291,7 +284,6 @@ const Register = () => {
     };
 
     const prevStep = () => {
-        // Sauvegarder les données avant de revenir à l'étape précédente
         saveFormData();
         setCurrentStep(currentStep - 1);
     };
@@ -729,6 +721,34 @@ const Register = () => {
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <Form.Item
+                                    name="witnessName"
+                                    label="Nom du témoin"
+                                    rules={[{ required: true, message: 'Veuillez entrer le nom du témoin!' }]}
+                                >
+                                    <Input
+                                        prefix={<UserOutlined />}
+                                        placeholder="Nom du témoin"
+                                        className="rounded-lg"
+                                        size="large"
+                                    />
+                                </Form.Item>
+
+                                <Form.Item
+                                    name="witnessPhone"
+                                    label="Téléphone du témoin"
+                                    rules={[{ required: true, message: 'Veuillez entrer le téléphone du témoin!' }]}
+                                >
+                                    <Input
+                                        prefix={<PhoneOutlined />}
+                                        placeholder="Téléphone du témoin"
+                                        className="rounded-lg"
+                                        size="large"
+                                    />
+                                </Form.Item>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <Form.Item
                                     name="witnIdFront"
                                     label="Recto de la pièce du témoin"
                                     valuePropName="fileList"
@@ -921,21 +941,28 @@ const Register = () => {
 
     return (
         <div className="w-full flex flex-col lg:flex-row min-h-screen">
-            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/50 to-purple-900/50 z-10"></div>
+            {/* Section Slider - Côté Gauche */}
+            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-blue-900 to-purple-900">
+                <div className="absolute inset-0 bg-black/30 z-10"></div>
 
                 {/* Images du slider */}
                 <div className="relative w-full h-full">
                     {slides.map((slide, index) => (
                         <div
                             key={index}
-                            className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100' : 'opacity-0'
-                                }`}
+                            className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+                                index === currentSlide 
+                                    ? 'opacity-100 scale-100' 
+                                    : 'opacity-0 scale-105'
+                            }`}
                         >
                             <img
                                 src={slide.image}
                                 alt={slide.title}
                                 className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    e.currentTarget.src = "/images/placeholder-registration.jpg";
+                                }}
                             />
                         </div>
                     ))}
@@ -943,183 +970,236 @@ const Register = () => {
 
                 {/* Contenu du slider */}
                 <div className="absolute inset-0 z-20 flex items-center justify-center">
-                    <div className="text-center text-white px-8">
-                        <div className="mb-6 flex justify-center">
+                    <div className="text-center text-white px-8 max-w-lg">
+                        <div className="mb-6 flex justify-center transform transition-transform duration-500 hover:scale-110">
                             {slides[currentSlide].icon}
                         </div>
-                        <h2 className="text-4xl font-bold mb-4">
+                        <h2 className="text-4xl font-bold mb-4 leading-tight">
                             {slides[currentSlide].title}
                         </h2>
-                        <p className="text-xl text-gray-200 mb-8">
+                        <p className="text-xl text-gray-200 mb-8 leading-relaxed">
                             {slides[currentSlide].subtitle}
                         </p>
-                        <div className="flex justify-center space-x-2">
+                        
+                        {/* Indicateurs de slide */}
+                        <div className="flex justify-center space-x-3">
                             {slides.map((_, index) => (
                                 <button
                                     key={index}
                                     onClick={() => setCurrentSlide(index)}
-                                    className={`w-3 h-3 rounded-full transition-colors ${index === currentSlide ? 'bg-white' : 'bg-white/50'
-                                        }`}
+                                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                                        index === currentSlide 
+                                            ? 'bg-white scale-125' 
+                                            : 'bg-white/50 hover:bg-white/75'
+                                    }`}
                                 />
                             ))}
                         </div>
                     </div>
                 </div>
+
+                {/* Boutons de navigation */}
                 <button
                     onClick={prevSlide}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 z-30 bg-white/20 hover:bg-white/30 rounded-full p-2 transition-colors"
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 z-30 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-3 transition-all duration-300 hover:scale-110"
+                    aria-label="Slide précédent"
                 >
                     <ChevronLeft className="w-6 h-6 text-white" />
                 </button>
                 <button
                     onClick={nextSlide}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 z-30 bg-white/20 hover:bg-white/30 rounded-full p-2 transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 z-30 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-3 transition-all duration-300 hover:scale-110"
+                    aria-label="Slide suivant"
                 >
                     <ChevronRight className="w-6 h-6 text-white" />
                 </button>
             </div>
 
-            <div className="w-full lg:w-1/2 bg-gray-50 flex items-center justify-center bg-gray-50 p-2 lg:p-3">
+            {/* Section Formulaire - Côté Droit */}
+            <div className="w-full lg:w-1/2 bg-gray-50 flex items-center justify-center p-2 lg:p-3">
                 <div className="max-w-2xl mx-auto">
                     {/* Header */}
                     <div className="text-center mb-8">
                         <div className="flex justify-center items-center mb-4">
-                            <img src="/images/logob.png" alt="Logo" className="h-12 w-auto" />
+                            <img 
+                                src="/images/logob.png" 
+                                alt="Logo Terminal d'Échanges" 
+                                className="h-12 w-auto"
+                                onError={(e) => {
+                                    e.currentTarget.src = "/images/logo-placeholder.png";
+                                }}
+                            />
                         </div>
-                        <h1 className="text-2xl font-bold text-gray-900">Terminal d'Échanges</h1>
-                        <p className="text-gray-600 mt-2">Créez votre compte professionnel</p>
+                        <h1 className="text-3xl font-bold text-gray-900 mb-2">Terminal d'Échanges</h1>
+                        <p className="text-gray-600">Créez votre compte professionnel</p>
                     </div>
 
-                    <Card className="shadow-lg border-0">
-                        {/* Sélection du type d'utilisateur */}
-                        {!userType && (
-                            <div className="space-y-4">
-                                <h3 className="text-lg font-semibold text-center mb-6">
-                                    Choisissez votre type de compte
-                                </h3>
-
-                                <button
-                                    onClick={() => setUserType('fournisseur-national')}
-                                    className="w-full p-4 border-2 border-gray-200 hover:border-blue-500 rounded-lg transition-colors text-left"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <h4 className="font-semibold text-gray-900">Fournisseur National</h4>
-                                            <p className="text-sm text-gray-600">Pour les fournisseurs locaux</p>
-                                        </div>
-                                        <div className="text-blue-600 font-bold">50.000 FCFA</div>
-                                    </div>
-                                </button>
-
-                                <button
-                                    onClick={() => setUserType('fournisseur-international')}
-                                    className="w-full p-4 border-2 border-gray-200 hover:border-blue-500 rounded-lg transition-colors text-left"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <h4 className="font-semibold text-gray-900">Fournisseur International</h4>
-                                            <p className="text-sm text-gray-600">Pour les fournisseurs internationaux</p>
-                                        </div>
-                                        <div className="text-blue-600 font-bold">100.000 FCFA</div>
-                                    </div>
-                                </button>
-
-                                <button
-                                    onClick={() => setUserType('revendeur')}
-                                    className="w-full p-4 border-2 border-gray-200 hover:border-blue-500 rounded-lg transition-colors text-left"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <h4 className="font-semibold text-gray-900">Vendeur</h4>
-                                            <p className="text-sm text-gray-600">Pour les revendeurs et distributeurs</p>
-                                        </div>
-                                        <div className="text-blue-600 font-bold">20.000 FCFA</div>
-                                    </div>
-                                </button>
-                            </div>
-                        )}
-
-                        {/* Formulaire d'inscription multi-step */}
-                        {userType && (
-                            <div>
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-                                    <h3 className="text-lg font-semibold mb-2 sm:mb-0">
-                                        {getUserTypeLabel(userType)}
+                    <Card className="shadow-xl border-0 rounded-2xl overflow-hidden">
+                        <div className="p-6">
+                            {/* Sélection du type d'utilisateur */}
+                            {!userType && (
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-center mb-6">
+                                        Choisissez votre type de compte
                                     </h3>
+
                                     <button
-                                        onClick={() => setUserType('')}
-                                        className="text-blue-600 hover:text-blue-800 text-sm self-start sm:self-center"
+                                        onClick={() => setUserType('fournisseur-national')}
+                                        className="w-full p-4 border-2 border-gray-200 hover:border-blue-500 rounded-lg transition-all duration-300 text-left hover:shadow-md"
                                     >
-                                        Changer de type
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h4 className="font-semibold text-gray-900">Fournisseur National</h4>
+                                                <p className="text-sm text-gray-600">Pour les fournisseurs locaux</p>
+                                            </div>
+                                            <div className="text-blue-600 font-bold">50.000 FCFA</div>
+                                        </div>
                                     </button>
-                                </div>
 
-                                {renderCustomSteps()}
-
-                                <div className="text-right mb-4">
-                                    <Button
-                                        size="small"
-                                        type="text"
-                                        onClick={fillRandomData}
-                                        className="text-xs text-gray-500 hover:text-blue-500"
+                                    <button
+                                        onClick={() => setUserType('fournisseur-international')}
+                                        className="w-full p-4 border-2 border-gray-200 hover:border-blue-500 rounded-lg transition-all duration-300 text-left hover:shadow-md"
                                     >
-                                        [DEV] Remplir automatiquement
-                                    </Button>
-                                </div>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h4 className="font-semibold text-gray-900">Fournisseur International</h4>
+                                                <p className="text-sm text-gray-600">Pour les fournisseurs internationaux</p>
+                                            </div>
+                                            <div className="text-blue-600 font-bold">100.000 FCFA</div>
+                                        </div>
+                                    </button>
 
-                                <Form
-                                    form={form}
-                                    name="register_form"
-                                    onFinish={handleRegister}
-                                    layout="vertical"
-                                >
-                                    {renderStepContent()}
+                                    <button
+                                        onClick={() => setUserType('revendeur')}
+                                        className="w-full p-4 border-2 border-gray-200 hover:border-blue-500 rounded-lg transition-all duration-300 text-left hover:shadow-md"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h4 className="font-semibold text-gray-900">Vendeur</h4>
+                                                <p className="text-sm text-gray-600">Pour les revendeurs et distributeurs</p>
+                                            </div>
+                                            <div className="text-blue-600 font-bold">20.000 FCFA</div>
+                                        </div>
+                                    </button>
 
-                                    <div className="flex flex-col-reverse sm:flex-row justify-between mt-8 gap-4">
-                                        {currentStep > 0 && (
-                                            <Button
-                                                onClick={prevStep}
-                                                className="h-12 rounded-lg text-lg font-semibold"
-                                            >
-                                                Précédent
-                                            </Button>
-                                        )}
+                                    <Divider>ou</Divider>
 
-                                        {currentStep < getSteps().length - 1 ? (
-                                            <Button
-                                                type="primary"
-                                                onClick={nextStep}
-                                                className="h-12 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-semibold flex-1 sm:flex-none"
+                                    <div className="text-center">
+                                        <p className="text-gray-600">
+                                            Déjà un compte?{' '}
+                                            <button
+                                                onClick={() => navigate('/login')}
+                                                className="text-blue-600 hover:text-blue-800 font-semibold transition-colors hover:underline"
                                             >
-                                                Suivant
-                                            </Button>
-                                        ) : (
-                                            <Button
-                                                type="primary"
-                                                htmlType="submit"
-                                                className="h-12 bg-blue-600 hover:bg-blue-700 rounded-lg text-lg font-semibold flex-1 sm:flex-none"
-                                                loading={loading}
-                                            >
-                                                Finaliser l'inscription
-                                            </Button>
-                                        )}
+                                                Se connecter
+                                            </button>
+                                        </p>
                                     </div>
-                                </Form>
-                            </div>
-                        )}
+                                </div>
+                            )}
+
+                            {/* Formulaire d'inscription multi-step */}
+                            {userType && (
+                                <div>
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                                        <h3 className="text-lg font-semibold mb-2 sm:mb-0">
+                                            {getUserTypeLabel(userType)}
+                                        </h3>
+                                        <button
+                                            onClick={() => setUserType('')}
+                                            className="text-blue-600 hover:text-blue-800 text-sm self-start sm:self-center transition-colors"
+                                        >
+                                            Changer de type
+                                        </button>
+                                    </div>
+
+                                    {renderCustomSteps()}
+
+                                    <div className="text-right mb-4">
+                                        <Button
+                                            size="small"
+                                            type="text"
+                                            onClick={fillRandomData}
+                                            className="text-xs text-gray-500 hover:text-blue-500"
+                                        >
+                                            [DEV] Remplir automatiquement
+                                        </Button>
+                                    </div>
+
+                                    <Form
+                                        form={form}
+                                        name="register_form"
+                                        onFinish={handleRegister}
+                                        layout="vertical"
+                                    >
+                                        {renderStepContent()}
+
+                                        <div className="flex flex-col-reverse sm:flex-row justify-between mt-8 gap-4">
+                                            {currentStep > 0 && (
+                                                <Button
+                                                    onClick={prevStep}
+                                                    className="h-12 rounded-lg text-lg font-semibold border-gray-300 hover:border-blue-400 transition-colors"
+                                                    size="large"
+                                                >
+                                                    Précédent
+                                                </Button>
+                                            )}
+
+                                            {currentStep < getSteps().length - 1 ? (
+                                                <Button
+                                                    type="primary"
+                                                    onClick={nextStep}
+                                                    className="h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border-0 rounded-lg text-lg font-semibold flex-1 sm:flex-none shadow-lg transition-all duration-300"
+                                                    size="large"
+                                                >
+                                                    Suivant
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    type="primary"
+                                                    htmlType="submit"
+                                                    className="h-12 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 border-0 rounded-lg text-lg font-semibold flex-1 sm:flex-none shadow-lg transition-all duration-300"
+                                                    loading={loading}
+                                                    size="large"
+                                                >
+                                                    {loading ? 'Finalisation en cours...' : 'Finaliser l\'inscription'}
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </Form>
+                                </div>
+                            )}
+                        </div>
                     </Card>
 
                     {/* Informations de paiement */}
                     {userType && (
-                        <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-                            <h4 className="font-semibold text-blue-900 mb-2">Moyens de paiement acceptés</h4>
-                            <div className="text-sm text-blue-800 space-y-1">
-                                <div>• Mixx by Yas: 90291421</div>
-                                <div>• Flooz: 98042314</div>
-                                <div>• NSIA Banque: 260081527014</div>
+                        <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
+                            <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
+                                <BankOutlined className="mr-2" />
+                                Moyens de paiement acceptés
+                            </h4>
+                            <div className="text-sm text-blue-800 space-y-2">
+                                <div className="flex items-center justify-between p-2 bg-white/60 rounded-lg">
+                                    <span className="font-medium">Mixx by Yas:</span>
+                                    <span className="font-mono">90291421</span>
+                                </div>
+                                <div className="flex items-center justify-between p-2 bg-white/60 rounded-lg">
+                                    <span className="font-medium">Flooz:</span>
+                                    <span className="font-mono">98042314</span>
+                                </div>
+                                <div className="flex items-center justify-between p-2 bg-white/60 rounded-lg">
+                                    <span className="font-medium">NSIA Banque:</span>
+                                    <span className="font-mono">260081527014</span>
+                                </div>
                             </div>
                         </div>
                     )}
+
+                    {/* Footer avec informations supplémentaires */}
+                    <div className="text-center mt-6 text-sm text-gray-500">
+                        <p>Inscription sécurisée • Validation sous 24h • Support 24/7</p>
+                    </div>
                 </div>
             </div>
         </div>

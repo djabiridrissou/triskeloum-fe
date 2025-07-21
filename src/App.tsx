@@ -22,6 +22,8 @@ import { CartProvider } from "./contexts/CartContext";
 import UnderConstruction from "./pages/UnderConstruction";
 import CheckoutPage from "./pages/buyer/Checkout";
 import PromotionalModal from "./components/PromotionalModal";
+import BuyerSales from "./pages/buyer/BuyerSales";
+import AdminOrders from "./pages/admin/AdminOrders";
 
 const App = () => {
   return (
@@ -56,6 +58,7 @@ const App = () => {
               <Route path="/admin/buyers" element={<AdminBuyers />} />
               <Route path="/admin/sellers" element={<AdminSellers />} />
               <Route path="/admin/homologation" element={<AdminHomologation />} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
             </Route>
             {/* Routes protégées pour les admins */}
 
@@ -78,8 +81,7 @@ const App = () => {
             }>
               <Route path="/buyer/home" element={<BuyerHome />} />
               <Route path="/buyer/checkout" element={<CheckoutPage />} />
-
-
+              <Route path="/buyer/sales" element={<BuyerSales />} />
             </Route>
             { }
             <Route path="/logout" element={<Logout />} />

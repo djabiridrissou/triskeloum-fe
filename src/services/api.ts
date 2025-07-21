@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import AdminOrders from "../pages/admin/AdminOrders";
 
 const baseQuery = fetchBaseQuery({
     baseUrl: import.meta.env.VITE_BASE_URL,
@@ -224,7 +225,7 @@ export const api = createApi({
                 body,
             }),
         }),
-        getSales: builder.query({
+        getOrders: builder.query({
             query: ({
                 page = 1,
                 limit = 10,
@@ -236,7 +237,7 @@ export const api = createApi({
                 paymentStatus,
                 paymentMethod  // Filtre pour paymentStatus
             }) => ({
-                url: "/product/all",
+                url: "/buyer/orders",
                 method: "GET",
                 params: {
                     page,
@@ -251,6 +252,58 @@ export const api = createApi({
                 },
             }),
             providesTags: ['Sales'],
+        }),
+        getOrderDetails : builder.query({
+            query: (orderId) => ({
+                url: `/buyer/order-details`,
+                method: "GET",
+                params: { orderId }
+            }),
+            providesTags: (result, error, orderId) => [{ type: 'Sales', id: orderId }],
+        }),
+        adminOrders: builder.query({
+            query: ({
+                page = 1,
+                limit = 10,
+                searchQuery = "",
+                sortField = "createdAt",
+                sortOrder = "desc",
+                buyerId,        // Filtre pour buyerId
+                status,         // Filtre pour status
+                paymentStatus,
+                paymentMethod  // Filtre pour paymentStatus
+            }) => ({
+                url: "/admin/orders",
+                method: "GET",
+                params: {
+                    page,
+                    limit,
+                    searchQuery,
+                    sortField,
+                    sortOrder,
+                    buyerId,
+                    status,
+                    paymentStatus,
+                    paymentMethod
+                },
+            }),
+            providesTags: ['Sales'],
+        }),
+        approveOrder: builder.mutation({
+            query: ({orderId, decision}) => ({
+                url: `/admin/approve-order`,
+                method: "POST",
+                body: { orderId, decision },
+            }),
+            invalidatesTags: ['Sales'],
+        }),
+        emailPaymentRequest: builder.mutation({
+            query: (data) => ({
+                url: "/admin/email-payment-request",
+                method: "POST",
+                body: data,
+            }),
+            invalidatesTags: ['Sales'],
         }),
     }),
 });
@@ -278,5 +331,9 @@ export const {
     useCreateOrUpdateCartMutation,
     useGetUserCartQuery,
     useClearCartMutation,
-    useGetSalesQuery
+    useGetOrdersQuery,
+    useGetOrderDetailsQuery,
+    useAdminOrdersQuery,
+    useApproveOrderMutation,
+    useEmailPaymentRequestMutation
 } = api;

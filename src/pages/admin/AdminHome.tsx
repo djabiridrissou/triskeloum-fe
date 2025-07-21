@@ -70,7 +70,7 @@ const AdminHome: React.FC = () => {
         labels: data.salesAnalytics?.dailySales?.map((item: any) => item.date),
         datasets: [
             {
-                label: 'Ventes (€)',
+                label: 'Ventes',
                 data: data.salesAnalytics?.dailySales?.map((item: any) => item.totalSales),
                 borderColor: 'rgb(59, 130, 246)',
                 backgroundColor: 'rgba(59, 130, 246, 0.5)',
@@ -206,7 +206,7 @@ const AdminHome: React.FC = () => {
                         {
                             header: 'Montant',
                             accessor: 'totalAmount',
-                            render: (value: number) => `${value.toLocaleString()} €`
+                            render: (value: number) => `${value.toLocaleString()}`
                         }
                     ]}
                     data={data?.data?.salesAnalytics?.recentSales}

@@ -1,140 +1,165 @@
-import { Button, Input } from "antd";
-import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 import { useState } from "react";
-import toast from "react-hot-toast";
 
 const Footer = () => {
-    const [email, setEmail] = useState("")
-    const newsletter = () => {
-        if (email === "") {
-            toast.error("Veuillez saisir votre email");
-        } else {
-            toast.success("Vous êtes maintenant abonné à notre newsletter !");
+    const [email, setEmail] = useState("");
+
+    const handleNewsletterSubmit = () => {
+        if (email.trim()) {
+            // Simulation d'inscription newsletter
+            console.log("Newsletter subscription:", email);
             setEmail("");
+            alert("Merci pour votre inscription à notre newsletter !");
         }
-    }
+    };
 
     return (
-        <footer className="bg-gray-900 text-white mt-10">
-            <div className="mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    {/* Section À propos */}
-                    <div>
-                        <div className="flex items-center mb-4">
-                           <img src="/images/logob.png" alt="Logo" className="h-10" />
-                        </div>
-                        <p className="text-gray-300 text-sm text-justify mb-4">
-                            Plateforme de confiance connectant fournisseurs et revendeurs pour faciliter les échanges commerciaux en toute sécurité.
-                        </p>
-                        <div className="flex items-center space-x-2 text-sm text-gray-400">
-                            <span className="bg-green-600 w-2 h-2 rounded-full"></span>
-                            <span></span>
-                        </div>
-                    </div>
-
-                    {/* Section Services */}
-                    <div>
-                        <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Nos Services</h3>
-                        <ul className="space-y-3">
-                            <li><a href="/fournisseurs" className="text-gray-300 hover:text-blue-400 text-sm transition-colors">Espace Fournisseurs</a></li>
-                            <li><a href="/revendeurs" className="text-gray-300 hover:text-blue-400 text-sm transition-colors">Espace Revendeurs</a></li>
-                            <li><a href="/stock" className="text-gray-300 hover:text-blue-400 text-sm transition-colors">Consulter le Stock</a></li>
-                            <li><a href="/commandes" className="text-gray-300 hover:text-blue-400 text-sm transition-colors">Passer Commande</a></li>
-                            <li><a href="/fiche-echanges" className="text-gray-300 hover:text-blue-400 text-sm transition-colors">Fiche d'Échanges</a></li>
-                        </ul>
-                    </div>
-
-                    {/* Section Tarifs & Informations */}
-                    <div>
-                        <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Tarifs d'Inscription</h3>
-                        <div className="space-y-3 text-sm">
-                            <div className="bg-gray-800 p-3 rounded-lg">
-                                <div className="text-blue-400 font-semibold">Fournisseurs Internationaux</div>
-                                <div className="text-white text-lg">100.000 FCFA</div>
-                            </div>
-                            <div className="bg-gray-800 p-3 rounded-lg">
-                                <div className="text-green-400 font-semibold">Fournisseurs Nationaux</div>
-                                <div className="text-white text-lg">50.000 FCFA</div>
-                            </div>
-                            <div className="bg-gray-800 p-3 rounded-lg">
-                                <div className="text-yellow-400 font-semibold">Distributeurs</div>
-                                <div className="text-white text-lg">20.000 FCFA</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Section Contact & Newsletter */}
-                    <div>
-                        <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Contact & Newsletter</h3>
-                        
-                        {/* Moyens de paiement */}
-                        <div className="mb-4">
-                            <h4 className="text-sm font-medium text-white mb-2">Moyens de Paiement</h4>
-                            <div className="text-xs text-gray-300 space-y-1">
-                                <div className="flex items-center space-x-2">
-                                    <span className="bg-blue-600 px-2 py-1 rounded">Mixx</span>
-                                    <span>90291421</span>
+        <footer className="bg-gray-900 text-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {/* Section principale */}
+                <div className="py-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {/* À propos */}
+                        <div className="lg:col-span-1">
+                            <div className="flex items-center mb-6">
+                                <div className="w-8 h-8 rounded-lg flex items-center justify-center mr-3">
+                                   <img src="/images/logob.png" alt="" />
                                 </div>
-                                <div className="flex items-center space-x-2">
-                                    <span className="bg-orange-600 px-2 py-1 rounded">Flooz</span>
-                                    <span>98042314</span>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <span className="bg-red-600 px-2 py-1 rounded">NSIA</span>
-                                    <span>260081527014</span>
-                                </div>
+                                <span className="text-xl font-semibold">Terminal d'Échanges</span>
+                            </div>
+                            <p className="text-gray-300 text-sm leading-relaxed mb-6">
+                                La plateforme de référence pour les échanges commerciaux B2B. 
+                                Connectez-vous avec des partenaires de confiance et développez votre activité.
+                            </p>
+                            <div className="flex space-x-4">
+                                <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-200">
+                                    <Facebook className="h-5 w-5" />
+                                </a>
+                                <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-200">
+                                    <Twitter className="h-5 w-5" />
+                                </a>
+                                <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-200">
+                                    <Instagram className="h-5 w-5" />
+                                </a>
+                                <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-200">
+                                    <Linkedin className="h-5 w-5" />
+                                </a>
                             </div>
                         </div>
 
-                        {/* Réseaux sociaux */}
-                        <div className="flex space-x-4 mb-4">
-                            <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
-                                <Facebook className="h-5 w-5" />
-                            </a>
-                            <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
-                                <Twitter className="h-5 w-5" />
-                            </a>
-                            <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
-                                <Instagram className="h-5 w-5" />
-                            </a>
-                            <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
-                                <Linkedin className="h-5 w-5" />
-                            </a>
+                        {/* Solutions */}
+                        <div>
+                            <h3 className="text-white font-semibold mb-6">Solutions</h3>
+                            <ul className="space-y-3">
+                                <li>
+                                    <a href="/fournisseurs" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
+                                        Espace Fournisseurs
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/distributeurs" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
+                                        Espace Distributeurs
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/marketplace" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
+                                        Marketplace
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/gestion-stock" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
+                                        Gestion de Stock
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Support */}
+                        <div>
+                            <h3 className="text-white font-semibold mb-6">Support</h3>
+                            <ul className="space-y-3">
+                                <li>
+                                    <a href="/aide" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
+                                        Centre d'aide
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/contact" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
+                                        Nous contacter
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/guides" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
+                                        Guides d'utilisation
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/api" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
+                                        Documentation API
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
 
                         {/* Newsletter */}
                         <div>
-                            <h4 className="text-sm font-medium text-white mb-2">Newsletter</h4>
-                            <div className="flex">
-                                <Input
-                                    type="email"
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="rounded-r-none"
-                                    placeholder="Votre email"
-                                    style={{ marginRight: 8 }}
-                                    value={email}
-                                />
-                                <Button
-                                    onClick={newsletter}
-                                    className="rounded-l-none bg-blue-600 border-blue-600 hover:bg-blue-700"
-                                    type="primary"
-                                >
-                                    S'abonner
-                                </Button>
+                            <h3 className="text-white font-semibold mb-6">Restez informé</h3>
+                            <p className="text-gray-300 text-sm mb-4">
+                                Recevez nos dernières actualités et mises à jour.
+                            </p>
+                            <div className="space-y-3">
+                                <div className="flex">
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="Votre adresse email"
+                                        className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-l-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                    <button
+                                        onClick={handleNewsletterSubmit}
+                                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-r-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        S'abonner
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {/* Contact info */}
+                            <div className="mt-6 space-y-2">
+                                <div className="flex items-center text-gray-300 text-sm">
+                                    <Mail className="h-4 w-4 mr-2" />
+                                    <span>terminalechangetg@gmail.com</span>
+                                </div>
+                                <div className="flex items-center text-gray-300 text-sm">
+                                    <Phone className="h-4 w-4 mr-2" />
+                                    <span>+228 22 26 60 93 </span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Section copyright */}
-                <div className="border-t border-gray-700 pt-6 mt-8 flex flex-col md:flex-row justify-between items-center">
-                    <p className="text-gray-400 text-sm">
-                        © {new Date().getFullYear()} Terminal d'Échanges (TE). Tous droits réservés.
-                    </p>
-                    <div className="flex space-x-6 mt-4 md:mt-0">
-                        <a href="/confidentialite" className="text-gray-400 hover:text-blue-400 text-sm transition-colors">Confidentialité</a>
-                        <a href="/conditions" className="text-gray-400 hover:text-blue-400 text-sm transition-colors">Conditions</a>
-                        <a href="/fiche-echanges" className="text-gray-400 hover:text-blue-400 text-sm transition-colors">Fiche d'Échanges</a>
+                {/* Section bas */}
+                <div className="border-t border-gray-800 py-6">
+                    <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                        <div className="text-gray-400 text-sm">
+                            © {new Date().getFullYear()} Terminal d'Échanges. Tous droits réservés.
+                        </div>
+                        <div className="flex space-x-6">
+                            <a href="/mentions-legales" className="text-gray-400 hover:text-white text-sm transition-colors duration-200">
+                                Mentions légales
+                            </a>
+                            <a href="/confidentialite" className="text-gray-400 hover:text-white text-sm transition-colors duration-200">
+                                Confidentialité
+                            </a>
+                            <a href="/cookies" className="text-gray-400 hover:text-white text-sm transition-colors duration-200">
+                                Cookies
+                            </a>
+                            <a href="/cgu" className="text-gray-400 hover:text-white text-sm transition-colors duration-200">
+                                CGU
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
