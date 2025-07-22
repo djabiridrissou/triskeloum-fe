@@ -15,6 +15,7 @@ const ActorTypesSection = () => {
             ],
             color: "from-orange-400 to-red-500",
             popular: true,
+            url: '/register?type=fournisseur-international&step=1'
         },
         {
             type: "Fournisseurs Nationaux",
@@ -27,7 +28,8 @@ const ActorTypesSection = () => {
                 "Tarifs préférentiels"
             ],
             color: "from-blue-400 to-cyan-500",
-            popular: false
+            popular: false,
+            url: '/register?type=fournisseur-national&step=2'
         },
         {
             type: "Revendeurs",
@@ -40,7 +42,8 @@ const ActorTypesSection = () => {
                 "Suivi des commandes"
             ],
             color: "from-purple-400 to-pink-500",
-            popular: false
+            popular: false,
+            url: '/register?type=revendeur&step=3'
         }
     ];
 

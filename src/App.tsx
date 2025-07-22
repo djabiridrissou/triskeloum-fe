@@ -24,6 +24,7 @@ import CheckoutPage from "./pages/buyer/Checkout";
 import PromotionalModal from "./components/PromotionalModal";
 import BuyerSales from "./pages/buyer/BuyerSales";
 import AdminOrders from "./pages/admin/AdminOrders";
+import Services from "./pages/home/Services";
 
 const App = () => {
   return (
@@ -43,6 +44,7 @@ const App = () => {
         <CartProvider>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/services" element={<Services />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/fees" element={<CreatePayRequest />} />

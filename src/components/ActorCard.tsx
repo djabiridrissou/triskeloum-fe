@@ -1,7 +1,7 @@
 import { CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const ActorCard = ({ type, price, icon, benefits, color, popular }: any) => {
+const ActorCard = ({ type, price, icon, benefits, color, popular, url }: any) => {
   const navigate = useNavigate();
 
   return (
@@ -38,7 +38,7 @@ const ActorCard = ({ type, price, icon, benefits, color, popular }: any) => {
 
       <button
         onClick={() => {
-          navigate("/register");
+          navigate(url, { replace: true });
           window.scrollTo(0, 0);
         }}
         className={`cursor-pointer text-white w-full py-4 rounded-full font-semibold text-lg transition-all duration-300 ${

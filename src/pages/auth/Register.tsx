@@ -20,6 +20,7 @@ import { ChevronLeft, ChevronRight, Globe, Shield, TrendingUp } from "lucide-rea
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from 'react-router-dom';
 
 const { Option } = Select;
 
@@ -31,6 +32,64 @@ const Register = () => {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({});
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        const hash = location.hash;
+        const params = new URLSearchParams(location.search);
+        const type = params.get('type');
+        const step = params.get('step');
+
+        if (type && ['fournisseur-national', 'fournisseur-international', 'revendeur'].includes(type)) {
+            setUserType(type);
+            if (step && !isNaN(parseInt(step))) {
+                const stepNumber = parseInt(step);
+                if (stepNumber >= 0 && stepNumber <= 4) {
+                    setCurrentStep(stepNumber);
+                }
+            }
+        }
+
+        if (hash) {
+            switch (hash) {
+                case '#fournisseur-national':
+                    setUserType('fournisseur-national');
+                    break;
+                case '#fournisseur-international':
+                    setUserType('fournisseur-international');
+                    break;
+                case '#revendeur':
+                    setUserType('revendeur');
+                    break;
+                case '#informations-base':
+                    if (userType) setCurrentStep(0);
+                    break;
+                case '#contact':
+                    if (userType) setCurrentStep(1);
+                    break;
+                case '#details':
+                    if (userType) setCurrentStep(2);
+                    break;
+                case '#documents':
+                    if (userType) setCurrentStep(3);
+                    break;
+                case '#mot-de-passe':
+                    if (userType) setCurrentStep(4);
+                    break;
+            }
+        }
+    }, [location, userType]);
+
+    useEffect(() => {
+        if (userType) {
+            const searchParams = new URLSearchParams();
+            searchParams.set('type', userType);
+            searchParams.set('step', currentStep.toString());
+
+            const newUrl = `${location.pathname}?${searchParams.toString()}`;
+            window.history.replaceState(null, '', newUrl);
+        }
+    }, [userType, currentStep, location.pathname]);
 
     const countryList = Object.entries(countries).map(([code, country]) => ({
         code,
@@ -74,7 +133,6 @@ const Register = () => {
         setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
     };
 
-    // Fonction pour sauvegarder les données du formulaire
     const saveFormData = () => {
         const currentValues = form.getFieldsValue();
         setFormData(prevData => ({
@@ -84,7 +142,6 @@ const Register = () => {
         console.log("Données sauvegardées:", { ...formData, ...currentValues });
     };
 
-    // Fonction pour restaurer les données du formulaire
     const restoreFormData = () => {
         if (Object.keys(formData).length > 0) {
             form.setFieldsValue(formData);
@@ -94,12 +151,9 @@ const Register = () => {
     const handleRegister = async (values: any) => {
         setLoading(true);
         try {
-            // Fusionner toutes les données
             const allData = { ...formData, ...values };
-    
+
             const formDataToSend = new FormData();
-    
-            // Ajout des fichiers
             if (allData.idFront?.[0]?.originFileObj) {
                 formDataToSend.append('idFront', allData.idFront[0].originFileObj);
             }
@@ -115,18 +169,14 @@ const Register = () => {
             if (allData.shopMap?.[0]?.originFileObj) {
                 formDataToSend.append('shopMap', allData.shopMap[0].originFileObj);
             }
-    
-            // Fonction pour ajouter les valeurs non undefined
+
             const appendIfDefined = (field: any, value: any) => {
                 if (value !== undefined && value !== null && value !== '') {
                     formDataToSend.append(field, value);
                 }
             };
-    
-            // Ajouter le mot de passe
+
             appendIfDefined('password', allData.password);
-    
-            // Ajout des données selon le type d'utilisateur
             if (userType === 'revendeur') {
                 appendIfDefined('fullName', allData.fullName);
                 appendIfDefined('socialReason', allData.socialReason);
@@ -144,7 +194,7 @@ const Register = () => {
                 appendIfDefined('shopAddress', allData.shopAddress);
                 appendIfDefined('witnessName', allData.witnessName);
                 appendIfDefined('witnessPhone', allData.witnessPhone);
-    
+
                 await axios.post(`${import.meta.env.VITE_BASE_URL}/buyer/create`, formDataToSend, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
@@ -170,7 +220,7 @@ const Register = () => {
                 appendIfDefined('address', allData.address);
                 appendIfDefined('witnessName', allData.witnessName);
                 appendIfDefined('witnessPhone', allData.witnessPhone);
-    
+
                 await axios.post(`${import.meta.env.VITE_BASE_URL}/supplier/create`, formDataToSend, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
@@ -178,14 +228,14 @@ const Register = () => {
                     withCredentials: true
                 });
             }
-    
+
             await Swal.fire({
                 title: 'Inscription réussie!',
                 text: 'Compte créé avec succès.',
                 icon: 'success',
                 confirmButtonText: 'OK'
             });
-    
+
             navigate('/login');
         } catch (error: any) {
             console.error('Registration error:', error);
@@ -209,7 +259,6 @@ const Register = () => {
         }
     };
 
-    // Réinitialiser le formulaire quand le type d'utilisateur change
     useEffect(() => {
         form.resetFields();
         setFormData({});
@@ -276,7 +325,9 @@ const Register = () => {
         form.validateFields(fields)
             .then(() => {
                 saveFormData();
-                setCurrentStep(currentStep + 1);
+                const newStep = currentStep + 1;
+                setCurrentStep(newStep);
+                navigate(`/register?type=${userType}&step=${newStep}`);
             })
             .catch((error) => {
                 console.log('Validation error:', error);
@@ -285,7 +336,9 @@ const Register = () => {
 
     const prevStep = () => {
         saveFormData();
-        setCurrentStep(currentStep - 1);
+        const newStep = currentStep - 1;
+        setCurrentStep(newStep);
+        navigate(`/register?type=${userType}&step=${newStep}`);
     };
 
     // Restaurer les données quand on change d'étape
@@ -897,24 +950,18 @@ const Register = () => {
                 {/* Version desktop */}
                 <div className="hidden sm:flex items-center justify-between mb-4">
                     {steps.map((step, index) => (
-                        <div key={index} className="flex items-center flex-1">
-                            <div className="flex flex-col items-center">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${index < currentStep ? 'bg-green-500 text-white' :
+                        <button
+                            onClick={() => {
+                                setCurrentStep(index);
+                                navigate(`/register?type=${userType}&step=${index}`);
+                            }}
+                            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all cursor-pointer ${index < currentStep ? 'bg-green-500 text-white' :
                                     index === currentStep ? 'bg-blue-500 text-white' :
-                                        'bg-gray-200 text-gray-600'
-                                    }`}>
-                                    {index < currentStep ? <CheckCircleOutlined /> : index + 1}
-                                </div>
-                                <span className={`text-xs mt-1 text-center ${index <= currentStep ? 'text-blue-600 font-medium' : 'text-gray-500'
-                                    }`}>
-                                    {step.title}
-                                </span>
-                            </div>
-                            {index < steps.length - 1 && (
-                                <div className={`flex-1 h-0.5 mx-2 ${index < currentStep ? 'bg-green-500' : 'bg-gray-200'
-                                    }`} />
-                            )}
-                        </div>
+                                        'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                                }`}
+                        >
+                            {index < currentStep ? <CheckCircleOutlined /> : index + 1}
+                        </button>
                     ))}
                 </div>
 
@@ -950,11 +997,10 @@ const Register = () => {
                     {slides.map((slide, index) => (
                         <div
                             key={index}
-                            className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-                                index === currentSlide 
-                                    ? 'opacity-100 scale-100' 
-                                    : 'opacity-0 scale-105'
-                            }`}
+                            className={`absolute inset-0 transition-all duration-1000 ease-in-out ${index === currentSlide
+                                ? 'opacity-100 scale-100'
+                                : 'opacity-0 scale-105'
+                                }`}
                         >
                             <img
                                 src={slide.image}
@@ -980,18 +1026,17 @@ const Register = () => {
                         <p className="text-xl text-gray-200 mb-8 leading-relaxed">
                             {slides[currentSlide].subtitle}
                         </p>
-                        
+
                         {/* Indicateurs de slide */}
                         <div className="flex justify-center space-x-3">
                             {slides.map((_, index) => (
                                 <button
                                     key={index}
                                     onClick={() => setCurrentSlide(index)}
-                                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                                        index === currentSlide 
-                                            ? 'bg-white scale-125' 
-                                            : 'bg-white/50 hover:bg-white/75'
-                                    }`}
+                                    className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
+                                        ? 'bg-white scale-125'
+                                        : 'bg-white/50 hover:bg-white/75'
+                                        }`}
                                 />
                             ))}
                         </div>
@@ -1021,9 +1066,9 @@ const Register = () => {
                     {/* Header */}
                     <div className="text-center mb-8">
                         <div className="flex justify-center items-center mb-4">
-                            <img 
-                                src="/images/logob.png" 
-                                alt="Logo Terminal d'Échanges" 
+                            <img
+                                src="/images/logob.png"
+                                alt="Logo Terminal d'Échanges"
                                 className="h-12 w-auto"
                                 onError={(e) => {
                                     e.currentTarget.src = "/images/logo-placeholder.png";
@@ -1044,7 +1089,11 @@ const Register = () => {
                                     </h3>
 
                                     <button
-                                        onClick={() => setUserType('fournisseur-national')}
+                                        onClick={() => {
+                                            setUserType('fournisseur-national');
+                                            setCurrentStep(0);
+                                            navigate('/register?type=fournisseur-national&step=0');
+                                        }}
                                         className="w-full p-4 border-2 border-gray-200 hover:border-blue-500 rounded-lg transition-all duration-300 text-left hover:shadow-md"
                                     >
                                         <div className="flex items-center justify-between">
@@ -1057,7 +1106,11 @@ const Register = () => {
                                     </button>
 
                                     <button
-                                        onClick={() => setUserType('fournisseur-international')}
+                                        onClick={() => {
+                                            setUserType('fournisseur-international')
+                                            setCurrentStep(0);
+                                            navigate('/register?type=fournisseur-international&step=0');
+                                        }}
                                         className="w-full p-4 border-2 border-gray-200 hover:border-blue-500 rounded-lg transition-all duration-300 text-left hover:shadow-md"
                                     >
                                         <div className="flex items-center justify-between">
@@ -1070,7 +1123,11 @@ const Register = () => {
                                     </button>
 
                                     <button
-                                        onClick={() => setUserType('revendeur')}
+                                        onClick={() => {
+                                            setUserType('revendeur')
+                                            setCurrentStep(0);
+                                            navigate('/register?type=revendeur&step=0');
+                                        }}
                                         className="w-full p-4 border-2 border-gray-200 hover:border-blue-500 rounded-lg transition-all duration-300 text-left hover:shadow-md"
                                     >
                                         <div className="flex items-center justify-between">
@@ -1173,7 +1230,7 @@ const Register = () => {
                     </Card>
 
                     {/* Informations de paiement */}
-                    {userType && (
+                    {/* {userType && (
                         <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
                             <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
                                 <BankOutlined className="mr-2" />
@@ -1194,7 +1251,7 @@ const Register = () => {
                                 </div>
                             </div>
                         </div>
-                    )}
+                    )} */}
 
                     {/* Footer avec informations supplémentaires */}
                     <div className="text-center mt-6 text-sm text-gray-500">

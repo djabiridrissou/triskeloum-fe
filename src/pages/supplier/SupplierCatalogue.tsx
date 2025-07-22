@@ -253,7 +253,6 @@ const SupplierCatalogue = () => {
     const products = response?.data || [];
     const pagination = response?.pagination;
     let imgBaseUrl = import.meta.env.VITE_BASE_WITHOUT_ORIGIN;
-    console.log("Batches ", batchesResponse)
 
     return (
         <div className="container mx-auto px-4 py-8">
