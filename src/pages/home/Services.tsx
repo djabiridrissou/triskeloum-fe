@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { CheckCircle, Users, Globe, Shield, ArrowRight, FileText, CreditCard, Clock, Star, AlertCircle } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import { useNavigate } from 'react-router-dom';
 
 export default function Services() {
+    const navigate = useNavigate();
     useEffect(() => {
         window.scrollTo(0, 0);
-      }, []);
+    }, []);
     const [activeTab, setActiveTab] = useState('fournisseurs');
 
     const paymentMethods: any = [
@@ -22,12 +24,12 @@ export default function Services() {
             icon: <img src="/images/flooz.png" className="w-12 h-12 object-contain" />,
             available: true
         },
-        {
-            id: 'CREDIT_CARD',
-            name: 'Carte de crédit',
-            icon: <img src="/images/visa.png" className="w-12 h-12 object-contain" />,
-            available: false
-        }
+        /*  {
+             id: 'CREDIT_CARD',
+             name: 'Carte de crédit',
+             icon: <img src="/images/visa.png" className="w-12 h-12 object-contain" />,
+             available: false
+         } */
     ];
 
     const features = [
@@ -53,19 +55,22 @@ export default function Services() {
             type: "Fournisseurs Nationaux",
             price: "50,000",
             currency: "FCFA",
-            features: ["Inscription complète", "Gestion de stock", "Support client", "Historique détaillé"]
+            features: ["Inscription complète", "Gestion de stock", "Support client", "Historique détaillé"],
+            url: '/register?type=fournisseur-national&step=2'
         },
         {
             type: "Fournisseurs Internationaux",
             price: "100,000",
             currency: "FCFA",
-            features: ["Inscription complète", "Gestion de stock", "Support prioritaire", "Outils avancés", "Export international"]
+            features: ["Inscription complète", "Gestion de stock", "Support prioritaire", "Outils avancés", "Export international"],
+            url: '/register?type=fournisseur-international&step=1'
         },
         {
-            type: "Distributeurs",
+            type: "Revendeurs",
             price: "20,000",
             currency: "FCFA",
-            features: ["Accès aux commandes", "Catalogue complet", "Support client", "Suivi en temps réel"]
+            features: ["Accès aux commandes", "Catalogue complet", "Support client", "Suivi en temps réel"],
+            url: '/register?type=revendeur&step=3'
         }
     ];
 
@@ -190,7 +195,7 @@ export default function Services() {
                                                 <h5 className="font-semibold text-gray-900 mb-4">Avantages revendeurs :</h5>
                                                 <ul className="space-y-2 text-sm text-gray-600">
                                                     <li>• Calcul automatique des prix</li>
-                                                    <li>• Paiement flexible (50% ou 100%)</li>
+                                                    <li>• Paiement flexible (75% ou 100%)</li>
                                                     <li>• Accès au catalogue complet</li>
                                                     <li>• Suivi de commande en temps réel</li>
                                                     <li>• Support client dédié</li>
@@ -255,7 +260,7 @@ export default function Services() {
                                                 </li>
                                             ))}
                                         </ul>
-                                        <button className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${index === 1
+                                        <button onClick={() => navigate(plan.url, { replace: true })} className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${index === 1
                                             ? 'bg-white text-blue-600 hover:bg-gray-100'
                                             : 'bg-gradient-to-r from-blue-500 to-green-500 text-white hover:shadow-lg transform hover:-translate-y-1'
                                             }`}>
@@ -350,11 +355,11 @@ export default function Services() {
                     </div>
 
                     {/* CTA Section */}
-                    <div   style={{
-                            backgroundImage: "url('/images/markt1.jpg')",
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                        }} className="py-20 bg-gradient-to-r from-blue-600 to-green-600">
+                    <div style={{
+                        backgroundImage: "url('/images/markt1.jpg')",
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                    }} className="py-20 bg-gradient-to-r from-blue-600 to-green-600">
                         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
                             <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
                                 Prêt à révolutionner vos échanges commerciaux ?
@@ -363,11 +368,11 @@ export default function Services() {
                                 Rejoignez les entreprises qui font déjà confiance à Terminal d'Échanges
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <button className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                <button onClick={() => navigate("/register")} className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg">
                                     <Users className="w-5 h-5 mr-2" />
                                     Devenir Fournisseur
                                 </button>
-                                <button className="inline-flex items-center px-8 py-4 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                <button onClick={() => navigate("/register")} className="inline-flex items-center px-8 py-4 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
                                     <Globe className="w-5 h-5 mr-2" />
                                     Devenir Revendeur
                                 </button>

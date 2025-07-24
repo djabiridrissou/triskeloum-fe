@@ -9,8 +9,6 @@ import CTASection from './sections/CTASection';
 import CatalogueSection from './sections/CatalogueSection';
 
 const Home: React.FC = () => {
-
-
     return (
         <div className="min-h-screen">
             <Navbar />

@@ -403,7 +403,7 @@ const CheckoutPage: React.FC = () => {
                                                 <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                                                     {item.image ? (
                                                         <img
-                                                            src={`${import.meta.env.VITE_BASE_WITHOUT_ORIGIN}/${item.image}`}
+                                                            src={`${import.meta.env.VITE_BASE_URL}/${item.image}`}
                                                             alt={item.name}
                                                             className="w-full h-full object-cover"
                                                             loading="lazy"
@@ -414,7 +414,7 @@ const CheckoutPage: React.FC = () => {
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <h3 className="font-medium text-gray-900 text-sm leading-tight mb-1">
-                                                        {item.name}
+                                                        {item.name} 
                                                     </h3>
                                                     <p className="text-sm text-gray-600 truncate mb-3">{item.supplierName}</p>
                                                     
@@ -507,7 +507,7 @@ const CheckoutPage: React.FC = () => {
                                                 <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden flex-shrink-0">
                                                     {item.image ? (
                                                         <img
-                                                            src={`${import.meta.env.VITE_BASE_WITHOUT_ORIGIN}/${item.image}`}
+                                                            src={`${import.meta.env.VITE_BASE_URL}/${item.image}`}
                                                             alt={item.name}
                                                             className="w-full h-full object-cover"
                                                             loading="lazy"

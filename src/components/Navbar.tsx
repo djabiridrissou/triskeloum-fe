@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import {
     ShoppingCartOutlined,
     ShopOutlined,
@@ -47,6 +47,7 @@ import {
 
 import type { MenuProps } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { useCartContext } from '../contexts/CartContext';
 
 const { Text, Title } = Typography;
 
@@ -69,9 +70,9 @@ const Navbar: React.FC = () => {
     const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
     const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
     const [searchValue, setSearchValue] = useState('');
-    const [notifications, setNotifications] = useState(3);
-    const [cartItems] = useState([]);
     const navigate = useNavigate();
+    const { cartItems, getTotalItems, isLoading, loadCartFromAPI, getTotalPrice } = useCartContext();
+
 
     // Styles CSS ultra-professionnels
     useEffect(() => {
@@ -366,7 +367,6 @@ const Navbar: React.FC = () => {
         navigate('/login');
     };
 
-    // Menu utilisateur ultra-professionnel
     const getUserMenuItems = (): MenuProps['items'] => {
         if (!user) return [];
 
@@ -597,7 +597,7 @@ const Navbar: React.FC = () => {
                     {/* Actions de droite - VERSION PROFESSIONNELLE */}
                     <div className="navbar-actions">
                         {/* Bouton de recherche mobile */}
-                       {/*  <div className="md:hidden action-button">
+                        {/*  <div className="md:hidden action-button">
                             <SearchOutlined />
                         </div>
 
@@ -615,8 +615,8 @@ const Navbar: React.FC = () => {
 
                         {/* Panier */}
                         <Tooltip title="Panier d'achat" placement="bottom">
-                            <Badge count={cartItems.length} className="cart-badge">
-                                <div 
+                            <Badge count={getTotalItems()} className="cart-badge">
+                                <div
                                     className="action-button"
                                     onClick={() => setCartDrawerOpen(true)}
                                 >
@@ -664,7 +664,7 @@ const Navbar: React.FC = () => {
                         )}
 
                         {/* Menu mobile */}
-                        <div 
+                        <div
                             className="mobile-toggle md:hidden"
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         >
@@ -676,13 +676,78 @@ const Navbar: React.FC = () => {
 
             {/* Drawers pour le panier et les notifications */}
             <Drawer
-                title="Panier d'achat"
+                title={
+                    <div className="flex items-center justify-between">
+                        <span>Panier ({getTotalItems()})</span>
+                        <Button
+                            size="small"
+                            onClick={loadCartFromAPI}
+                            loading={isLoading}
+                            title="Synchroniser avec le serveur"
+                        >
+                            🔄
+                        </Button>
+                    </div>
+                }
                 placement="right"
                 onClose={() => setCartDrawerOpen(false)}
                 open={cartDrawerOpen}
                 width={400}
             >
-                <Empty description="Votre panier est vide" />
+                {cartItems.length === 0 ? (
+                    <div className="text-center py-8">
+                        <Empty description="Panier vide" />
+                        <Button
+                            type="link"
+                            onClick={loadCartFromAPI}
+                            loading={isLoading}
+                        >
+                            Vérifier sur le serveur
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {cartItems.map((item) => (
+                            <div key={item.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                                {item.image && (
+                                    <img
+                                        src={`${import.meta.env.VITE_BASE_URL}/${item.image}`}
+                                        alt={item.name}
+                                        className="w-12 h-12 object-cover rounded"
+                                    />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-sm truncate">{item.name}</div>
+                                    <div className="text-xs text-gray-500">
+                                        {item.price} × {item.quantity}
+                                    </div>
+                                </div>
+                                <div className="font-semibold text-sm">
+                                    {(item.price * item.quantity).toFixed(2)}
+                                </div>
+                            </div>
+                        ))}
+
+                        <div className="border-t pt-4 mt-4">
+                            <div className="flex justify-between items-center font-bold text-lg mb-4">
+                                <span>Total:</span>
+                                <span>{getTotalPrice().toFixed(2)}</span>
+                            </div>
+
+                            <Button
+                                type="primary"
+                                size="large"
+                                block
+                                onClick={() => {
+                                    setCartDrawerOpen(false);
+                                    navigate('/buyer/checkout');
+                                }}
+                            >
+                                Commander ({getTotalItems()})
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </Drawer>
 
             <Drawer

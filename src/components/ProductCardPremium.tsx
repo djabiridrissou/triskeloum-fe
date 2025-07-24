@@ -7,8 +7,11 @@ import { useCartContext } from "../contexts/CartContext";
 const ProductCardPremium = ({ product }: { product: any }) => {
     const { addToCart } = useCartContext();
     const navigate = useNavigate();
-    let imgBaseUrl = import.meta.env.VITE_BASE_WITHOUT_ORIGIN;
+    let imgBaseUrl = import.meta.env.VITE_BASE_URL;
 
+    console.log("Image base URL:", imgBaseUrl);
+
+    console.log("Product data:", product.images[0]);
     const handleAddToCart = () => {
         console.log("Adding product to cart:", product);
         addToCart({

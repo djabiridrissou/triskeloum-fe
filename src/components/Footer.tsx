@@ -50,7 +50,7 @@ const Footer = () => {
                         {/* Solutions */}
                         <div>
                             <h3 className="text-white font-semibold mb-6">Solutions</h3>
-                            <ul className="space-y-3">
+                           {/*  <ul className="space-y-3">
                                 <li>
                                     <a href="/fournisseurs" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
                                         Espace Fournisseurs
@@ -71,13 +71,13 @@ const Footer = () => {
                                         Gestion de Stock
                                     </a>
                                 </li>
-                            </ul>
+                            </ul> */}
                         </div>
 
                         {/* Support */}
                         <div>
                             <h3 className="text-white font-semibold mb-6">Support</h3>
-                            <ul className="space-y-3">
+                            {/* <ul className="space-y-3">
                                 <li>
                                     <a href="/aide" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
                                         Centre d'aide
@@ -98,7 +98,7 @@ const Footer = () => {
                                         Documentation API
                                     </a>
                                 </li>
-                            </ul>
+                            </ul> */}
                         </div>
 
                         {/* Newsletter */}

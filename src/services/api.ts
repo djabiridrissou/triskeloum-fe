@@ -212,7 +212,7 @@ export const api = createApi({
             }),
         }),
         getUserCart: builder.query({
-            query: (userId) => ({
+            query: ({userId}) => ({
                 url: '/cart/one',
                 method: 'GET',
                 params: { userId },
@@ -312,7 +312,7 @@ export const api = createApi({
                 params: { productId }
             }),
             invalidatesTags: ['Product'],
-        }),
+        })
     }),
 });
 

@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import ProductCardPremium from "../../../components/ProductCardPremium";
 import { useGetProductsQuery } from "../../../services/api";
+import { useNavigate } from "react-router-dom";
 
 const CatalogueSection = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -11,9 +12,8 @@ const CatalogueSection = () => {
     const [isTransitioning, setIsTransitioning] = useState(false);
     const sliderRef = useRef<HTMLDivElement>(null);
     const { data: products, isLoading } = useGetProductsQuery({});
-    
-    // Assurer que products.data est toujours un tableau
     const productsData = Array.isArray(products?.data) ? products.data : [];
+    const navigate = useNavigate();
 
     const getSlidesPerView = () => {
         if (typeof window === 'undefined') return 1;
@@ -50,7 +50,7 @@ const CatalogueSection = () => {
 
     const onTouchEnd = () => {
         if (!touchStart || !touchEnd) return;
-        
+
         const distance = touchStart - touchEnd;
         const isLeftSwipe = distance > minSwipeDistance;
         const isRightSwipe = distance < -minSwipeDistance;
@@ -123,11 +123,10 @@ const CatalogueSection = () => {
                                 <button
                                     onClick={prevSlide}
                                     disabled={currentSlide === 0}
-                                    className={`p-2 rounded-full transition-all duration-200 ${
-                                        currentSlide === 0
-                                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 shadow-md'
-                                    }`}
+                                    className={`p-2 rounded-full transition-all duration-200 ${currentSlide === 0
+                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                        : 'bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 shadow-md'
+                                        }`}
                                     aria-label="Précédent"
                                 >
                                     <ChevronLeft className="w-5 h-5" />
@@ -135,11 +134,10 @@ const CatalogueSection = () => {
                                 <button
                                     onClick={nextSlide}
                                     disabled={currentSlide === totalSlides - 1}
-                                    className={`p-2 rounded-full transition-all duration-200 ${
-                                        currentSlide === totalSlides - 1
-                                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 shadow-md'
-                                    }`}
+                                    className={`p-2 rounded-full transition-all duration-200 ${currentSlide === totalSlides - 1
+                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                        : 'bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900 shadow-md'
+                                        }`}
                                     aria-label="Suivant"
                                 >
                                     <ChevronRight className="w-5 h-5" />
@@ -147,34 +145,32 @@ const CatalogueSection = () => {
                             </div>
                         </div>
 
-                        <div 
+                        <div
                             ref={sliderRef}
                             className="overflow-hidden"
                             onTouchStart={onTouchStart}
                             onTouchMove={onTouchMove}
                             onTouchEnd={onTouchEnd}
                         >
-                            <div 
-                                className={`flex transition-transform duration-300 ease-out ${
-                                    isTransitioning ? '' : 'transition-none'
-                                }`}
+                            <div
+                                className={`flex transition-transform duration-300 ease-out ${isTransitioning ? '' : 'transition-none'
+                                    }`}
                                 style={{
                                     transform: `translateX(-${currentSlide * (100 / totalSlides)}%)`,
                                     width: `${totalSlides * 100}%`
                                 }}
                             >
                                 {Array.from({ length: totalSlides }).map((_, slideIndex) => (
-                                    <div 
+                                    <div
                                         key={slideIndex}
                                         className="flex-shrink-0"
                                         style={{ width: `${100 / totalSlides}%` }}
                                     >
-                                        <div className={`grid gap-6 h-full ${
-                                            slidesPerView === 1 ? 'grid-cols-1' :
+                                        <div className={`grid gap-6 h-full ${slidesPerView === 1 ? 'grid-cols-1' :
                                             slidesPerView === 2 ? 'grid-cols-2' :
-                                            slidesPerView === 3 ? 'grid-cols-3' :
-                                            'grid-cols-4'
-                                        }`}>
+                                                slidesPerView === 3 ? 'grid-cols-3' :
+                                                    'grid-cols-4'
+                                            }`}>
                                             {getProductsForSlide(slideIndex).map((product: any) => (
                                                 <div key={product._id} className="h-full">
                                                     <ProductCardPremium product={product} />
@@ -191,11 +187,10 @@ const CatalogueSection = () => {
                                 <button
                                     key={index}
                                     onClick={() => goToSlide(index)}
-                                    className={`w-3 h-3 rounded-full transition-all duration-200 ${
-                                        index === currentSlide
-                                            ? 'bg-green-600 w-8'
-                                            : 'bg-gray-300 hover:bg-gray-400'
-                                    }`}
+                                    className={`w-3 h-3 rounded-full transition-all duration-200 ${index === currentSlide
+                                        ? 'bg-green-600 w-8'
+                                        : 'bg-gray-300 hover:bg-gray-400'
+                                        }`}
                                     aria-label={`Aller au slide ${index + 1}`}
                                 />
                             ))}
@@ -209,6 +204,56 @@ const CatalogueSection = () => {
                     </div>
                 )}
             </div>
+
+            <div className="flex items-center justify-center mt-8">
+                <div className="relative group">
+                    {/* Effet de lueur en arrière-plan */}
+                    <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-300 animate-pulse"></div>
+                    <button onClick={() => navigate("/login")} className="cursor-pointer relative px-8 py-4 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white font-bold text-lg rounded-full shadow-2xl transform transition-all duration-300 hover:scale-110 hover:-translate-y-2 active:scale-105 active:translate-y-0 group-hover:shadow-pink-500/50 animate-gradient-x uppercase tracking-wider">
+                        <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                        </div>
+
+                        {/* Texte avec icône */}
+                        <span className="relative flex items-center gap-3">
+                            <span className="text-2xl animate-bounce">🚀</span>
+                            Faites la promotion de vos produits
+                            <span className="text-2xl animate-pulse">✨</span>
+                        </span>
+
+                        {/* Particules brillantes */}
+                        <div className="absolute top-1 left-4 w-2 h-2 bg-white rounded-full animate-ping opacity-80"></div>
+                        <div className="absolute top-3 right-6 w-1 h-1 bg-yellow-300 rounded-full animate-ping animation-delay-500 opacity-90"></div>
+                        <div className="absolute bottom-2 left-1/3 w-1.5 h-1.5 bg-pink-300 rounded-full animate-ping animation-delay-1000 opacity-70"></div>
+                    </button>
+                </div>
+
+                <style>{`
+        @keyframes gradient-x {
+          0%, 100% {
+            background-size: 200% 200%;
+            background-position: left center;
+          }
+          50% {
+            background-size: 200% 200%;
+            background-position: right center;
+          }
+        }
+        
+        .animate-gradient-x {
+          animation: gradient-x 3s ease infinite;
+        }
+        
+        .animation-delay-500 {
+          animation-delay: 0.5s;
+        }
+        
+        .animation-delay-1000 {
+          animation-delay: 1s;
+        }
+      `}</style>
+            </div>
+
         </section>
     );
 };
