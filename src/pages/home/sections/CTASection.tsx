@@ -20,7 +20,7 @@ const CTASection = () => (
                 Rejoignez dès maintenant les milliers d'entreprises qui font confiance à Terminal d'Échanges
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="cursor-pointer bg-green-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+                <button onClick={() => { window.location.href = '/register' }} className="cursor-pointer bg-green-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
                     Commencer maintenant
                 </button>
                 <button className="border border-white text-white hover:bg-white hover:text-gray-900 px-8 py-3 rounded-lg font-semibold transition-colors">

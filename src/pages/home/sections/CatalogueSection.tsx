@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, ArrowRight } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import ProductCardPremium from "../../../components/ProductCardPremium";
 import { useGetProductsQuery } from "../../../services/api";
@@ -10,10 +10,20 @@ const CatalogueSection = () => {
     const [touchStart, setTouchStart] = useState(0);
     const [touchEnd, setTouchEnd] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
+    const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
     const sliderRef = useRef<HTMLDivElement>(null);
     const { data: products, isLoading } = useGetProductsQuery({});
     const productsData = Array.isArray(products?.data) ? products.data : [];
     const navigate = useNavigate();
+
+    // Vérifier si l'utilisateur est connecté
+    useEffect(() => {
+        const userEmail = localStorage.getItem('userEmail');
+        const userRole = localStorage.getItem('userRole');
+        const userName = localStorage.getItem('userName');
+        
+        setIsUserLoggedIn(!!(userEmail && userRole && userName));
+    }, []);
 
     const getSlidesPerView = () => {
         if (typeof window === 'undefined') return 1;
@@ -89,6 +99,23 @@ const CatalogueSection = () => {
         return productsData.slice(startIndex, endIndex);
     };
 
+    // Fonction pour gérer la redirection intelligente
+    const handleViewMore = () => {
+        if (isUserLoggedIn) {
+            navigate("/catalogue");
+        } else {
+            navigate("/login");
+        }
+    };
+
+    const handleBecomePartner = () => {
+        if (isUserLoggedIn) {
+            navigate("/dashboard");
+        } else {
+            navigate("/login");
+        }
+    };
+
     if (isLoading) {
         return (
             <section className="py-20 bg-gray-50">
@@ -118,7 +145,18 @@ const CatalogueSection = () => {
                     </div>
                 ) : (
                     <div className="relative shadow-xl px-2 py-1 rounded-xl">
-                        <div className="hidden md:flex justify-end items-center mb-8">
+                        <div className="hidden md:flex justify-between items-center mb-8">
+                            {/* Bouton Voir Plus à gauche */}
+                            <button
+                                onClick={handleViewMore}
+                                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-green-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105 group"
+                            >
+                                <Eye className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
+                                Voir plus de produits
+                                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                            </button>
+
+                            {/* Contrôles de navigation à droite */}
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={prevSlide}
@@ -143,6 +181,18 @@ const CatalogueSection = () => {
                                     <ChevronRight className="w-5 h-5" />
                                 </button>
                             </div>
+                        </div>
+
+                        {/* Version mobile du bouton Voir Plus */}
+                        <div className="md:hidden text-center mb-6">
+                            <button
+                                onClick={handleViewMore}
+                                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-green-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105 group"
+                            >
+                                <Eye className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
+                                Voir plus
+                                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                            </button>
                         </div>
 
                         <div
@@ -205,11 +255,15 @@ const CatalogueSection = () => {
                 )}
             </div>
 
+            {/* Section CTA avec logique de redirection intelligente */}
             <div className="flex items-center justify-center mt-8">
                 <div className="relative group">
                     {/* Effet de lueur en arrière-plan */}
-                    <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-300 animate-pulse"></div>
-                    <button onClick={() => navigate("/login")} className="cursor-pointer relative px-8 py-4 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white font-bold text-lg rounded-full shadow-2xl transform transition-all duration-300 hover:scale-110 hover:-translate-y-2 active:scale-105 active:translate-y-0 group-hover:shadow-pink-500/50 animate-gradient-x uppercase tracking-wider">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-green-500 via-black to-blue-500 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-300 animate-pulse"></div>
+                    <button 
+                        onClick={handleBecomePartner} 
+                        className="cursor-pointer relative px-8 py-4 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white font-bold text-lg rounded-full shadow-2xl transform transition-all duration-300 hover:scale-110 hover:-translate-y-2 active:scale-105 active:translate-y-0 group-hover:shadow-pink-500/50 animate-gradient-x uppercase tracking-wider"
+                    >
                         <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700">
                             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                         </div>
@@ -217,7 +271,7 @@ const CatalogueSection = () => {
                         {/* Texte avec icône */}
                         <span className="relative flex items-center gap-3">
                             <span className="text-2xl animate-bounce">🚀</span>
-                            Faites la promotion de vos produits
+                            {isUserLoggedIn ? 'Accéder au tableau de bord' : 'Devenez partenaire'}
                             <span className="text-2xl animate-pulse">✨</span>
                         </span>
 

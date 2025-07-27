@@ -248,13 +248,13 @@ const Navbar: React.FC = () => {
                 box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
                 border: 1px solid rgba(0, 0, 0, 0.05);
                 padding: 8px;
-                min-width: 280px;
+                min-width: 200px;
             }
 
             .dropdown-menu .ant-dropdown-menu-item {
                 border-radius: 12px;
                 margin: 2px 0;
-                padding: 16px;
+                padding: 12px 16px;
                 transition: all 0.2s ease;
             }
 
@@ -262,25 +262,8 @@ const Navbar: React.FC = () => {
                 background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             }
 
-            .user-header {
-                background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-                color: white;
-                padding: 20px;
-                border-radius: 12px;
-                margin: -8px -8px 16px -8px;
-            }
-
-            .premium-tag {
-                background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-                color: #92400e;
-                border: none;
-                font-weight: 600;
-            }
-
-            .verified-tag {
-                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                color: white;
-                border: none;
+            .dropdown-menu .ant-dropdown-menu-item-danger:hover {
+                background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
             }
 
             @media (max-width: 768px) {
@@ -367,184 +350,49 @@ const Navbar: React.FC = () => {
         navigate('/login');
     };
 
+    // Fonction pour obtenir l'URL du tableau de bord selon le rôle
+    const getDashboardUrl = (role: string) => {
+        switch (role) {
+            case 'buyer':
+                return '/buyer/home';
+            case 'supplier':
+                return '/supplier/catalogue';
+            case 'admin':
+                return '/admin/home';
+            default:
+                return '/dashboard';
+        }
+    };
+
     const getUserMenuItems = (): MenuProps['items'] => {
         if (!user) return [];
 
-        const userHeader = {
-            key: 'header',
-            label: (
-                <div className="user-header">
-                    <div className="flex items-center space-x-3 mb-3">
-                        <Avatar
-                            size={48}
-                            src={user.picture}
-                            icon={<UserOutlined />}
-                            className="border-2 border-white"
-                        />
-                        <div className="flex-1">
-                            <div className="font-semibold text-lg">{user.name}</div>
-                            <div className="text-sm opacity-90">{user.email}</div>
-                        </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                            {user.verified && (
-                                <Tag className="verified-tag">
-                                    <CheckCircleOutlined className="mr-1" />
-                                    Vérifié
-                                </Tag>
-                            )}
-                            {user.isPremium && (
-                                <Tag className="premium-tag">
-                                    <CrownOutlined className="mr-1" />
-                                    Premium
-                                </Tag>
-                            )}
-                        </div>
-                        {user.rating && (
-                            <div className="flex items-center space-x-1">
-                                <StarFilled className="text-yellow-300" />
-                                <span className="text-sm">{user.rating}</span>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            ),
-            disabled: true,
-        };
-
-        const commonItems = [
-            {
-                key: 'profile',
-                label: (
-                    <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                            <UserOutlined className="text-blue-600" />
-                        </div>
-                        <div>
-                            <div className="font-medium">Mon profil</div>
-                            <div className="text-xs text-gray-500">Gérer mes informations</div>
-                        </div>
-                    </div>
-                ),
-                onClick: () => handleNavigation('/profile'),
-            },
-        ];
-
-        const roleSpecificItems = user.role === 'buyer' ? [
-            {
-                key: 'orders',
-                label: (
-                    <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
-                            <FileTextOutlined className="text-green-600" />
-                        </div>
-                        <div>
-                            <div className="font-medium">Mes commandes</div>
-                            <div className="text-xs text-gray-500">Historique et suivi</div>
-                        </div>
-                    </div>
-                ),
-                onClick: () => handleNavigation('/orders'),
-            },
-            {
-                key: 'wishlist',
-                label: (
-                    <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
-                            <HeartOutlined className="text-red-500" />
-                        </div>
-                        <div>
-                            <div className="font-medium">Liste de souhaits</div>
-                            <div className="text-xs text-gray-500">Produits favoris</div>
-                        </div>
-                    </div>
-                ),
-                onClick: () => handleNavigation('/wishlist'),
-            },
-        ] : [
+        return [
             {
                 key: 'dashboard',
                 label: (
                     <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
-                            <DashboardOutlined className="text-green-600" />
+                        <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                            <DashboardOutlined className="text-blue-600" />
                         </div>
-                        <div>
-                            <div className="font-medium">Tableau de bord</div>
-                            <div className="text-xs text-gray-500">Vue d'ensemble</div>
-                        </div>
+                        <span className="font-medium">Tableau de bord</span>
                     </div>
                 ),
-                onClick: () => handleNavigation('/supplier/dashboard'),
-            },
-            {
-                key: 'products',
-                label: (
-                    <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                            <ShopOutlined className="text-blue-600" />
-                        </div>
-                        <div>
-                            <div className="font-medium">Mes produits</div>
-                            <div className="text-xs text-gray-500">Gestion du catalogue</div>
-                        </div>
-                    </div>
-                ),
-                onClick: () => handleNavigation('/supplier/products'),
-            },
-        ];
-
-        return [
-            userHeader,
-            { type: 'divider' },
-            ...commonItems,
-            ...roleSpecificItems,
-            {
-                key: 'settings',
-                label: (
-                    <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
-                            <SettingOutlined className="text-gray-600" />
-                        </div>
-                        <div>
-                            <div className="font-medium">Paramètres</div>
-                            <div className="text-xs text-gray-500">Préférences du compte</div>
-                        </div>
-                    </div>
-                ),
-                onClick: () => handleNavigation('/settings'),
+                onClick: () => handleNavigation(getDashboardUrl(user.role)),
             },
             { type: 'divider' },
-            {
-                key: 'support',
-                label: (
-                    <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
-                            <PhoneOutlined className="text-green-600" />
-                        </div>
-                        <div>
-                            <div className="font-medium">Support client</div>
-                            <div className="text-xs text-gray-500">Aide et assistance</div>
-                        </div>
-                    </div>
-                ),
-                onClick: () => handleNavigation('/support'),
-            },
             {
                 key: 'logout',
                 label: (
                     <div className="flex items-center space-x-3 text-red-600">
-                        <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
+                        <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
                             <LogoutOutlined className="text-red-600" />
                         </div>
-                        <div>
-                            <div className="font-medium">Déconnexion</div>
-                            <div className="text-xs opacity-75">Fermer la session</div>
-                        </div>
+                        <span className="font-medium">Déconnexion</span>
                     </div>
                 ),
                 onClick: handleLogout,
+                danger: true,
             },
         ];
     };
@@ -596,23 +444,6 @@ const Navbar: React.FC = () => {
 
                     {/* Actions de droite - VERSION PROFESSIONNELLE */}
                     <div className="navbar-actions">
-                        {/* Bouton de recherche mobile */}
-                        {/*  <div className="md:hidden action-button">
-                            <SearchOutlined />
-                        </div>
-
-                      
-                        <Tooltip title="Notifications" placement="bottom">
-                            <Badge count={notifications} className="notification-badge">
-                                <div 
-                                    className="action-button"
-                                    onClick={() => setNotificationDrawerOpen(true)}
-                                >
-                                    <BellOutlined />
-                                </div>
-                            </Badge>
-                        </Tooltip> */}
-
                         {/* Panier */}
                         <Tooltip title="Panier d'achat" placement="bottom">
                             <Badge count={getTotalItems()} className="cart-badge">
