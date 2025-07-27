@@ -24,8 +24,8 @@ export default function Services() {
             icon: <img src="/images/flooz.png" className="w-12 h-12 object-contain" />,
             available: true
         },
-        { ID: 'NSIA', name: "NSIA Banque",  icon: <CreditCard className="w-6 h-6" />, available: true },
-       
+        { ID: 'NSIA', name: "NSIA Banque", icon: <CreditCard className="w-6 h-6" />, available: true },
+
 
     ];
 
@@ -324,72 +324,70 @@ export default function Services() {
                     </div>
                     {/* Payment Methods */}
                     <div className="py-16 bg-gradient-to-r from-gray-50 to-blue-50">
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                Moyens de Paiement Acceptés
-            </h2>
-            <p className="text-gray-600">
-                Plusieurs options pour votre confort et sécurité
-            </p>
-        </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-3xl mx-auto">
-            {paymentMethods.map((method) => (
-                <div
-                    key={method.id}
-                    className={`relative bg-white rounded-xl border-2 p-6 transition-all duration-300 hover:shadow-lg hover:scale-105 ${
-                        method.available 
-                            ? 'border-gray-200 hover:border-blue-300' 
-                            : 'border-gray-200 opacity-60'
-                    }`}
-                >
-                    {/* Badge de disponibilité */}
-                    <div className="absolute -top-2 -right-2">
-                        {method.available ? (
-                            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                                <CheckCircle className="w-4 h-4 text-white" />
+                        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="text-center mb-12">
+                                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+                                    Moyens de Paiement Acceptés
+                                </h2>
+                                <p className="text-gray-600">
+                                    Plusieurs options pour votre confort et sécurité
+                                </p>
                             </div>
-                        ) : (
-                            <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                                <AlertCircle className="w-4 h-4 text-white" />
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-3xl mx-auto">
+                                {paymentMethods.map((method: any) => (
+                                    <div
+                                        key={method.id}
+                                        className={`relative bg-white rounded-xl border-2 p-6 transition-all duration-300 hover:shadow-lg hover:scale-105 ${method.available
+                                                ? 'border-gray-200 hover:border-blue-300'
+                                                : 'border-gray-200 opacity-60'
+                                            }`}
+                                    >
+                                        {/* Badge de disponibilité */}
+                                        <div className="absolute -top-2 -right-2">
+                                            {method.available ? (
+                                                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                                                    <CheckCircle className="w-4 h-4 text-white" />
+                                                </div>
+                                            ) : (
+                                                <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                                                    <AlertCircle className="w-4 h-4 text-white" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Contenu de la carte */}
+                                        <div className="flex flex-col items-center text-center h-full">
+                                            {/* Icône */}
+                                            <div className="w-16 h-16 mb-4 flex items-center justify-center bg-gray-50 rounded-lg">
+                                                {method.icon}
+                                            </div>
+
+                                            {/* Nom */}
+                                            <h3 className="font-semibold text-gray-900 mb-2 text-sm">
+                                                {method.name}
+                                            </h3>
+
+                                            {/* Statut */}
+                                            <div className={`text-xs px-3 py-1 rounded-full font-medium ${method.available
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : 'bg-red-100 text-red-700'
+                                                }`}>
+                                                {method.available ? 'Disponible' : 'Bientôt disponible'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        )}
-                    </div>
-                    
-                    {/* Contenu de la carte */}
-                    <div className="flex flex-col items-center text-center h-full">
-                        {/* Icône */}
-                        <div className="w-16 h-16 mb-4 flex items-center justify-center bg-gray-50 rounded-lg">
-                            {method.icon}
-                        </div>
-                        
-                        {/* Nom */}
-                        <h3 className="font-semibold text-gray-900 mb-2 text-sm">
-                            {method.name}
-                        </h3>
-                        
-                        {/* Statut */}
-                        <div className={`text-xs px-3 py-1 rounded-full font-medium ${
-                            method.available 
-                                ? 'bg-green-100 text-green-700' 
-                                : 'bg-red-100 text-red-700'
-                        }`}>
-                            {method.available ? 'Disponible' : 'Bientôt disponible'}
+
+                            {/* Note informative */}
+                            <div className="mt-8 text-center">
+                                <p className="text-sm text-gray-500">
+                                    Tous les paiements sont sécurisés et protégés par un cryptage SSL
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            ))}
-        </div>
-        
-        {/* Note informative */}
-        <div className="mt-8 text-center">
-            <p className="text-sm text-gray-500">
-                Tous les paiements sont sécurisés et protégés par un cryptage SSL
-            </p>
-        </div>
-    </div>
-</div>
 
                     {/* CTA Section */}
                     <div style={{
