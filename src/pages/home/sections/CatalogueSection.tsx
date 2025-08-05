@@ -144,17 +144,16 @@ const CatalogueSection = () => {
                         <p className="text-gray-500">Aucun produit disponible pour le moment</p>
                     </div>
                 ) : (
-                    <div className="relative shadow-xl px-2 py-1 rounded-xl">
+                    <div className="relative">
                         <div className="hidden md:flex justify-between items-center mb-8">
                             {/* Bouton Voir Plus à gauche */}
-                            <button
+                            <span
                                 onClick={handleViewMore}
-                                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-green-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105 group"
+                                className="inline-flex items-center px-6 py-3 text-black cursor-pointer font-semibold rounded-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105 group"
                             >
-                                <Eye className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
-                                Voir plus de produits
+                                Voir plus
                                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                            </button>
+                            </span>
 
                             {/* Contrôles de navigation à droite */}
                             <div className="flex items-center gap-2">

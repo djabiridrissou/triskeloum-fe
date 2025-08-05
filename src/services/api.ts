@@ -312,6 +312,14 @@ export const api = createApi({
                 params: { productId }
             }),
             invalidatesTags: ['Product'],
+        }),
+        sendContactEmail: builder.mutation({
+            query: (data) => ({
+                url: "/contact/new",
+                method: "POST",
+                body: data,
+            }),
+            invalidatesTags: ['User']
         })
     }),
 });
@@ -344,5 +352,6 @@ export const {
     useAdminOrdersQuery,
     useApproveOrderMutation,
     useEmailPaymentRequestMutation,
-    useDeleteProductMutation
+    useDeleteProductMutation,
+    useSendContactEmailMutation
 } = api;
