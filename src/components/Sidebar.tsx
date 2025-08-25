@@ -6,6 +6,9 @@ import {
   ShopOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  CreditCardOutlined,
+  DeliveredProcedureOutlined,
+  OrderedListOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FcSalesPerformance } from "react-icons/fc";
@@ -31,7 +34,9 @@ const Sidebar = () => {
       '/supplier/catalogue': '6',
       '/seller/sales': '7',
       '/buyer/home': '8',
-      '/buyer/sales': '9'
+      '/buyer/sales': '9',
+      '/buyer/payments': '10',
+      '/buyer/deliveries': '11',
     };
 
     const currentKey = pathToKey[location.pathname] || '1';
@@ -103,9 +108,21 @@ const Sidebar = () => {
         },
         {
           key: '9',
-          icon: <UserOutlined />,
+          icon: <OrderedListOutlined />,
           label: 'Mes Commandes',
           path: '/buyer/sales',
+        },
+        {
+          key: '10',
+          icon: <CreditCardOutlined />,
+          label: 'Mes Paiements',
+          path: '/buyer/payments',
+        },
+        {
+          key: '11',
+          icon: <DeliveredProcedureOutlined />,
+          label: 'Mes Livraisons',
+          path: '/buyer/deliveries',
         },
       ];
     }

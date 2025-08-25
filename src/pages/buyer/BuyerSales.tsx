@@ -40,11 +40,13 @@ import {
     MailOutlined,
     ShopOutlined,
     TagOutlined,
-    BoxPlotOutlined
+    BoxPlotOutlined,
+    ExclamationCircleOutlined
 } from '@ant-design/icons';
 import { useGetOrdersQuery, useGetOrderDetailsQuery } from '../../services/api';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
+import MarkPaidModal from './sections/MarkPaidModal';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -114,6 +116,8 @@ const BuyerSales: React.FC<UserSalesProps> = ({
     const [modalVisible, setModalVisible] = useState(false);
     const [sortField, setSortField] = useState('createdAt');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+    const [paymentModalVisible, setPaymentModalVisible] = useState(false);
+    const [selectedSaleForPayment, setSelectedSaleForPayment] = useState<Sale | null>(null);
 
     const effectiveUserId = userId || localStorage.getItem('userId') || '';
 
@@ -160,13 +164,31 @@ const BuyerSales: React.FC<UserSalesProps> = ({
 
     const getStatusConfig = (status: string) => {
         const configs = {
-            pending: { color: '#F59E0B', label: 'En attente', icon: <ClockCircleOutlined />, bgColor: '#FEF3C7' },
+            pending: { color: '#F59E0B', label: 'En attente de confirmation', icon: <ClockCircleOutlined />, bgColor: '#FEF3C7' },
             'pending-payment': { color: '#3B82F6', label: 'En attente de paiement', icon: <DollarOutlined />, bgColor: '#DBEAFE' },
             completed: { color: '#10B981', label: 'Terminée', icon: <CheckCircleOutlined />, bgColor: '#D1FAE5' },
             delivered: { color: '#06B6D4', label: 'Livrée', icon: <CheckCircleOutlined />, bgColor: '#CFFAFE' },
             cancelled: { color: '#EF4444', label: 'Annulée', icon: <ClockCircleOutlined />, bgColor: '#FEE2E2' },
         };
         return configs[status as keyof typeof configs] || configs.pending;
+    };
+
+    // Fonctions pour gérer le modal de paiement
+    const handlePay = (sale: Sale) => {
+        console.log('handlePay called with sale:', sale._id); // Debug
+        setSelectedSaleForPayment(sale);
+        setPaymentModalVisible(true);
+    };
+
+    const handlePaymentModalClose = () => {
+        console.log('Closing payment modal'); // Debug
+        setPaymentModalVisible(false);
+        setSelectedSaleForPayment(null);
+    };
+
+    const handlePaymentSuccess = () => {
+        console.log('Payment success, refetching data'); // Debug
+        refetch();
     };
 
     const getPaymentStatusConfig = (status: string) => {
@@ -262,6 +284,19 @@ const BuyerSales: React.FC<UserSalesProps> = ({
             sorter: true,
         },
         {
+            title: 'Date',
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            width: 120,
+            render: (date: string) => (
+                <div className="text-sm">
+                    <div className="font-medium text-gray-900">{dayjs(date).format('DD/MM/YYYY')}</div>
+                    <div className="text-xs text-gray-500">{dayjs(date).format('HH:mm')}</div>
+                </div>
+            ),
+            sorter: true,
+        },
+        {
             title: 'Statut',
             dataIndex: 'status',
             key: 'status',
@@ -278,67 +313,93 @@ const BuyerSales: React.FC<UserSalesProps> = ({
             },
         },
         {
-            title: 'Paiement',
-            dataIndex: 'paymentStatus',
-            key: 'paymentStatus',
-            width: 120,
-            render: (status: string) => {
-                const config = getPaymentStatusConfig(status);
+            title: 'Actions',
+            key: 'actions',
+            width: 100,
+            render: (_, record: Sale) => {
+                // Logique de détermination de l'état
+                const canPay = record.status !== 'pending' && record.paymentStatus === 'pending';
+                const isPaid = record.paymentStatus === 'paid';
+                const isPending = record.status === 'pending';
+                const isPartial = record.paymentStatus === 'partial';
+
+                // Configuration du bouton selon l'état
+                let config = {
+                    text: 'Payer',
+                    icon: <DollarOutlined />,
+                    style: {
+                        borderColor: '#10b981',
+                        color: '#047857',
+                        backgroundColor: '#ecfdf5',
+                        cursor: 'pointer'
+                    },
+                    tooltip: "Cliquez pour effectuer le paiement",
+                    disabled: false
+                };
+
+                if (isPaid) {
+                    config = {
+                        text: 'Payé',
+                        icon: <CheckCircleOutlined />,
+                        style: {
+                            borderColor: '#d1d5db',
+                            color: '#6b7280',
+                            backgroundColor: '#f9fafb',
+                            cursor: 'not-allowed'
+                        },
+                        tooltip: "Commande déjà payée",
+                        disabled: true
+                    };
+                } else if (isPartial) {
+                    config = {
+                        text: 'Partiel',
+                        icon: <ExclamationCircleOutlined />,
+                        style: {
+                            borderColor: '#3b82f6',
+                            color: '#1e40af',
+                            backgroundColor: '#dbeafe',
+                            cursor: 'pointer'
+                        },
+                        tooltip: "Paiement partiel - cliquez pour compléter",
+                        disabled: false
+                    };
+                } else if (isPending) {
+                    config = {
+                        text: 'En attente',
+                        icon: <ClockCircleOutlined />,
+                        style: {
+                            borderColor: '#d1d5db',
+                            color: '#6b7280',
+                            backgroundColor: '#f9fafb',
+                            cursor: 'not-allowed'
+                        },
+                        tooltip: "La commande doit être confirmée avant le paiement",
+                        disabled: true
+                    };
+                }
+
                 return (
-                    <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium"
-                        style={{ backgroundColor: config.bgColor, color: config.color }}>
-                        {config.label}
+                    <div className='flex gap-2'>
+                        <Tooltip title={config.tooltip}>
+                            <Button
+                                size="small"
+                                onClick={() => {
+                                    if (!config.disabled) {
+                                        console.log('Button clicked for sale:', record._id); // Debug
+                                        handlePay(record);
+                                    }
+                                }}
+                                disabled={config.disabled}
+                                className="rounded-md flex items-center gap-1"
+                                style={config.style}
+                                icon={config.icon}
+                            >
+                                {config.text}
+                            </Button>
+                        </Tooltip>
                     </div>
                 );
             },
-        },
-        {
-            title: 'Date',
-            dataIndex: 'createdAt',
-            key: 'createdAt',
-            width: 120,
-            render: (date: string) => (
-                <div className="text-sm">
-                    <div className="font-medium text-gray-900">{dayjs(date).format('DD/MM/YYYY')}</div>
-                    <div className="text-xs text-gray-500">{dayjs(date).format('HH:mm')}</div>
-                </div>
-            ),
-            sorter: true,
-        },
-        {
-            title: '',
-            key: 'actions',
-            width: 60,
-            render: (_, record: Sale) => (
-                <div>
-                    <Button
-                        size="small"
-                        onClick={() => handleViewDetails(record)}
-                        className="border border-blue-200 text-blue-600 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-300 rounded-md px-3"
-                        style={{
-                            borderColor: '#bfdbfe',
-                            color: '#2563eb',
-                            backgroundColor: 'transparent'
-                        }}
-                    >
-                        Détails
-                    </Button>
-                    {/* <Button
-                        size="small"
-                        onClick={() => handleViewDetails(record)}
-                        className="border border-yellow-200 text-blue-600 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-300 rounded-md"
-                        style={{
-                            borderColor: '#facc15',       // yellow-400
-                            color: '#ca8a04',             // yellow-600
-                            backgroundColor: '#fefce8'    // yellow-50 (très clair)
-                        }}
-
-                    >
-                        Marquer comme payé
-                    </Button> */}
-                </div>
-
-            ),
         }
     ];
 
@@ -424,7 +485,7 @@ const BuyerSales: React.FC<UserSalesProps> = ({
                         style={{ borderRadius: '8px' }}
                     >
                         <Option value="">Tous les statuts</Option>
-                        <Option value="pending">En attente</Option>
+                        <Option value="pending">En attente de confirmation</Option>
                         <Option value="pending-payment">En attente paiement</Option>
                         <Option value="completed">Terminée</Option>
                         <Option value="delivered">Livrée</Option>
@@ -471,235 +532,13 @@ const BuyerSales: React.FC<UserSalesProps> = ({
                 />
             </div>
 
-            {/* Modal des détails - Design luxueux */}
-            <Modal
-                title={null}
-                open={modalVisible}
-                onCancel={handleModalClose}
-                footer={null}
-                width={800}
-                className="luxury-modal"
-                style={{ top: 20 }}
-            >
-                {isLoadingDetails ? (
-                    <div className="p-8">
-                        <Skeleton active paragraph={{ rows: 8 }} />
-                    </div>
-                ) : orderDetails ? (
-                    <div className="bg-white">
-                        {/* En-tête du modal */}
-                        <div className="bg-gradient-to-r from-gray-900 to-gray-800 text-white p-6 -m-6 mb-6">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <div className="text-sm opacity-75 mb-1">Commande</div>
-                                    <div className="text-2xl font-light tracking-wide">
-                                        {orderDetails.order.saleNumber}
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-sm opacity-75 mb-1">Montant Total</div>
-                                    <div className="text-2xl font-light">
-                                        {formatPrice(orderDetails.order.totalAmount)}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Informations principales */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                            <div className="space-y-4">
-                                <div>
-                                    <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Date de commande</div>
-                                    <div className="flex items-center space-x-2">
-                                        <CalendarOutlined className="text-gray-400" />
-                                        <span className="text-gray-900">
-                                            {dayjs(orderDetails.order.createdAt).format('DD MMMM YYYY à HH:mm')}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Statut</div>
-                                    <div className="inline-flex items-center space-x-2 px-3 py-2 rounded-lg"
-                                        style={{
-                                            backgroundColor: getStatusConfig(orderDetails.order.status).bgColor,
-                                            color: getStatusConfig(orderDetails.order.status).color
-                                        }}>
-                                        {getStatusConfig(orderDetails.order.status).icon}
-                                        <span className="font-medium">
-                                            {getStatusConfig(orderDetails.order.status).label}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div>
-                                    <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Paiement</div>
-                                    <div className="inline-flex items-center px-3 py-2 rounded-lg"
-                                        style={{
-                                            backgroundColor: getPaymentStatusConfig(orderDetails.order.paymentStatus).bgColor,
-                                            color: getPaymentStatusConfig(orderDetails.order.paymentStatus).color
-                                        }}>
-                                        <span className="font-medium">
-                                            {getPaymentStatusConfig(orderDetails.order.paymentStatus).label}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {orderDetails.order.paymentMethod && (
-                                    <div>
-                                        <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Mode de paiement</div>
-                                        <div className="flex items-center space-x-2">
-                                            <DollarOutlined className="text-gray-400" />
-                                            <span className="text-gray-900 capitalize">
-                                                {orderDetails.order.paymentMethod}
-                                            </span>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Informations client (si admin) */}
-                        {showAllUsers && orderDetails.order.buyerId && (
-                            <>
-                                <Divider className="my-8" />
-                                <div className="mb-8">
-                                    <div className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                                        <UserOutlined className="mr-2" />
-                                        Informations Client
-                                    </div>
-                                    <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                                                <Text className="text-white font-semibold">
-                                                    {(orderDetails.order.buyerId.fullName || orderDetails.order.buyerId.socialReason || '').charAt(0).toUpperCase()}
-                                                </Text>
-                                            </div>
-                                            <div>
-                                                <div className="font-medium text-gray-900">
-                                                    {orderDetails.order.buyerId.fullName || orderDetails.order.buyerId.socialReason}
-                                                </div>
-                                                <div className="text-sm text-gray-500 flex items-center space-x-4">
-                                                    <span className="flex items-center">
-                                                        <MailOutlined className="mr-1" />
-                                                        {orderDetails.order.buyerId.email}
-                                                    </span>
-                                                    <span className="flex items-center">
-                                                        <PhoneOutlined className="mr-1" />
-                                                        {orderDetails.order.buyerId.phoneNumber}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </>
-                        )}
-
-                        {/* Articles commandés */}
-                        <Divider className="my-8" />
-                        <div>
-                            <div className="text-lg font-medium text-gray-900 mb-6 flex items-center">
-                                <BoxPlotOutlined className="mr-2" />
-                                Articles Commandés
-                                <Badge count={orderDetails.orderItems?.length || 0} className="ml-2" />
-                            </div>
-                            <div className="space-y-4">
-                                {orderDetails.orderItems?.map((item: SaleItem, index: number) => (
-                                    <div key={item._id}
-                                        className="border border-gray-200 rounded-xl p-5 hover:shadow-sm transition-shadow">
-                                        <div className="flex items-start space-x-4">
-                                            <div className="w-16 h-16 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0">
-                                                {item.productId?.image ? (
-                                                    <Image
-                                                        src={`${import.meta.env.VITE_BASE_WITHOUT_ORIGIN}/${item.productId.image}`}
-                                                        alt={item.productId.name}
-                                                        className="w-full h-full object-cover"
-                                                        preview={false}
-                                                    />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center">
-                                                        <FileTextOutlined className="text-2xl text-gray-400" />
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex justify-between items-start">
-                                                    <div className="space-y-2">
-                                                        <div>
-                                                            <div className="font-medium text-gray-900 text-lg">
-                                                                {item.productId?.name || item.productId?.designation}
-                                                            </div>
-                                                            {item.supplierId && (
-                                                                <div className="flex items-center text-sm text-gray-500 mt-1">
-                                                                    <ShopOutlined className="mr-1" />
-                                                                    {item.supplierId.name || item.supplierId.socialReason}
-                                                                </div>
-                                                            )}
-                                                        </div>
-
-                                                        <div className="flex items-center space-x-4 text-sm">
-                                                            <div className="flex items-center space-x-1">
-                                                                <TagOutlined className="text-gray-400" />
-                                                                <span className="text-gray-600">Prix unitaire:</span>
-                                                                <span className="font-medium">{formatPrice(item.unitPrice)}</span>
-                                                            </div>
-                                                            <div className="flex items-center space-x-1">
-                                                                <BoxPlotOutlined className="text-gray-400" />
-                                                                <span className="text-gray-600">Quantité:</span>
-                                                                <span className="font-medium">{item.quantity}</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="text-right">
-                                                        <div className="text-xl font-semibold text-gray-900">
-                                                            {formatPrice(item.totalPrice)}
-                                                        </div>
-                                                        <div className="text-sm text-gray-500">
-                                                            {formatPrice(item.unitPrice)} × {item.quantity}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Total final */}
-                            <div className="mt-6 pt-6 border-t border-gray-200">
-                                <div className="flex justify-between items-center">
-                                    <div className="text-lg font-medium text-gray-900">Total de la commande</div>
-                                    <div className="text-2xl font-bold text-gray-900">
-                                        {formatPrice(orderDetails.order.totalAmount)}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Notes */}
-                        {orderDetails.order.notes && (
-                            <>
-                                <Divider className="my-8" />
-                                <div>
-                                    <div className="text-lg font-medium text-gray-900 mb-4">Notes</div>
-                                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                                        <Text className="text-amber-800">{orderDetails.order.notes}</Text>
-                                    </div>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                ) : (
-                    <div className="p-8 text-center">
-                        <Empty description="Aucun détail trouvé" />
-                    </div>
-                )}
-            </Modal>
+            {/* Modal de paiement - PLACÉ ICI DANS LE JSX DE RETOUR */}
+            <MarkPaidModal
+                visible={paymentModalVisible}
+                onClose={handlePaymentModalClose}
+                sale={selectedSaleForPayment}
+                onSuccess={handlePaymentSuccess}
+            />
 
             <style>{`
                 .luxury-table .ant-table-thead > tr > th {

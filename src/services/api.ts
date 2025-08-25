@@ -320,6 +320,21 @@ export const api = createApi({
                 body: data,
             }),
             invalidatesTags: ['User']
+        }),
+        markPaid: builder.mutation({
+            query: (data) => ({
+                url: "/admin/mark-paid",
+                method: "POST",
+                body: data,
+            }),
+            invalidatesTags: ['Sales']
+        }),
+        getPayments: builder.query({
+            query: () => ({
+                url: "/sales/payments",
+                method: "GET",
+            }),
+            providesTags: ['Sales']
         })
     }),
 });
@@ -353,5 +368,6 @@ export const {
     useApproveOrderMutation,
     useEmailPaymentRequestMutation,
     useDeleteProductMutation,
-    useSendContactEmailMutation
+    useSendContactEmailMutation,
+    useGetPaymentsQuery
 } = api;

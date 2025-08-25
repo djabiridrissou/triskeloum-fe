@@ -24,6 +24,7 @@ import CheckoutPage from "./pages/buyer/Checkout";
 import BuyerSales from "./pages/buyer/BuyerSales";
 import AdminOrders from "./pages/admin/AdminOrders";
 import Services from "./pages/home/Services";
+import BuyerPayments from "./pages/buyer/BuyerPayments";
 
 const App = () => {
   return (
@@ -83,6 +84,7 @@ const App = () => {
               <Route path="/buyer/home" element={<BuyerHome />} />
               <Route path="/buyer/checkout" element={<CheckoutPage />} />
               <Route path="/buyer/sales" element={<BuyerSales />} />
+              <Route path="/buyer/payments" element={<BuyerPayments />} />
             </Route>
             { }
             <Route path="/logout" element={<Logout />} />

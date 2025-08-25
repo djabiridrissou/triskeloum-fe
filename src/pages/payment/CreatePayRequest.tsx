@@ -5,7 +5,7 @@ import { PhoneOutlined } from "@ant-design/icons";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { useCreatePayRequestMutation } from "../../services/api";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface PaymentMethod {
     id: string;
@@ -19,10 +19,8 @@ const CreatePayRequest = () => {
     const [createPayRequest, { isLoading }] = useCreatePayRequestMutation();
     const navigate = useNavigate();
 
-    const ressource = localStorage.getItem('ressource') || "";
-    const userId = localStorage.getItem('userId') || "";
-    const currency = localStorage.getItem('currency') || "XOF";
-    const amount = localStorage.getItem('feeAmount') || '0';
+    const location = useLocation();
+    const { ressource, userId, currency, feeAmount } = location.state || {};
 
     const paymentMethods: PaymentMethod[] = [
         {
@@ -255,7 +253,7 @@ const CreatePayRequest = () => {
                                             Détails du paiement
                                         </h4>
                                         <div className="text-sm text-blue-800 space-y-1">
-                                            <p>• Montant: {amount} FCFA</p>
+                                            <p>• Montant: {feeAmount} FCFA</p>
                                             <p>• Frais de création de compte</p>
                                         </div>
                                     </div>

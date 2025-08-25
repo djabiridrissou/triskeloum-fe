@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button, Input, Card, Form, Divider, Select, DatePicker, Upload, Tooltip } from "antd";
+import { Button, Input, Card, Form, Divider, Select, DatePicker, Upload, Tooltip, Modal } from "antd";
 import {
     UserOutlined,
     MailOutlined,
@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from 'react-router-dom';
 
 const { Option } = Select;
+const { TextArea } = Input;
 
 const Register = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -31,8 +32,65 @@ const Register = () => {
     const [currentStep, setCurrentStep] = useState(0);
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({});
-    const navigate = useNavigate();
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [modalType, setModalType] = useState('');
+    const [messageText, setMessageText] = useState('');
     const location = useLocation();
+    const [senderInfo, setSenderInfo] = useState({ name: '', email: '', phone: '' });
+    const [isSending, setIsSending] = useState(false);
+    const navigate = useNavigate();
+
+    const getDefaultMessage = (type: any) => {
+        switch (type) {
+            case 'fournisseur':
+                return `Bonjour,\n\nJe souhaite devenir partenaire fournisseur sur Terminal d'Échanges.\n\nType de fournisseur: National/International\n\nMerci de me contacter pour les prochaines étapes.\n\nCordialement`;
+            case 'representant':
+                return `Bonjour,\n\nJe souhaite devenir représentant sur Terminal d'Échanges.\n\nType de représentation: Régional/National\n\nMerci de me contacter pour les prochaines étapes.\n\nCordialement`;
+            default:
+                return '';
+        }
+    };
+
+    const showModal = (type: any) => {
+        setModalType(type);
+        setMessageText(getDefaultMessage(type));
+        setSenderInfo({ name: '', email: '', phone: '' });
+        setIsModalVisible(true);
+    };
+
+    const handleModalOk = async () => {
+        if (!senderInfo.name || !senderInfo.email || !senderInfo.phone || !messageText) {
+            toast.error('Veuillez remplir tous les champs');
+            return;
+        }
+
+        setIsSending(true);
+        try {
+            await axios.post(`${import.meta.env.VITE_BASE_URL}/contact/new`, {
+                name: senderInfo.name,
+                email: senderInfo.email,
+                phone: senderInfo.phone,
+                message: `Type de demande: ${modalType === 'fournisseur' ? 'Partenaire Fournisseur' : 'Représentant'}\n\n${messageText}`
+            });
+
+            toast.success('Votre demande a été envoyée avec succès');
+            setIsModalVisible(false);
+            setMessageText('');
+            setSenderInfo({ name: '', email: '', phone: '' });
+        } catch (error) {
+            console.error('Erreur lors de l\'envoi:', error);
+            toast.error('Une erreur est survenue lors de l\'envoi de votre demande');
+        } finally {
+            setIsSending(false);
+        }
+    };
+
+
+
+    const handleModalCancel = () => {
+        setIsModalVisible(false);
+        setMessageText('');
+    };
 
     useEffect(() => {
         const hash = location.hash;
@@ -951,13 +1009,14 @@ const Register = () => {
                 <div className="hidden sm:flex items-center justify-between mb-4">
                     {steps.map((step, index) => (
                         <button
+                            key={index}
                             onClick={() => {
                                 setCurrentStep(index);
                                 navigate(`/register?type=${userType}&step=${index}`);
                             }}
                             className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all cursor-pointer ${index < currentStep ? 'bg-green-500 text-white' :
-                                    index === currentStep ? 'bg-blue-500 text-white' :
-                                        'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                                index === currentStep ? 'bg-blue-500 text-white' :
+                                    'bg-gray-200 text-gray-600 hover:bg-gray-300'
                                 }`}
                         >
                             {index < currentStep ? <CheckCircleOutlined /> : index + 1}
@@ -1089,36 +1148,28 @@ const Register = () => {
                                     </h3>
 
                                     <button
-                                        onClick={() => {
-                                            setUserType('fournisseur-national');
-                                            setCurrentStep(0);
-                                            navigate('/register?type=fournisseur-national&step=0');
-                                        }}
+                                        onClick={() => showModal('fournisseur')}
                                         className="w-full p-4 border-2 border-gray-200 hover:border-blue-500 rounded-lg transition-all duration-300 text-left hover:shadow-md"
                                     >
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <h4 className="font-semibold text-gray-900">Fournisseur National</h4>
-                                                <p className="text-sm text-gray-600">Pour les fournisseurs locaux</p>
+                                                <h4 className="font-semibold text-gray-900">Devenir Partenaire Fournisseur</h4>
+                                                <p className="text-sm text-gray-600">Fournisseur de marchandise National/International</p>
                                             </div>
-                                            <div className="text-blue-600 font-bold">50.000 FCFA</div>
+                                            <div className="text-blue-600 font-bold">→</div>
                                         </div>
                                     </button>
 
                                     <button
-                                        onClick={() => {
-                                            setUserType('fournisseur-international')
-                                            setCurrentStep(0);
-                                            navigate('/register?type=fournisseur-international&step=0');
-                                        }}
+                                        onClick={() => showModal('representant')}
                                         className="w-full p-4 border-2 border-gray-200 hover:border-blue-500 rounded-lg transition-all duration-300 text-left hover:shadow-md"
                                     >
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <h4 className="font-semibold text-gray-900">Fournisseur International</h4>
-                                                <p className="text-sm text-gray-600">Pour les fournisseurs internationaux</p>
+                                                <h4 className="font-semibold text-gray-900">Devenir Représentant</h4>
+                                                <p className="text-sm text-gray-600">Représentant Régional/National</p>
                                             </div>
-                                            <div className="text-blue-600 font-bold">100.000 FCFA</div>
+                                            <div className="text-blue-600 font-bold">→</div>
                                         </div>
                                     </button>
 
@@ -1229,36 +1280,95 @@ const Register = () => {
                         </div>
                     </Card>
 
-                    {/* Informations de paiement */}
-                    {/* {userType && (
-                        <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
-                            <h4 className="font-semibold text-blue-900 mb-3 flex items-center">
-                                <BankOutlined className="mr-2" />
-                                Moyens de paiement acceptés
-                            </h4>
-                            <div className="text-sm text-blue-800 space-y-2">
-                                <div className="flex items-center justify-between p-2 bg-white/60 rounded-lg">
-                                    <span className="font-medium">Mixx by Yas:</span>
-                                    <span className="font-mono">90291421</span>
-                                </div>
-                                <div className="flex items-center justify-between p-2 bg-white/60 rounded-lg">
-                                    <span className="font-medium">Flooz:</span>
-                                    <span className="font-mono">98042314</span>
-                                </div>
-                                <div className="flex items-center justify-between p-2 bg-white/60 rounded-lg">
-                                    <span className="font-medium">NSIA Banque:</span>
-                                    <span className="font-mono">260081527014</span>
-                                </div>
-                            </div>
-                        </div>
-                    )} */}
-
                     {/* Footer avec informations supplémentaires */}
                     <div className="text-center mt-6 text-sm text-gray-500">
                         <p>Inscription sécurisée • Validation sous 24h • Support 24/7</p>
                     </div>
                 </div>
             </div>
+
+            {/* Modal pour la demande d'affiliation */}
+            <Modal
+                title={`Demande d'affiliation - ${modalType === 'fournisseur' ? 'Partenaire Fournisseur' : 'Représentant'}`}
+                open={isModalVisible}
+                onOk={handleModalOk}
+                onCancel={handleModalCancel}
+                okText="Envoyer"
+                cancelText="Annuler"
+                width={600}
+                confirmLoading={isSending}
+            >
+                <div className="space-y-4">
+                    <div className="bg-blue-50 p-3 rounded-lg">
+                        <p className="text-sm text-blue-800">
+                            Veuillez remplir vos informations de contact et personnaliser votre message.
+                        </p>
+                    </div>
+
+                    <Form layout="vertical" size="large">
+                        <Form.Item
+                            label="Nom complet"
+                            required
+                            rules={[{ required: true, message: 'Veuillez entrer votre nom' }]}
+                        >
+                            <Input
+                                value={senderInfo.name}
+                                onChange={(e) => setSenderInfo(prev => ({ ...prev, name: e.target.value }))}
+                                placeholder="Votre nom complet"
+                                prefix={<UserOutlined />}
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            label="Email"
+                            required
+                            rules={[
+                                { required: true, message: 'Veuillez entrer votre email' },
+                                { type: 'email', message: 'Email invalide' }
+                            ]}
+                        >
+                            <Input
+                                value={senderInfo.email}
+                                onChange={(e) => setSenderInfo(prev => ({ ...prev, email: e.target.value }))}
+                                placeholder="votre.email@example.com"
+                                prefix={<MailOutlined />}
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            label="Téléphone"
+                            required
+                            rules={[{ required: true, message: 'Veuillez entrer votre numéro de téléphone' }]}
+                        >
+                            <Input
+                                value={senderInfo.phone}
+                                onChange={(e) => setSenderInfo(prev => ({ ...prev, phone: e.target.value }))}
+                                placeholder="+228 90 00 00 00"
+                                prefix={<PhoneOutlined />}
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            label="Message"
+                            required
+                        >
+                            <TextArea
+                                rows={6}
+                                value={messageText}
+                                onChange={(e) => setMessageText(e.target.value)}
+                                placeholder="Personnalisez votre message..."
+                                className="rounded-lg"
+                            />
+                        </Form.Item>
+                    </Form>
+
+                    <div className="bg-yellow-50 p-3 rounded-lg">
+                        <p className="text-xs text-yellow-800">
+                            ⚠️ Notre équipe vous contactera dans les 24-48h suivant votre demande.
+                        </p>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 };

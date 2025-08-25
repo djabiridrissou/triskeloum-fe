@@ -38,18 +38,18 @@ const Login = () => {
         localStorage.removeItem('userId');
         localStorage.removeItem('userName');
         localStorage.removeItem('userRole');
-        
+
         dispatch(api.util.invalidateTags(['User']));
     }, [dispatch]);
 
     useEffect(() => {
         if (cartSuccess && cartData?.success && cartData?.data) {
             const serverCartItems = cartData.data.items || [];
-            
+
             const formattedServerItems = formatServerCartItems(serverCartItems);
             const localCartItems = cartItems;
             const mergedCart = mergeCartItems(localCartItems, formattedServerItems);
-            
+
             setCartItems(mergedCart);
         }
     }, [cartSuccess, cartData, setCartItems]);
@@ -81,7 +81,7 @@ const Login = () => {
                 }
             }
         });
-        
+
         return merged;
     };
 
@@ -136,6 +136,7 @@ const Login = () => {
                 const status = error?.status || error?.data?.error?.statusCode;
                 const message = error?.data?.error?.message || error?.data?.message || error?.message;
 
+                console.log('Error details:', { status, message });
                 switch (status) {
                     case 404:
                         Swal.fire({
@@ -155,18 +156,16 @@ const Login = () => {
 
                     case 402:
                         const details = error?.data?.error?.details || {};
-                        localStorage.setItem('ressource', details.ressource || '');
-                        localStorage.setItem('userId', details.userId || '');
-                        localStorage.setItem('currency', details.currency || '');
-                        localStorage.setItem('feeAmount', details.amount || '');
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Paiement requis',
-                            text: message || 'Procédez au paiement des frais d\'inscription.',
+                        navigate('/fees', {
+                            replace: true,
+                            state: {
+                                ressource: details.ressource || '',
+                                userId: details.userId || '',
+                                currency: details.currency || '',
+                                feeAmount: details.amount || ''
+                            }
                         });
-                        navigate('/fees');
                         break;
-
                     case 403:
                         Swal.fire({
                             icon: 'warning',
@@ -242,11 +241,10 @@ const Login = () => {
                     {slides.map((slide, index) => (
                         <div
                             key={index}
-                            className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-                                index === currentSlide 
-                                    ? 'opacity-100 scale-100' 
+                            className={`absolute inset-0 transition-all duration-1000 ease-in-out ${index === currentSlide
+                                    ? 'opacity-100 scale-100'
                                     : 'opacity-0 scale-105'
-                            }`}
+                                }`}
                         >
                             <img
                                 src={slide.image}
@@ -272,18 +270,17 @@ const Login = () => {
                         <p className="text-xl text-gray-200 mb-8 leading-relaxed">
                             {slides[currentSlide].subtitle}
                         </p>
-                        
+
                         {/* Indicateurs de slide */}
                         <div className="flex justify-center space-x-3">
                             {slides.map((_, index) => (
                                 <button
                                     key={index}
                                     onClick={() => setCurrentSlide(index)}
-                                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                                        index === currentSlide 
-                                            ? 'bg-white scale-125' 
+                                    className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
+                                            ? 'bg-white scale-125'
                                             : 'bg-white/50 hover:bg-white/75'
-                                    }`}
+                                        }`}
                                 />
                             ))}
                         </div>
@@ -313,9 +310,9 @@ const Login = () => {
                     {/* Logo et titre */}
                     <div className="text-center mb-8">
                         <div className="flex justify-center items-center mb-4">
-                            <img 
-                                src="/images/logob.png" 
-                                alt="Logo Terminal d'Échanges" 
+                            <img
+                                src="/images/logob.png"
+                                alt="Logo Terminal d'Échanges"
                                 className="h-12 w-auto"
                                 onError={(e) => {
                                     e.currentTarget.src = "/images/logo-placeholder.png";
@@ -341,9 +338,9 @@ const Login = () => {
                                     <Form.Item
                                         label="Raison sociale"
                                         name="email"
-                                        rules={[{ 
-                                            required: true, 
-                                            message: 'Veuillez entrer votre raison sociale!' 
+                                        rules={[{
+                                            required: true,
+                                            message: 'Veuillez entrer votre raison sociale!'
                                         }]}
                                     >
                                         <Input
@@ -357,9 +354,9 @@ const Login = () => {
                                     <Form.Item
                                         label="Mot de passe"
                                         name="password"
-                                        rules={[{ 
-                                            required: true, 
-                                            message: 'Veuillez entrer votre mot de passe!' 
+                                        rules={[{
+                                            required: true,
+                                            message: 'Veuillez entrer votre mot de passe!'
                                         }]}
                                     >
                                         <Input.Password
@@ -376,8 +373,8 @@ const Login = () => {
                                                 Se souvenir de moi
                                             </Checkbox>
                                         </Form.Item>
-                                        <a 
-                                            href="#" 
+                                        <a
+                                            href="#"
                                             className="text-blue-600 hover:text-blue-800 transition-colors"
                                         >
                                             Mot de passe oublié?
