@@ -1,8 +1,18 @@
+// ActorCard.jsx
 import { CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const ActorCard = ({ type, price, icon, benefits, color, popular, url }: any) => {
+const ActorCard = ({ type, price, icon, benefits, color, popular, isContact, contactType, url, onContact }: any) => {
   const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (isContact && onContact) {
+      onContact(contactType);
+    } else if (!isContact && url) {
+      navigate(url, { replace: true });
+      window.scrollTo(0, 0);
+    }
+  };
 
   return (
     <div
@@ -37,17 +47,16 @@ const ActorCard = ({ type, price, icon, benefits, color, popular, url }: any) =>
       </ul>
 
       <button
-        onClick={() => {
-          navigate(url, { replace: true });
-          window.scrollTo(0, 0);
-        }}
+        onClick={handleClick}
         className={`cursor-pointer text-white w-full py-4 rounded-full font-semibold text-lg transition-all duration-300 ${
-          popular
+          isContact
+            ? "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            : popular
             ? "bg-gradient-to-r from-green-600 to-blue-600"
             : "bg-gray-900 hover:from-green-600 hover:to-blue-600"
         }`}
       >
-        S'inscrire
+        {isContact ? 'Contactez-nous' : "S'inscrire"}
       </button>
     </div>
   );

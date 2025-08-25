@@ -1183,7 +1183,7 @@ const Register = () => {
                                     >
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <h4 className="font-semibold text-gray-900">Vendeur</h4>
+                                                <h4 className="font-semibold text-gray-900">Acheteur Grossiste</h4>
                                                 <p className="text-sm text-gray-600">Pour les revendeurs et distributeurs</p>
                                             </div>
                                             <div className="text-blue-600 font-bold">20.000 FCFA</div>
