@@ -21,7 +21,7 @@ const CatalogueSection = () => {
         const userEmail = localStorage.getItem('userEmail');
         const userRole = localStorage.getItem('userRole');
         const userName = localStorage.getItem('userName');
-        
+
         setIsUserLoggedIn(!!(userEmail && userRole && userName));
     }, []);
 
@@ -145,18 +145,18 @@ const CatalogueSection = () => {
                     </div>
                 ) : (
                     <div className="relative">
-                        <div className="hidden md:flex justify-between items-center mb-8">
+                        <div className=" md:flex justify-between items-center mb-8">
                             {/* Bouton Voir Plus à gauche */}
                             <span
                                 onClick={handleViewMore}
                                 className="inline-flex items-center px-6 py-3 text-black cursor-pointer font-semibold rounded-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105 group"
                             >
-                                Voir plus
+                                Voir plus 
                                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                             </span>
 
                             {/* Contrôles de navigation à droite */}
-                            <div className="flex items-center gap-2">
+                            <div className="hidden md:flex items-center gap-2">
                                 <button
                                     onClick={prevSlide}
                                     disabled={currentSlide === 0}
@@ -183,7 +183,7 @@ const CatalogueSection = () => {
                         </div>
 
                         {/* Version mobile du bouton Voir Plus */}
-                        <div className="md:hidden text-center mb-6">
+                      {/*   <div className="md:hidden text-center mb-6">
                             <button
                                 onClick={handleViewMore}
                                 className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-green-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105 group"
@@ -192,7 +192,7 @@ const CatalogueSection = () => {
                                 Voir plus
                                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                             </button>
-                        </div>
+                        </div> */}
 
                         <div
                             ref={sliderRef}
@@ -257,9 +257,8 @@ const CatalogueSection = () => {
             {/* Section CTA avec logique de redirection intelligente */}
             <div className="flex items-center justify-center mt-8">
                 <div className="relative group">
-                    {/* Effet de lueur en arrière-plan */}
                     <div className="absolute -inset-1 bg-gradient-to-r from-green-500 via-black to-blue-500 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition duration-300 animate-pulse"></div>
-                    <button 
+                    {/*   <button 
                         onClick={handleBecomePartner} 
                         className="cursor-pointer relative px-8 py-4 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white font-bold text-lg rounded-full shadow-2xl transform transition-all duration-300 hover:scale-110 hover:-translate-y-2 active:scale-105 active:translate-y-0 group-hover:shadow-pink-500/50 animate-gradient-x uppercase tracking-wider"
                     >
@@ -267,18 +266,18 @@ const CatalogueSection = () => {
                             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                         </div>
 
-                        {/* Texte avec icône */}
+                       
                         <span className="relative flex items-center gap-3">
                             <span className="text-2xl animate-bounce">🚀</span>
                             {isUserLoggedIn ? 'Accéder au tableau de bord' : 'Devenez partenaire'}
                             <span className="text-2xl animate-pulse">✨</span>
                         </span>
 
-                        {/* Particules brillantes */}
+                       
                         <div className="absolute top-1 left-4 w-2 h-2 bg-white rounded-full animate-ping opacity-80"></div>
                         <div className="absolute top-3 right-6 w-1 h-1 bg-yellow-300 rounded-full animate-ping animation-delay-500 opacity-90"></div>
                         <div className="absolute bottom-2 left-1/3 w-1.5 h-1.5 bg-pink-300 rounded-full animate-ping animation-delay-1000 opacity-70"></div>
-                    </button>
+                    </button> */}
                 </div>
 
                 <style>{`

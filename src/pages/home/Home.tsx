@@ -7,6 +7,8 @@ import ServicesSection from './sections/ServiceSection';
 import HeroSection from './sections/HeroSection';
 import CTASection from './sections/CTASection';
 import CatalogueSection from './sections/CatalogueSection';
+import DomainsSection from './sections/DomainSection';
+import AboutSection from './sections/AboutSection';
 
 const Home: React.FC = () => {
     return (
@@ -14,11 +16,13 @@ const Home: React.FC = () => {
             <Navbar />
             <div className="overflow-x-hidden">
                 <HeroSection />
-                <ServicesSection />
+                <DomainsSection />
+                <AboutSection />
+                {/* <ServicesSection /> */}
                 <CatalogueSection />
                 <ActorTypesSection />
                 <FeaturesSection />
-               {/*  <PaymentMethodsSection /> */}
+                {/*  <PaymentMethodsSection /> */}
                 <CTASection />
             </div>
             <Footer />

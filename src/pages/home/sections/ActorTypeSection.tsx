@@ -4,7 +4,6 @@ import { useState } from "react";
 import ActorCard from "../../../components/ActorCard";
 import ContactModal from "../../../components/ContactModal";
 
-
 const ActorTypesSection = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalType, setModalType] = useState('');
@@ -16,16 +15,9 @@ const ActorTypesSection = () => {
 
     const actors = [
         {
-            type: "Fournisseur de marchandises",
+            type: "Fournisseur de marchandises national ou international",
             price: "",
-            icon: <Globe className="w-12 h-12" />,
-            benefits: [
-                "Accès direct et sécurisé au marché régional",
-                "Réseau de distribution fiable et étendu",
-                "Support multilingue pour faciliter les échanges en langue locale et internationale",
-                "Conformité et certifications reconnues",
-                "Visibilité accrue auprès des clients"
-            ],
+            icon: <Globe className="w-8 h-8" />,
             color: "from-orange-400 to-red-500",
             popular: false,
             isContact: true,
@@ -34,14 +26,7 @@ const ActorTypesSection = () => {
         {
             type: "Représentant National ou Regional",
             price: "",
-            icon: <MapPin className="w-12 h-12" />,
-            benefits: [
-                "Présence locale et meilleure connaissance du marché",
-                "Livraison optimisée et délais réduits",
-                "Assistance et accompagnement personnalisé",
-                "Conditions tarifaires adaptées aux réalités régionales",
-                "Facilité de communication en langue locale"
-            ],
+            icon: <MapPin className="w-8 h-8" />,
             color: "from-blue-400 to-cyan-500",
             popular: false,
             isContact: true,
@@ -50,13 +35,7 @@ const ActorTypesSection = () => {
         {
             type: "Acheteur Grossiste",
             price: "20,000 FCFA",
-            icon: <ShoppingCart className="w-12 h-12" />,
-            benefits: [
-                "Accès au catalogue complet",
-                "Commandes simplifiées",
-                "Paiement flexible",
-                "Suivi des commandes"
-            ],
+            icon: <ShoppingCart className="w-8 h-8" />,
             color: "from-purple-400 to-pink-500",
             popular: true,
             isContact: false,
@@ -65,27 +44,31 @@ const ActorTypesSection = () => {
     ];
 
     return (
-        <section className="py-20 bg-white">
+        <section className=" bg-gradient-to-b from-gray-50/50 to-white">
             <div className="container mx-auto px-4">
+                
+                {/* Header */}
                 <div className="text-center mb-16">
                     <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                       Devenez <span className="text-green-600">Partenaire</span>
+                       Devenez <span className="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Partenaire</span>
                     </h2>
-                    <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                    <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                         Que vous soyez fournisseur ou distributeur, nous avons la formule adaptée à vos besoins
                     </p>
                 </div>
 
-                <div className="grid lg:grid-cols-3 gap-8">
+                {/* Cards Grid */}
+                <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
                     {actors.map((actor, index) => (
                         <ActorCard 
-                            key={index} 
-                            {...actor} 
+                            key={index}
+                            {...actor}
                             onContact={actor.isContact ? handleContactClick : null}
                         />
                     ))}
                 </div>
 
+                {/* Modal */}
                 <ContactModal
                     isVisible={isModalVisible}
                     onClose={() => setIsModalVisible(false)}

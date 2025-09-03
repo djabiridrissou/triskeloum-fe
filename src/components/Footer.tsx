@@ -23,12 +23,12 @@ const Footer = () => {
                         <div className="lg:col-span-1">
                             <div className="flex items-center mb-6">
                                 <div className="w-8 h-8 rounded-lg flex items-center justify-center mr-3">
-                                   <img src="/images/logob.png" alt="" />
+                                    <img src="/images/logob.png" alt="" />
                                 </div>
                                 <span className="text-xl font-semibold">Terminal d'Échanges</span>
                             </div>
                             <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                                La plateforme de référence pour les échanges commerciaux B2B. 
+                                La plateforme de référence pour les échanges commerciaux B2B.
                                 Connectez-vous avec des partenaires de confiance et développez votre activité.
                             </p>
                             <div className="flex space-x-4">
@@ -49,8 +49,8 @@ const Footer = () => {
 
                         {/* Solutions */}
                         <div>
-                            <h3 className="text-white font-semibold mb-6">Solutions</h3>
-                           {/*  <ul className="space-y-3">
+                            {/*   <h3 className="text-white font-semibold mb-6">Solutions</h3> */}
+                            {/*  <ul className="space-y-3">
                                 <li>
                                     <a href="/fournisseurs" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
                                         Espace Fournisseurs
@@ -76,7 +76,7 @@ const Footer = () => {
 
                         {/* Support */}
                         <div>
-                            <h3 className="text-white font-semibold mb-6">Support</h3>
+                            {/*  <h3 className="text-white font-semibold mb-6">Support</h3> */}
                             {/* <ul className="space-y-3">
                                 <li>
                                     <a href="/aide" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
@@ -124,7 +124,7 @@ const Footer = () => {
                                     </button>
                                 </div>
                             </div>
-                            
+
                             {/* Contact info */}
                             <div className="mt-6 space-y-2">
                                 <div className="flex items-center text-gray-300 text-sm">
