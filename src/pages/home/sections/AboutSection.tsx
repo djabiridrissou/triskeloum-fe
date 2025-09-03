@@ -76,9 +76,9 @@ const AboutSection = () => {
                         <div className="space-y-6">
                             <div className="prose prose-lg text-gray-600">
                                 <p className="leading-relaxed">
-                                    <span className="font-semibold text-gray-900">Terminal d'Échanges (TE)</span> est née 
-                                    d'une vision simple mais ambitieuse : créer un écosystème commercial où fournisseurs 
-                                    et revendeurs collaborent en toute confiance.
+                                    <span className="font-semibold text-gray-900">Terminal d'Échanges (TE) </span> est née d’une 
+                                        vision simple mais ambitieuse : créer une plateforme commerciale où TE, 
+                                        en tant que fournisseur exclusif, collabore avec les revendeurs dans un climat de confiance.
                                 </p>
                                 <p className="leading-relaxed">
                                     Notre <span className="font-medium text-gray-900">Fiche d'Échanges</span> innovante 
@@ -180,7 +180,7 @@ const AboutSection = () => {
                                     Devenir Fournisseur
                                 </button> */}
                                 <button onClick={() => navigate('/register?type=revendeur&step=0')} className="px-6 py-3 bg-transparent text-white font-medium rounded-lg border border-white/30 hover:bg-white/10 transition-colors duration-300 cursor-pointer">
-                                    Devenir Revendeur
+                                    Devenir Acheteur Grossiste
                                 </button>
                             </div>
                         </div>

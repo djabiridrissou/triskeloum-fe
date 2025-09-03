@@ -604,7 +604,7 @@ const Navbar: React.FC = () => {
                         Fournisseurs
                     </Button>
                     <Button block size="large" onClick={() => handleNavigation('/revendeurs')}>
-                        Revendeurs
+                        Acheteurs
                     </Button>
                     <Button block size="large" onClick={() => handleNavigation('/stock')}>
                         Stock

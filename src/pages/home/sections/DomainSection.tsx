@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
     ShoppingCart,
     Smartphone,
@@ -81,6 +81,63 @@ const DomainsSection = () => {
         }
     ];
 
+    // Mobile Slider State
+    const sliderRef = useRef(null);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isDesktop, setIsDesktop] = useState(false);
+    const [touchStart, setTouchStart] = useState(0);
+    const [touchEnd, setTouchEnd] = useState(0);
+
+    useEffect(() => {
+        const checkScreenSize = () => {
+            setIsDesktop(window.innerWidth >= 1024); // lg breakpoint
+        };
+
+        checkScreenSize();
+        window.addEventListener('resize', checkScreenSize);
+        return () => window.removeEventListener('resize', checkScreenSize);
+    }, []);
+
+    // Mobile Slider Functions
+    const nextSlide = () => {
+        setCurrentIndex((prev) => 
+            prev === domains.length - 1 ? 0 : prev + 1
+        );
+    };
+
+    const prevSlide = () => {
+        setCurrentIndex((prev) => 
+            prev === 0 ? domains.length - 1 : prev - 1
+        );
+    };
+
+    const goToSlide = (index: any) => {
+        setCurrentIndex(index);
+    };
+
+    // Touch handlers for mobile swipe
+    const handleTouchStart = (e: any) => {
+        setTouchStart(e.targetTouches[0].clientX);
+    };
+
+    const handleTouchMove = (e: any) => {
+        setTouchEnd(e.targetTouches[0].clientX);
+    };
+
+    const handleTouchEnd = () => {
+        if (!touchStart || !touchEnd) return;
+        
+        const distance = touchStart - touchEnd;
+        const isLeftSwipe = distance > 50;
+        const isRightSwipe = distance < -50;
+
+        if (isLeftSwipe) {
+            nextSlide();
+        } else if (isRightSwipe) {
+            prevSlide();
+        }
+    };
+
     const CategoryScroller = ({ categories }: any) => {
         const scrollRef: any = useRef(null);
         const [showLeftArrow, setShowLeftArrow] = useState(false);
@@ -119,7 +176,6 @@ const DomainsSection = () => {
 
         return (
             <div className="relative group">
-                {/* Left Arrow */}
                 {showLeftArrow && (
                     <button
                         onClick={() => scroll('left')}
@@ -129,7 +185,6 @@ const DomainsSection = () => {
                     </button>
                 )}
 
-                {/* Categories Container */}
                 <div 
                     ref={scrollRef}
                     className="flex gap-2 overflow-x-auto scrollbar-hide scroll-smooth"
@@ -145,7 +200,6 @@ const DomainsSection = () => {
                     ))}
                 </div>
 
-                {/* Right Arrow */}
                 {showRightArrow && (
                     <button
                         onClick={() => scroll('right')}
@@ -158,9 +212,40 @@ const DomainsSection = () => {
         );
     };
 
+    const DomainCard = ({ domain, onClick }: any) => (
+        <div
+            onClick={() => onClick(domain)}
+            className="group relative bg-white border border-gray-200 rounded-xl p-6 cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 hover:border-gray-300 w-full"
+        >
+            <div className="flex items-start gap-4 mb-4">
+                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-gray-900 transition-colors duration-300">
+                    <div className="text-gray-700 group-hover:text-white transition-colors duration-300">
+                        {domain.icon}
+                    </div>
+                </div>
+                
+                <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1 group-hover:text-gray-800">
+                        {domain.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                        {domain.description}
+                    </p>
+                </div>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-gray-100">
+                <CategoryScroller categories={domain.categories} />
+            </div>
+
+            <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                <ArrowRight className="w-4 h-4 text-gray-400" />
+            </div>
+        </div>
+    );
+
     const handleDomainClick = (domain: any) => {
         console.log('Domain clicked:', domain);
-        // Navigate logic here
     };
 
     return (
@@ -176,45 +261,92 @@ const DomainsSection = () => {
                     </p>
                 </div>
 
-                {/* Domains Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-                    {domains.map((domain) => (
-                        <div
-                            key={domain.id}
-                            onClick={() => handleDomainClick(domain)}
-                            className="group relative bg-white border border-gray-200 rounded-xl p-6 cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 hover:border-gray-300"
+                {/* Desktop Grid */}
+                {isDesktop && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                        {domains.map((domain) => (
+                            <DomainCard 
+                                key={domain.id} 
+                                domain={domain} 
+                                onClick={handleDomainClick} 
+                            />
+                        ))}
+                    </div>
+                )}
+
+                {/* Mobile Slider */}
+                {!isDesktop && (
+                    <div className="relative max-w-sm mx-auto">
+                        {/* Slider Container */}
+                        <div 
+                            ref={sliderRef}
+                            className="overflow-hidden rounded-xl"
+                            onTouchStart={handleTouchStart}
+                            onTouchMove={handleTouchMove}
+                            onTouchEnd={handleTouchEnd}
                         >
-                            {/* Header with Icon */}
-                            <div className="flex items-start gap-4 mb-4">
-                                <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-gray-900 transition-colors duration-300">
-                                    <div className="text-gray-700 group-hover:text-white transition-colors duration-300">
-                                        {domain.icon}
+                            <div 
+                                className="flex transition-transform duration-500 ease-in-out"
+                                style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+                            >
+                                {domains.map((domain) => (
+                                    <div key={domain.id} className="w-full flex-shrink-0 px-2">
+                                        <DomainCard 
+                                            domain={domain} 
+                                            onClick={handleDomainClick} 
+                                        />
                                     </div>
-                                </div>
-                                
-                                <div className="flex-1">
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-1 group-hover:text-gray-800">
-                                        {domain.title}
-                                    </h3>
-                                    <p className="text-sm text-gray-600 leading-relaxed">
-                                        {domain.description}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Categories with horizontal scroll */}
-                            <div className="mt-4 pt-4 border-t border-gray-100">
-                                <CategoryScroller categories={domain.categories} />
-                            </div>
-
-                            {/* Hover indicator */}
-                            <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-                                <ArrowRight className="w-4 h-4 text-gray-400" />
+                                ))}
                             </div>
                         </div>
-                    ))}
-                </div>
+
+                        {/* Navigation Arrows */}
+                        <button
+                            onClick={prevSlide}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-105"
+                        >
+                            <ChevronLeft className="w-5 h-5 text-gray-700" />
+                        </button>
+
+                        <button
+                            onClick={nextSlide}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/90 backdrop-blur rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-all duration-200 hover:scale-105"
+                        >
+                            <ChevronRight className="w-5 h-5 text-gray-700" />
+                        </button>
+
+                        {/* Dots Indicator */}
+                        <div className="flex justify-center gap-2 mt-6">
+                            {domains.map((_, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => goToSlide(index)}
+                                    className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                                        index === currentIndex
+                                            ? 'bg-gray-900 w-6'
+                                            : 'bg-gray-300 hover:bg-gray-400'
+                                    }`}
+                                />
+                            ))}
+                        </div>
+
+                        {/* Counter */}
+                        {/* <div className="text-center mt-4">
+                            <span className="text-sm text-gray-500">
+                                {currentIndex + 1} / {domains.length}
+                            </span>
+                        </div> */}
+                    </div>
+                )}
+
+               
             </div>
+
+            <style>{`
+                .scrollbar-hide::-webkit-scrollbar {
+                    display: none;
+                }
+            `}</style>
         </section>
     );
 };

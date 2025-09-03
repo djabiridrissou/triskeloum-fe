@@ -99,7 +99,7 @@ export default function Services() {
                                             }`}
                                     >
                                         <Users className="w-5 h-5 inline mr-2" />
-                                        Fournisseurs
+                                        Fournisseurs de la société Terminal d'Échanges SARL U
                                     </button>
                                     <button
                                         onClick={() => setActiveTab('revendeurs')}
@@ -109,7 +109,7 @@ export default function Services() {
                                             }`}
                                     >
                                         <Globe className="w-5 h-5 inline mr-2" />
-                                        Revendeurs
+                                        Achteurs Grossiste
                                     </button>
                                 </div>
                             </div>

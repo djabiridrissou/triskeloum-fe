@@ -24,9 +24,9 @@ const ContactModal = ({ isVisible, onClose, type }: any) => {
     const getDefaultMessage = (type: any) => {
         switch (type) {
             case 'fournisseur':
-                return `Bonjour,\n\nJe souhaite devenir partenaire fournisseur sur Terminal d'Échanges.\n\nType de fournisseur: National/International\n\nMerci de me contacter pour les prochaines étapes.\n\nCordialement`;
+                return `Bonjour,\n\nJe souhaite devenir partenaire fournisseur de la société TERMINAL D'ECHANGES SARL U.\n\nType de fournisseur: National/International\n\nMerci de me contacter pour les prochaines étapes.\n\nCordialement`;
             case 'representant':
-                return `Bonjour,\n\nJe souhaite devenir représentant sur Terminal d'Échanges.\n\nType de représentation: Régional/National\n\nMerci de me contacter pour les prochaines étapes.\n\nCordialement`;
+                return `Bonjour,\n\nJe souhaite devenir représentant pour Terminal d'Échanges SARL U.\n\nType de représentation: Régional/National\n\nMerci de me contacter pour les prochaines étapes.\n\nCordialement`;
             default:
                 return '';
         }
