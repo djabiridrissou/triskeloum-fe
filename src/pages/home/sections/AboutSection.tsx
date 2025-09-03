@@ -19,7 +19,6 @@ const AboutSection = () => {
     const [activeMetric, setActiveMetric] = useState(0);
 
     const navigate = useNavigate();
-
     const metrics = [
         { value: "90%", label: "Taux de satisfaction visé", icon: <Target className="w-4 h-4" /> },
         { value: "100+", label: "Fournisseurs partenaires", icon: <Building2 className="w-4 h-4" /> },
