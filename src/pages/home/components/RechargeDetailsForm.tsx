@@ -10,8 +10,8 @@ const RechargeDetailsForm = ({
     errors
 }: any) => {
     const networks = [
-        { id: 'mixx', name: 'Mixx', logo: '/images/mixx.png', color: 'from-orange-500 to-red-500' },
-        { id: 'flooz', name: 'Flooz', logo: '/images/flooz.png', color: 'from-blue-500 to-indigo-500' }
+        { id: 'yas', name: 'Yas', logo: '/images/yas.jpeg', color: 'from-orange-500 to-red-500' },
+        { id: 'moov', name: 'Moov Africa', logo: '/images/moov.jpeg', color: 'from-blue-500 to-indigo-500' }
     ];
 
     const quickAmounts = [500, 1000, 2000, 5000, 10000];
@@ -75,7 +75,7 @@ const RechargeDetailsForm = ({
                 )}
                 {network && (
                     <p className="mt-2 text-sm text-gray-600">
-                        Numéro {network === 'mixx' ? 'Mixx' : 'Flooz'} qui recevra le crédit
+                        Numéro {network === 'yas' ? 'Yas' : 'Moov'} qui recevra le crédit
                     </p>
                 )}
             </div>

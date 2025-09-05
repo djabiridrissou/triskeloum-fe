@@ -6,6 +6,7 @@ import RechargeDetailsForm from "./components/RechargeDetailsForm";
 import PaymentMethodSelector from "./components/PaymentMethodSelector";
 import Navbar from "../../components/Navbar";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const RechargeCredit = () => {
     const [step, setStep] = useState(1);
@@ -16,6 +17,7 @@ const RechargeCredit = () => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<any>({});
+    const navigate = useNavigate();
 
     const validateAndProceed = () => {
         const newErrors: any = {};
@@ -70,15 +72,16 @@ const RechargeCredit = () => {
             text: `${parseInt(amount).toLocaleString()} FCFA ont été crédité au ${recipientNumber}`,
             confirmButtonText: 'OK',
             confirmButtonColor: '#4F46E5'
+        }).then(() => {
+            // Réinitialisation
+            setStep(1);
+            setNetwork('');
+            setRecipientNumber('');
+            setAmount('');
+            setPaymentMethod('');
+            setPhoneNumber('');
+            navigate('/')
         });
-
-        // Réinitialisation
-        setStep(1);
-        setNetwork('');
-        setRecipientNumber('');
-        setAmount('');
-        setPaymentMethod('');
-        setPhoneNumber('');
     };
 
     const goBack = () => {

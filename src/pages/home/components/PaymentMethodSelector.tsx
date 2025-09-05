@@ -2,8 +2,8 @@ import { Check, Wallet } from "lucide-react";
 
 const PaymentMethodSelector = ({ onSelect, selectedMethod, recipientNetwork }: any) => {
     const methods = [
-        { id: 'mixx', name: 'Mixx', logo: '/images/mixx.png', desc: 'Paiement via Mixx Money' },
-        { id: 'flooz', name: 'Flooz', logo: '/images/flooz.png', desc: 'Paiement via Flooz Money' }
+        { id: 'mixx', name: 'Mixx by Yas', logo: '/images/mixx.png', desc: 'Paiement via Mixx by Yas' },
+        { id: 'flooz', name: 'Flooz', logo: '/images/flooz.png', desc: 'Paiement via Moov Money' }
     ];
 
     // Filtrer pour exclure le réseau destinataire si nécessaire
