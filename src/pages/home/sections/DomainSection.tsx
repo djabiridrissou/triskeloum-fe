@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     ShoppingCart,
     Smartphone,
@@ -11,73 +12,134 @@ import {
     Shield,
     ChevronLeft,
     ChevronRight,
-    ArrowRight
+    ArrowRight,
+    CreditCard
 } from "lucide-react";
 
 const DomainsSection = () => {
+    const navigate = useNavigate();
+
     const domains = [
         {
             id: 1,
-            title: "Alimentation & Boissons",
-            description: "Produits alimentaires, boissons et articles de consommation",
-            icon: <ShoppingCart className="w-5 h-5" />,
-            categories: ["Alimentation générale", "Boissons", "Produits de la mer", "Épices et condiments"]
+            title: "Recharges & Crédits",
+            description: "Recharges mobiles et services associés",
+            icon: <CreditCard className="w-5 h-5" />,
+            type: "special",
+            route: "/recharges-credit",
+            categories: [
+                "Crédit de communication",
+                "Mixx -> Flooz",
+                "Flooz -> Mixx"
+            ]
         },
         {
             id: 2,
-            title: "Technologies & Électronique",
-            description: "High-tech, téléphonie et équipements électroniques",
-            icon: <Smartphone className="w-5 h-5" />,
-            categories: ["Téléphonie & High-Tech", "Électroménager", "Informatique & Réseau", "Objets connectés"]
+            title: "Alimentation & Boissons",
+            description: "Produits alimentaires, boissons et articles de consommation",
+            icon: <ShoppingCart className="w-5 h-5" />,
+            type: "catalog",
+            slug: "alimentation-boissons",
+            categories: [
+                "Alimentation générale",
+                "Boissons",
+                "Produits de la mer",
+                "Épices et condiments"
+            ]
         },
         {
             id: 3,
-            title: "Mode & Beauté",
-            description: "Vêtements, accessoires et produits de beauté",
-            icon: <Shirt className="w-5 h-5" />,
-            categories: ["Mode & Accessoires", "Hygiène & Beauté", "Textile", "Cosmétiques naturels"]
+            title: "Technologies & Électronique",
+            description: "High-tech, téléphonie et équipements électroniques",
+            icon: <Smartphone className="w-5 h-5" />,
+            type: "catalog",
+            slug: "technologies-electronique",
+            categories: [
+                "Téléphonie & High-Tech",
+                "Électroménager",
+                "Informatique & Réseau",
+                "Objets connectés"
+            ]
         },
         {
             id: 4,
-            title: "Maison & Habitat",
-            description: "Construction, bricolage et aménagement intérieur",
-            icon: <Home className="w-5 h-5" />,
-            categories: ["Maison & Bricolage", "Matériaux de construction", "Jardinage & Agriculture urbaine", "Décoration"]
+            title: "Mode & Beauté",
+            description: "Vêtements, accessoires et produits de beauté",
+            icon: <Shirt className="w-5 h-5" />,
+            type: "catalog",
+            slug: "mode-beaute",
+            categories: [
+                "Mode & Accessoires",
+                "Hygiène & Beauté",
+                "Textile",
+                "Cosmétiques naturels"
+            ]
         },
         {
             id: 5,
-            title: "Automobile & Transport",
-            description: "Véhicules, pièces détachées et accessoires",
-            icon: <Car className="w-5 h-5" />,
-            categories: ["Automobile & Pièces détachées", "Produits maritimes", "Transport logistique"]
+            title: "Maison & Habitat",
+            description: "Construction, bricolage et aménagement intérieur",
+            icon: <Home className="w-5 h-5" />,
+            type: "catalog",
+            slug: "maison-habitat",
+            categories: [
+                "Maison & Bricolage",
+                "Matériaux de construction",
+                "Jardinage & Agriculture urbaine",
+                "Décoration"
+            ]
         },
         {
             id: 6,
-            title: "Énergie & Équipements",
-            description: "Solutions énergétiques et équipements industriels",
-            icon: <Zap className="w-5 h-5" />,
-            categories: ["Énergie & Équipements", "Produits chimiques et industriels", "Énergie renouvelable"]
+            title: "Automobile & Transport",
+            description: "Véhicules, pièces détachées et accessoires",
+            icon: <Car className="w-5 h-5" />,
+            type: "catalog",
+            slug: "automobile-transport",
+            categories: [
+                "Automobile & Pièces détachées",
+                "Produits maritimes",
+                "Transport logistique"
+            ]
         },
         {
             id: 7,
-            title: "Bureau & Services",
-            description: "Fournitures de bureau et services professionnels",
-            icon: <FileText className="w-5 h-5" />,
-            categories: ["Papeterie & Fournitures", "Produits pharmaceutiques", "Services B2B"]
+            title: "Énergie & Équipements",
+            description: "Solutions énergétiques et équipements industriels",
+            icon: <Zap className="w-5 h-5" />,
+            type: "catalog",
+            slug: "energie-equipements",
+            categories: [
+                "Énergie & Équipements",
+                "Produits chimiques et industriels",
+                "Énergie renouvelable"
+            ]
         },
         {
             id: 8,
-            title: "Loisirs & Culture",
-            description: "Divertissement, artisanat et produits culturels",
-            icon: <Gamepad2 className="w-5 h-5" />,
-            categories: ["Produits culturels & Divertissement", "Produits artisanaux & Loisirs", "Élevages et produits animaux"]
+            title: "Bureau & Services",
+            description: "Fournitures de bureau et services professionnels",
+            icon: <FileText className="w-5 h-5" />,
+            type: "catalog",
+            slug: "bureau-services",
+            categories: [
+                "Papeterie & Fournitures",
+                "Produits pharmaceutiques",
+                "Services B2B"
+            ]
         },
         {
             id: 9,
-            title: "Informatique & Sécurité",
-            description: "Solutions IT et systèmes de surveillance",
-            icon: <Shield className="w-5 h-5" />,
-            categories: ["Informatique & Réseau", "Sécurité et surveillance", "Cybersécurité"]
+            title: "Loisirs & Culture",
+            description: "Divertissement, artisanat et produits culturels",
+            icon: <Gamepad2 className="w-5 h-5" />,
+            type: "catalog",
+            slug: "loisirs-culture",
+            categories: [
+                "Produits culturels & Divertissement",
+                "Produits artisanaux & Loisirs",
+                "Élevages et produits animaux"
+            ]
         }
     ];
 
@@ -90,7 +152,7 @@ const DomainsSection = () => {
 
     useEffect(() => {
         const checkScreenSize = () => {
-            setIsDesktop(window.innerWidth >= 1024); // lg breakpoint
+            setIsDesktop(window.innerWidth >= 1024);
         };
 
         checkScreenSize();
@@ -138,6 +200,17 @@ const DomainsSection = () => {
         }
     };
 
+    // Navigation handler for domains
+    const handleDomainClick = (domain: any) => {
+        if (domain.type === 'special') {
+            // Navigation vers page spéciale
+            navigate(domain.route);
+        } else if (domain.type === 'catalog') {
+            // Navigation vers catalogue filtré par domaine
+            navigate(`/catalog?domain=${domain.slug}`);
+        }
+    };
+
     const CategoryScroller = ({ categories }: any) => {
         const scrollRef: any = useRef(null);
         const [showLeftArrow, setShowLeftArrow] = useState(false);
@@ -153,7 +226,7 @@ const DomainsSection = () => {
             };
 
             checkScroll();
-            const element: any = scrollRef.current;
+            const element = scrollRef.current;
             if (element) {
                 element.addEventListener('scroll', checkScroll);
                 window.addEventListener('resize', checkScroll);
@@ -178,7 +251,10 @@ const DomainsSection = () => {
             <div className="relative group">
                 {showLeftArrow && (
                     <button
-                        onClick={() => scroll('left')}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            scroll('left');
+                        }}
                         className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-6 h-6 bg-white/95 backdrop-blur rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-50"
                     >
                         <ChevronLeft className="w-3 h-3 text-gray-700" />
@@ -193,7 +269,7 @@ const DomainsSection = () => {
                     {categories.map((category: any, index: any) => (
                         <span 
                             key={index} 
-                            className="inline-flex items-center px-3 py-1.5 bg-gray-50 text-gray-700 text-xs font-medium rounded-full border border-gray-200 whitespace-nowrap hover:bg-gray-100 hover:border-gray-300 transition-all duration-200 cursor-pointer"
+                            className="inline-flex items-center px-3 py-1.5 bg-gray-50 text-gray-700 text-xs font-medium rounded-full border border-gray-200 whitespace-nowrap select-none"
                         >
                             {category}
                         </span>
@@ -202,7 +278,10 @@ const DomainsSection = () => {
 
                 {showRightArrow && (
                     <button
-                        onClick={() => scroll('right')}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            scroll('right');
+                        }}
                         className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-6 h-6 bg-white/95 backdrop-blur rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-50"
                     >
                         <ChevronRight className="w-3 h-3 text-gray-700" />
@@ -243,10 +322,6 @@ const DomainsSection = () => {
             </div>
         </div>
     );
-
-    const handleDomainClick = (domain: any) => {
-        console.log('Domain clicked:', domain);
-    };
 
     return (
         <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
@@ -329,19 +404,9 @@ const DomainsSection = () => {
                                 />
                             ))}
                         </div>
-
-                        {/* Counter */}
-                        {/* <div className="text-center mt-4">
-                            <span className="text-sm text-gray-500">
-                                {currentIndex + 1} / {domains.length}
-                            </span>
-                        </div> */}
                     </div>
                 )}
-
-               
             </div>
-
             <style>{`
                 .scrollbar-hide::-webkit-scrollbar {
                     display: none;

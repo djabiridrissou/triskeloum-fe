@@ -25,6 +25,7 @@ import BuyerSales from "./pages/buyer/BuyerSales";
 import AdminOrders from "./pages/admin/AdminOrders";
 import Services from "./pages/home/Services";
 import BuyerPayments from "./pages/buyer/BuyerPayments";
+import RechargeCredit from "./pages/home/RechargeCredit";
 
 const App = () => {
   return (
@@ -49,7 +50,7 @@ const App = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/fees" element={<CreatePayRequest />} />
             <Route path="/confirm-pay" element={<ConfirmPay />} />
-
+            <Route path="/recharges-credit" element={<RechargeCredit />} />
             {/* Routes protégées pour les admins */}
             <Route element={
               <ProtectedRoute allowedRoles={['admin']}>
@@ -64,7 +65,7 @@ const App = () => {
             </Route>
             {/* Routes protégées pour les admins */}
 
-            { }
+            {/* supplier routes */}
             <Route element={
               <ProtectedRoute allowedRoles={['supplier']}>
                 <SupplierLayout />
@@ -73,9 +74,9 @@ const App = () => {
               <Route path="/supplier/catalogue" element={<SupplierHome />} />
 
             </Route>
-            { }
+            {/* supplier routes */}
 
-            { }
+            {/* buyer routes */}
             <Route element={
               <ProtectedRoute allowedRoles={['buyer']}>
                 <BuyerLayout />
@@ -86,7 +87,8 @@ const App = () => {
               <Route path="/buyer/sales" element={<BuyerSales />} />
               <Route path="/buyer/payments" element={<BuyerPayments />} />
             </Route>
-            { }
+            {/* buyer routes */}
+            
             <Route path="/logout" element={<Logout />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="*" element={<UnderConstruction />} />
