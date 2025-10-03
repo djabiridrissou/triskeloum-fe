@@ -120,7 +120,7 @@ const AdminLayout = () => {
                                 padding: '24px',
                                 borderRadius: '8px',
                                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                                minHeight: 'calc(100vh - 200px)',
+                               // minHeight: 'calc(102vh - 200px)',
                             }}
                         >
                             <Outlet />

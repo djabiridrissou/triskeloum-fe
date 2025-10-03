@@ -4,15 +4,11 @@ import {
   DashboardOutlined,
   UserOutlined,
   ShopOutlined,
-  MenuFoldOutlined,
   MenuUnfoldOutlined,
-  CreditCardOutlined,
-  DeliveredProcedureOutlined,
-  OrderedListOutlined,
+  AppstoreOutlined,
+  TeamOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FcSalesPerformance } from "react-icons/fc";
-import { IoPricetag } from "react-icons/io5";
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -25,18 +21,8 @@ const Sidebar = () => {
   
   useEffect(() => {
     const pathToKey: any = {
-      '/admin/home': '1',
-      '/dashboard': '1',
-      '/admin/buyers': '2',
-      '/admin/sellers': '3',
-      '/admin/homologation': '4',
-      '/admin/orders': '5',
-      '/supplier/catalogue': '6',
-      '/seller/sales': '7',
-      '/buyer/home': '8',
-      '/buyer/sales': '9',
-      '/buyer/payments': '10',
-      '/buyer/deliveries': '11',
+      '/': '1',
+      '/projects': '2'
     };
 
     const currentKey = pathToKey[location.pathname] || '1';
@@ -48,84 +34,20 @@ const Sidebar = () => {
   };
 
   const getMenuItems = () => {
-    const cleanUserRole = userRole?.trim().replace(/"/g, '').toLowerCase();
-
-    if (cleanUserRole === 'admin') {
-      return [
-        {
-          key: '1',
-          icon: <DashboardOutlined />,
-          label: 'Dashboard',
-          path: '/admin/home',
-        },
-        {
-          key: '2',
-          icon: <UserOutlined />,
-          label: 'Vendeurs',
-          path: '/admin/buyers',
-        },
-        {
-          key: '3',
-          icon: <ShopOutlined />,
-          label: 'Fournisseurs',
-          path: '/admin/sellers',
-        },
-        {
-          key: '4',
-          icon: <IoPricetag />,
-          label: 'Homologation',
-          path: '/admin/homologation',
-        },
-        {
-          key: '5',
-          icon: <DashboardOutlined />,
-          label: 'Commandes',
-          path: '/admin/orders',
-        },
-      ];
-    } else if (cleanUserRole === 'supplier') {
-      return [
-        {
-          key: '6',
-          icon: <ShopOutlined />,
-          label: 'Mon Stock',
-          path: '/supplier/catalogue',
-        },
-        {
-          key: '7',
-          icon: <FcSalesPerformance />,
-          label: 'Mes Ventes',
-          path: '/seller/sales',
-        },
-      ];
-    } else { // buyer
-      return [
-        {
-          key: '8',
-          icon: <DashboardOutlined />,
-          label: 'Catalogue',
-          path: '/buyer/home',
-        },
-        {
-          key: '9',
-          icon: <OrderedListOutlined />,
-          label: 'Mes Commandes',
-          path: '/buyer/sales',
-        },
-        {
-          key: '10',
-          icon: <CreditCardOutlined />,
-          label: 'Mes Paiements',
-          path: '/buyer/payments',
-        },
-        {
-          key: '11',
-          icon: <DeliveredProcedureOutlined />,
-          label: 'Mes Livraisons',
-          path: '/buyer/deliveries',
-        },
-      ];
-    }
+    return [
+      {
+        key: '1',
+        icon: <DashboardOutlined />,
+        label: 'Dashboard',
+        path: '/',
+      },
+      {
+        key: '2',
+        icon: <DashboardOutlined />,
+        label: 'Projects',
+        path: '/projects',
+      }
+    ];
   };
 
   const menuItems = getMenuItems();
@@ -151,7 +73,7 @@ const Sidebar = () => {
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       position: 'relative' as const,
       background: isSelected 
-        ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
+        ? 'black' 
         : isHovered 
         ? '#f8fafc' 
         : 'transparent',
@@ -200,101 +122,9 @@ const Sidebar = () => {
           left: 0,
           width: '4px',
           height: '100%',
-          background: 'linear-gradient(180deg, #10b981 0%, #059669 100%)',
+         background: 'linear-gradient(180deg, #10b981 0%, #059669 100%)',
         }}
       />
-
-      {/* Header */}
-{/*       <div
-        style={{
-          height: '80px',
-          padding: collapsed ? '20px 16px' : '20px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: collapsed ? 'center' : 'space-between',
-          borderBottom: '1px solid #e2e8f0',
-          background: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(10px)',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            width: '100%',
-          }}
-        >
-          <div
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
-              fontSize: '18px',
-              fontWeight: 'bold',
-              marginRight: collapsed ? '0' : '12px',
-              boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-            }}
-          >
-            {collapsed ? 'A' : 'A'}
-          </div>
-          {!collapsed && (
-            <div>
-              <div
-                style={{
-                  fontSize: '20px',
-                  fontWeight: '700',
-                  color: '#1e293b',
-                  lineHeight: '1.2',
-                }}
-              >
-                Admin Panel
-              </div>
-              <div
-                style={{
-                  fontSize: '12px',
-                  color: '#64748b',
-                  fontWeight: '500',
-                }}
-              >
-                Gestion & Contrôle
-              </div>
-            </div>
-          )}
-        </div>
-
-        {!collapsed && (
-          <Button
-            type="text"
-            icon={<MenuFoldOutlined />}
-            onClick={toggleCollapsed}
-            style={{
-              color: '#64748b',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              width: '36px',
-              height: '36px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.3s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#f1f5f9';
-              e.currentTarget.style.borderColor = '#cbd5e1';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.borderColor = '#e2e8f0';
-            }}
-          />
-        )}
-      </div> */}
 
       {/* Expand button for collapsed state */}
       {collapsed && (
@@ -323,7 +153,6 @@ const Sidebar = () => {
         </div>
       )}
 
-      {/* Navigation */}
       <div
         style={{
           flex: 1,
@@ -375,7 +204,7 @@ const Sidebar = () => {
               <div
                 style={{
                   position: 'absolute',
-                  right: '8px',
+                  right: '12px',
                   width: '6px',
                   height: '6px',
                   borderRadius: '50%',
@@ -387,46 +216,6 @@ const Sidebar = () => {
             )}
           </div>
         ))}
-      </div>
-
-      {/* Footer */}
-      <div
-        style={{
-          padding: collapsed ? '16px 12px' : '24px',
-          borderTop: '1px solid #e2e8f0',
-          background: 'rgba(248, 250, 252, 0.8)',
-        }}
-      >
-        <div
-          style={{
-            padding: collapsed ? '12px 0' : '16px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
-            textAlign: 'center',
-            border: '1px solid #e2e8f0',
-          }}
-        >
-          <div
-            style={{
-              fontSize: collapsed ? '10px' : '12px',
-              color: '#64748b',
-              fontWeight: '500',
-            }}
-          >
-            {collapsed ? 'v2.1' : 'Version 2.1.0'}
-          </div>
-          {!collapsed && (
-            <div
-              style={{
-                fontSize: '10px',
-                color: '#94a3b8',
-                marginTop: '2px',
-              }}
-            >
-              Dernière mise à jour
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

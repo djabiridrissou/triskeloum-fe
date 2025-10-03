@@ -6,25 +6,7 @@ import Loading from "./Loading";
 const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode, allowedRoles: string[] }) => {
   const { data: response, isLoading, error, refetch } = useLoadUserQuery({});
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const currentUserId = localStorage.getItem('userId');
-    const currentUserRole = localStorage.getItem('userRole');
-    
-    if (currentUserId && currentUserRole) {
-      refetch();
-    }
-  }, [refetch]);
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      refetch();
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, [refetch]);
-
+  
   useEffect(() => {
     if (!isLoading && response?.user) {
       const userRole = response.user?.role?.name;

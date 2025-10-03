@@ -1,3 +1,206 @@
+
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
+  margin: 0;
+  padding: 0;
+  font-size: 11px;
+}
+
+
+/* styles/components.css */
+
+/* ===== BOUTONS GLOBAUX ===== */
+
+/* Bouton Primary - Fond noir pour tous les boutons primaires */
+.ant-btn-primary {
+  background-color: #000000 !important;
+  border-color: #000000 !important;
+  color: white !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  height: 32px !important;
+  padding: 4px 16px !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background-color: #333333 !important;
+  border-color: #333333 !important;
+  color: white !important;
+}
+
+.ant-btn-primary:active {
+  background-color: #1a1a1a !important;
+  border-color: #1a1a1a !important;
+}
+
+.ant-btn-primary[disabled] {
+  background-color: #666666 !important;
+  border-color: #666666 !important;
+  color: #cccccc !important;
+}
+
+/* Bouton Primary Small */
+.ant-btn-primary.ant-btn-sm {
+  height: 28px !important;
+  padding: 4px 12px !important;
+  font-size: 11px !important;
+}
+
+/* Boutons secondaires */
+.ant-btn:not(.ant-btn-primary) {
+  font-size: 10px !important;
+  color: #666666 !important;
+  border-color: #d9d9d9 !important;
+  height: 28px !important;
+  padding: 4px 12px !important;
+}
+
+.ant-btn:not(.ant-btn-primary):hover {
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+/* ===== FORMULAIRES ===== */
+
+/* Labels de formulaire */
+.ant-form-item-label > label {
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  line-height: 1.3 !important;
+  color: #333333 !important;
+}
+
+/* Inputs et selects */
+.ant-input, 
+.ant-select-selector,
+.ant-picker {
+  font-size: 11px !important;
+  padding: 4px 8px !important;
+  min-height: 28px !important;
+  border-radius: 4px !important;
+}
+
+.ant-select-selector {
+  height: 28px !important;
+}
+
+.ant-picker-input input {
+  font-size: 11px !important;
+}
+
+/* Form items compacts */
+.ant-form-item {
+  margin-bottom: 12px !important;
+}
+
+.ant-form-item-control {
+  min-height: auto !important;
+}
+
+/* ===== ALERTES ===== */
+
+.ant-alert {
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+}
+
+.ant-alert-message {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  margin-bottom: 2px !important;
+}
+
+.ant-alert-description {
+  font-size: 9px !important;
+  line-height: 1.3 !important;
+}
+
+.ant-alert-icon {
+  font-size: 12px !important;
+  margin-top: 1px !important;
+}
+
+/* ===== TABS ===== */
+
+.ant-tabs-tab {
+  font-size: 12px !important;
+  padding: 8px 16px !important;
+  min-width: auto !important;
+}
+
+.ant-tabs-content-holder {
+  padding: 16px !important;
+}
+
+/* ===== CARDS ===== */
+
+.ant-card-body {
+  padding: 16px !important;
+}
+
+/* ===== LOADING SPINNER ===== */
+
+.ant-spin-dot {
+  font-size: 16px !important;
+}
+
+/* ===== ESPACEMENT ===== */
+
+.ant-space-item {
+  font-size: 12px !important;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 480px) {
+  .ant-tabs-content-holder {
+      padding: 12px !important;
+  }
+  
+  .ant-form-item {
+      margin-bottom: 10px !important;
+  }
+  
+  .ant-btn-primary,
+  .ant-btn-primary.ant-btn-sm {
+      height: 32px !important;
+      padding: 6px 14px !important;
+  }
+}
+
+/* ===== CLASSES UTILITAIRES ===== */
+
+/* Bouton noir personnalisé (si besoin de variantes) */
+.btn-black {
+  background-color: #000000 !important;
+  border-color: #000000 !important;
+  color: white !important;
+}
+
+.btn-black:hover {
+  background-color: #333333 !important;
+  border-color: #333333 !important;
+}
+
+/* Bouton gris */
+.btn-gray {
+  background-color: #666666 !important;
+  border-color: #666666 !important;
+  color: white !important;
+}
+
+.btn-gray:hover {
+  background-color: #555555 !important;
+  border-color: #555555 !important;
+}
+
+
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

@@ -3,12 +3,12 @@ const Loading = () => {
     <div className="flex items-center justify-center min-h-screen bg-white">
       <div className="relative w-32 h-32">
         <img
-          src="/images/logob.png"
-          alt="Terminal d'échanges"
-          className="w-full h-full object-contain animate-spin-slow"
+          src="/images/vms.png"
+          alt="VMS"
+          className="w-12 h-12 object-contain animate-spin-slow"
         />
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-lg font-semibold text-gray-600">Chargement...</span>
+          <span className="text-lg font-semibold text-gray-600">Loading...</span>
         </div>
       </div>
     </div>

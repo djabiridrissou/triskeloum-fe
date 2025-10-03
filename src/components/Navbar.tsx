@@ -1,297 +1,220 @@
-import React, { useState, useEffect, useMemo, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    ShoppingCartOutlined,
-    ShopOutlined,
-    TeamOutlined,
-    FileTextOutlined,
     UserOutlined,
     LogoutOutlined,
-    DeleteOutlined,
-    PlusOutlined,
-    MinusOutlined,
+    DashboardOutlined,
+    TeamOutlined,
+    BankOutlined,
+    CalendarOutlined,
+    SettingOutlined,
     BellOutlined,
-    SearchOutlined,
     MenuOutlined,
     CloseOutlined,
-    DashboardOutlined,
-    SettingOutlined,
-    HeartOutlined,
-    StarFilled,
-    SafetyCertificateOutlined,
-    GlobalOutlined,
-    PhoneOutlined,
-    MailOutlined,
-    DownOutlined,
-    CheckCircleOutlined,
-    CrownOutlined,
+    DownOutlined
 } from '@ant-design/icons';
 import {
-    Badge,
-    Drawer,
-    Button,
     Avatar,
     Dropdown,
-    Empty,
-    InputNumber,
-    Input,
-    Tooltip,
-    Divider,
-    Tag,
-    Rate,
-    Progress,
+    Button,
+    Badge,
+    Drawer,
     Space,
     Typography,
     notification
 } from 'antd';
-// Navigation simulée
-
 import type { MenuProps } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { useCartContext } from '../contexts/CartContext';
+import { useLoadUserQuery, useLogoutMutation } from '../services/api';
 
 const { Text, Title } = Typography;
 
 interface User {
     id: string;
-    name: string;
-    raisonSociale: string;
-    role: 'buyer' | 'supplier' | 'admin';
     email: string;
-    picture?: string;
-    verified?: boolean;
-    rating?: number;
-    completionLevel?: number;
-    isPremium?: boolean;
+    role: {
+        name: string;
+    };
+    isActive: boolean;
+    lastLogin?: string;
 }
 
 const Navbar: React.FC = () => {
     const [user, setUser] = useState<User | null>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
-    const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
-    const [searchValue, setSearchValue] = useState('');
     const navigate = useNavigate();
-    const { cartItems, getTotalItems, isLoading, loadCartFromAPI, getTotalPrice } = useCartContext();
+    
+    const { data: response, isLoading, error, refetch } = useLoadUserQuery({});
+    const [logout] = useLogoutMutation({});
 
-
-    // Styles CSS ultra-professionnels
     useEffect(() => {
         const style = document.createElement('style');
         style.textContent = `
-            .professional-navbar {
-                background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-                box-shadow: 0 4px 20px rgba(30, 64, 175, 0.15);
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            .vms-navbar {
+                background: white;
+                border-bottom: 1px solid #f0f0f0;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                backdrop-filter: blur(10px);
+            }
+
+            .navbar-container {
+                
+                margin: 0 auto;
+                padding: 0 24px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                height: 64px;
+            }
+
+            .navbar-logo {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                cursor: pointer;
+                transition: opacity 0.2s ease;
+            }
+
+            .navbar-logo:hover {
+                opacity: 0.8;
+            }
+
+            .logo-icon {
+                width: 90px;
+                height: 90px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-size: 18px;
             }
 
             .navbar-actions {
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: 16px;
             }
 
-            .action-button {
+            .notification-btn {
+                position: relative;
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 44px;
-                height: 44px;
-                border-radius: 12px;
-                background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.15);
-                color: white;
-                transition: all 0.3s ease;
                 cursor: pointer;
-                position: relative;
-                overflow: hidden;
+                transition: all 0.2s ease;
+                color: #64748b;
             }
 
-            .action-button:hover {
-                background: rgba(255, 255, 255, 0.2);
-                border-color: rgba(255, 255, 255, 0.3);
-                transform: translateY(-1px);
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            .notification-btn:hover {
+                background: #f1f5f9;
+                border-color: #cbd5e1;
+                color: #475569;
             }
 
-            .action-button:active {
-                transform: translateY(0);
-            }
-
-            .action-button .anticon {
-                font-size: 18px;
-            }
-
-            .user-profile-button {
+            .user-profile {
                 display: flex;
                 align-items: center;
                 gap: 12px;
                 padding: 8px 16px;
-                border-radius: 16px;
-                background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.15);
-                color: white;
-                transition: all 0.3s ease;
+                border-radius: 12px;
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
                 cursor: pointer;
-                min-height: 56px;
+                transition: all 0.2s ease;
+                min-width: 160px;
             }
 
-            .user-profile-button:hover {
-                background: rgba(255, 255, 255, 0.2);
-                border-color: rgba(255, 255, 255, 0.3);
-                transform: translateY(-1px);
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            }
-
-            .user-avatar {
-                position: relative;
-            }
-
-            .user-avatar::after {
-                content: '';
-                position: absolute;
-                bottom: 2px;
-                right: 2px;
-                width: 12px;
-                height: 12px;
-                background: #10b981;
-                border: 2px solid white;
-                border-radius: 50%;
+            .user-profile:hover {
+                background: #f1f5f9;
+                border-color: #cbd5e1;
             }
 
             .user-info {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
+                flex: 1;
                 min-width: 0;
             }
 
-            .user-name {
-                font-weight: 600;
+            .user-email {
                 font-size: 14px;
-                line-height: 1.2;
-                max-width: 120px;
+                font-weight: 500;
+                color: #1e293b;
+                margin: 0;
+                white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                white-space: nowrap;
             }
 
             .user-role {
                 font-size: 12px;
-                opacity: 0.8;
-                display: flex;
-                align-items: center;
-                gap: 4px;
+                color: #64748b;
+                margin: 0;
             }
 
-            .login-button {
-                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                border: none;
-                border-radius: 12px;
-                color: white;
-                font-weight: 600;
-                height: 44px;
-                padding: 0 24px;
-                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-                transition: all 0.3s ease;
-            }
-
-            .login-button:hover {
-                background: linear-gradient(135deg, #059669 0%, #047857 100%);
-                box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
-                transform: translateY(-1px);
-                color: white;
-            }
-
-            .mobile-toggle {
-                width: 44px;
-                height: 44px;
-                border-radius: 12px;
-                background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.15);
-                color: white;
+            .mobile-menu-btn {
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                transition: all 0.3s ease;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                color: #64748b;
             }
 
-            .mobile-toggle:hover {
-                background: rgba(255, 255, 255, 0.2);
-                border-color: rgba(255, 255, 255, 0.3);
-                color: white;
-            }
-
-            .notification-badge .ant-badge-count {
-                background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-                border: 2px solid white;
-                box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
-                animation: pulse 2s infinite;
-            }
-
-            .cart-badge .ant-badge-count {
-                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                border: 2px solid white;
-                box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-            }
-
-            @keyframes pulse {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.1); }
+            .mobile-menu-btn:hover {
+                background: #f1f5f9;
+                border-color: #cbd5e1;
+                color: #475569;
             }
 
             .dropdown-menu .ant-dropdown-menu {
                 background: white;
-                border-radius: 16px;
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-                border: 1px solid rgba(0, 0, 0, 0.05);
+                border-radius: 12px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+                border: 1px solid #e2e8f0;
                 padding: 8px;
                 min-width: 200px;
             }
 
             .dropdown-menu .ant-dropdown-menu-item {
-                border-radius: 12px;
+                border-radius: 8px;
                 margin: 2px 0;
                 padding: 12px 16px;
                 transition: all 0.2s ease;
             }
 
             .dropdown-menu .ant-dropdown-menu-item:hover {
-                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                background: #f8fafc;
             }
 
             .dropdown-menu .ant-dropdown-menu-item-danger:hover {
-                background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+                background: #fef2f2;
+                color: #dc2626;
             }
 
             @media (max-width: 768px) {
-                .navbar-actions {
-                    gap: 6px;
-                }
-                
-                .action-button {
-                    width: 40px;
-                    height: 40px;
-                }
-                
-                .action-button .anticon {
-                    font-size: 16px;
-                }
-                
-                .user-profile-button {
-                    padding: 6px 12px;
-                    min-height: 48px;
+                .navbar-container {
+                    padding: 0 16px;
                 }
                 
                 .user-info {
                     display: none;
                 }
-            }
-
-            @media (max-width: 640px) {
-                .navbar-actions .action-button:not(:last-child) {
+                
+                .user-profile {
+                    min-width: auto;
+                    padding: 8px;
+                }
+                
+                .notification-btn {
                     display: none;
                 }
             }
@@ -305,91 +228,106 @@ const Navbar: React.FC = () => {
         };
     }, []);
 
-    // Simulation des données utilisateur
     useEffect(() => {
-        const checkAuthStatus = () => {
-            const userEmail = localStorage.getItem('userEmail');
-            const userId = localStorage.getItem('userId');
-            const userName = localStorage.getItem('userName');
-            const userRole = localStorage.getItem('userRole');
-
-            if (userEmail && userId && userName && userRole) {
-                setUser({
-                    id: userId,
-                    name: userName,
-                    raisonSociale: userName,
-                    role: userRole as 'buyer' | 'supplier' | 'admin',
-                    email: userEmail,
-                    verified: true,
-                    rating: 4.8,
-                    completionLevel: 85,
-                    isPremium: userRole === 'supplier',
-                });
-            } else {
-                setUser(null);
-            }
-        };
-
-        checkAuthStatus();
-    }, []);
-
-    const handleNavigation = (path: string) => {
-        navigate(path);
-        setMobileMenuOpen(false);
-    };
-
-    const handleLogout = () => {
-        notification.success({
-            message: 'Déconnexion réussie',
-            description: 'À bientôt sur Terminal d\'Échanges !',
-            placement: 'topRight',
-        });
-
-        localStorage.clear();
-        setUser(null);
-        navigate('/login');
-    };
-
-    // Fonction pour obtenir l'URL du tableau de bord selon le rôle
-    const getDashboardUrl = (role: string) => {
-        switch (role) {
-            case 'buyer':
-                return '/buyer/home';
-            case 'supplier':
-                return '/supplier/catalogue';
-            case 'admin':
-                return '/admin/home';
-            default:
-                return '/dashboard';
+        if (response?.user) {
+            setUser(response.user);
+            // Optionnel : sauvegarder l'email dans localStorage
+            localStorage.setItem('userEmail', response.user.email);
+            localStorage.setItem('userId', response.user.id);
+            localStorage.setItem('userRole', response.user.role.name);
         }
+    }, [response]);
+
+    const handleLogout = async () => {
+        try {
+        
+            await logout({}).unwrap();
+            
+            // Nettoyer le localStorage
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userRole');
+            
+            setUser(null);
+            
+            notification.success({
+                message: 'Déconnexion réussie',
+                description: 'À bientôt sur VMS !',
+                placement: 'topRight',
+            });
+            
+            navigate('/login');
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
+
+    const getRoleDisplayName = (roleName: string) => {
+        switch (roleName) {
+            case 'SYSTEM_ADMIN':
+                return 'System Admin';
+            case 'EMPLOYEE':
+                return 'Employee';
+            case 'RECEPTIONIST':
+                return 'Receptionist';
+            default:
+                return 'User';
+        }
+    };
+
+    const getNavigationItems = () => {
+        if (!user) return [];
+
+        const items = [
+            {
+                key: 'dashboard',
+                label: (
+                    <Space>
+                        <DashboardOutlined />
+                        <span>Dashboard</span>
+                    </Space>
+                ),
+                onClick: () => navigate('/'),
+            }
+        ];
+
+        if (user.role.name === 'SYSTEM_ADMIN') {
+            items.push(
+                
+            );
+        }
+
+        if (user.role.name === 'EMPLOYEE' || user.role.name === 'RECEPTIONIST') {
+            items.push(
+                {
+                    key: 'visits',
+                    label: (
+                        <Space>
+                            <CalendarOutlined />
+                            <span>Visits</span>
+                        </Space>
+                    ),
+                    onClick: () => navigate('/visits'),
+                }
+            );
+        }
+
+        return items;
     };
 
     const getUserMenuItems = (): MenuProps['items'] => {
         if (!user) return [];
 
         return [
-            {
-                key: 'dashboard',
-                label: (
-                    <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                            <DashboardOutlined className="text-blue-600" />
-                        </div>
-                        <span className="font-medium">Tableau de bord</span>
-                    </div>
-                ),
-                onClick: () => handleNavigation(getDashboardUrl(user.role)),
-            },
+            ...getNavigationItems(),
             { type: 'divider' },
             {
                 key: 'logout',
                 label: (
-                    <div className="flex items-center space-x-3 text-red-600">
-                        <div className="w-8 h-8 bg-red-50 rounded-lg flex items-center justify-center">
-                            <LogoutOutlined className="text-red-600" />
-                        </div>
-                        <span className="font-medium">Déconnexion</span>
-                    </div>
+                    <Space>
+                        <LogoutOutlined />
+                        <span>Déconnexion</span>
+                    </Space>
                 ),
                 onClick: handleLogout,
                 danger: true,
@@ -397,106 +335,94 @@ const Navbar: React.FC = () => {
         ];
     };
 
-    const getRoleDisplayName = (role: string) => {
-        switch (role) {
-            case 'buyer': return 'Acheteur';
-            case 'supplier': return 'Fournisseur';
-            case 'admin': return 'Administrateur';
-            default: return 'Utilisateur';
-        }
-    };
+    if (isLoading) {
+        return (
+            <nav className="vms-navbar">
+                <div className="navbar-container">
+                    <div className="navbar-logo">
+                        <div className="logo-icon">
+                            <TeamOutlined />
+                        </div>
+                        <div>
+                            <Title level={4} style={{ margin: 0, color: '#1e293b' }}>
+                                VMS
+                            </Title>
+                        </div>
+                    </div>
+                    <div>Chargement...</div>
+                </div>
+            </nav>
+        );
+    }
 
     return (
-        <nav className="professional-navbar sticky top-0 z-50">
-            <div className="container mx-auto px-4 py-4">
-                <div className="flex justify-between items-center">
-                    {/* Logo */}
-                    <div
-                        onClick={() => handleNavigation('/')}
-                        className="cursor-pointer flex items-center space-x-4 hover:opacity-90 transition-opacity"
-                    >
-                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg">
-                            <img src="/images/logob.png" alt="Logo" className="w-8 h-8" />
-                        </div>
-                        <div className="hidden lg:block text-white">
-                            <Title level={3} className="!mb-0 !text-white font-bold">
-                                Terminal d'Échanges
-                            </Title>
-                            <Text className="!text-white text-sm">Plateforme B2B Professionnelle</Text>
-                        </div>
+        <nav className="vms-navbar">
+            <div className="navbar-container">
+                {/* Logo */}
+                <div className="navbar-logo" onClick={() => navigate('/')}>
+                    <div className="logo-icon">
+                      <img src="/images/argusLogo.png" alt="The logo" className='w-[100%] h-[100%] object-contain' />
                     </div>
-
-                    {/* Barre de recherche */}
-                    <div className="hidden md:flex flex-1 max-w-md mx-8">
-                        <Input.Search
-                            placeholder="Rechercher des produits, fournisseurs..."
-                            value={searchValue}
-                            onChange={(e) => setSearchValue(e.target.value)}
-                            size="large"
-                            className="rounded-xl"
-                            style={{
-                                background: 'rgba(255, 255, 255, 0.9)',
-                                backdropFilter: 'blur(10px)',
-                                border: '1px solid rgba(255, 255, 255, 0.2)',
-                            }}
-                        />
+                    <div className="hidden sm:block">
+                        <Title level={4} style={{ margin: 0, color: '#1e293b' }}>
+                          
+                        </Title>
+                        <Text style={{ fontSize: '12px', color: '#64748b' }}>
+                           
+                        </Text>
                     </div>
+                </div>
 
-                    {/* Actions de droite - VERSION PROFESSIONNELLE */}
-                    <div className="navbar-actions">
-                        {/* Panier */}
-                        <Tooltip title="Panier d'achat" placement="bottom">
-                            <Badge count={getTotalItems()} className="cart-badge">
-                                <div
-                                    className="action-button"
-                                    onClick={() => setCartDrawerOpen(true)}
-                                >
-                                    <ShoppingCartOutlined />
+                {/* Actions */}
+                <div className="navbar-actions">
+                    {user && (
+                        <>
+                            {/* Notifications */}
+                            <Badge count={0} size="small">
+                                <div className="notification-btn">
+                                    <BellOutlined />
                                 </div>
                             </Badge>
-                        </Tooltip>
 
-                        {/* Profil utilisateur ou bouton de connexion */}
-                        {user ? (
+                            {/* Profil utilisateur */}
                             <Dropdown
                                 menu={{ items: getUserMenuItems() }}
                                 placement="bottomRight"
                                 trigger={['click']}
                                 className="dropdown-menu"
                             >
-                                <div className="user-profile-button">
-                                    <div className="user-avatar">
-                                        <Avatar
-                                            size={40}
-                                            src={user.picture}
-                                            icon={<UserOutlined />}
-                                            className="border-2 border-white/20"
-                                        />
-                                    </div>
+                                <div className="user-profile">
+                                    <Avatar 
+                                        size={32} 
+                                        icon={<UserOutlined />}
+                                        style={{ backgroundColor: '#3b82f6' }}
+                                    />
                                     <div className="user-info">
-                                        <div className="user-name">{user.name}</div>
+                                        <div className="user-email">{user.email}</div>
                                         <div className="user-role">
-                                            {getRoleDisplayName(user.role)}
-                                            {user.verified && (
-                                                <SafetyCertificateOutlined className="text-green-300" />
-                                            )}
+                                            {getRoleDisplayName(user.role.name)}
                                         </div>
                                     </div>
-                                    <DownOutlined className="text-xs opacity-60" />
+                                    <DownOutlined style={{ fontSize: '12px', color: '#94a3b8' }} />
                                 </div>
                             </Dropdown>
-                        ) : (
-                            <Button
-                                className="login-button"
-                                onClick={() => handleNavigation('/login')}
-                            >
-                                Connexion
-                            </Button>
-                        )}
+                        </>
+                    )}
 
-                        {/* Menu mobile */}
+                    {/* {!user && (
+                        <Button 
+                            type="primary" 
+                            onClick={() => navigate('/login')}
+                            style={{ borderRadius: '8px' }}
+                        >
+                            Connexion
+                        </Button>
+                    )}
+ */}
+                    {/* Menu mobile */}
+                    <div className="md:hidden">
                         <div
-                            className="mobile-toggle md:hidden"
+                            className="mobile-menu-btn"
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         >
                             {mobileMenuOpen ? <CloseOutlined /> : <MenuOutlined />}
@@ -505,113 +431,60 @@ const Navbar: React.FC = () => {
                 </div>
             </div>
 
-            {/* Drawers pour le panier et les notifications */}
+            {/* Drawer mobile */}
             <Drawer
-                title={
-                    <div className="flex items-center justify-between">
-                        <span>Panier ({getTotalItems()})</span>
-                        <Button
-                            size="small"
-                            onClick={loadCartFromAPI}
-                            loading={isLoading}
-                            title="Synchroniser avec le serveur"
-                        >
-                            🔄
-                        </Button>
-                    </div>
-                }
+                title="Menu Navigation"
                 placement="right"
-                onClose={() => setCartDrawerOpen(false)}
-                open={cartDrawerOpen}
-                width={400}
-            >
-                {cartItems.length === 0 ? (
-                    <div className="text-center py-8">
-                        <Empty description="Panier vide" />
-                        <Button
-                            type="link"
-                            onClick={loadCartFromAPI}
-                            loading={isLoading}
-                        >
-                            Vérifier sur le serveur
-                        </Button>
-                    </div>
-                ) : (
-                    <div className="space-y-4">
-                        {cartItems.map((item) => (
-                            <div key={item.id} className="flex items-center space-x-3 p-3 border rounded-lg">
-                                {item.image && (
-                                    <img
-                                        src={`${import.meta.env.VITE_BASE_URL}/${item.image}`}
-                                        alt={item.name}
-                                        className="w-12 h-12 object-cover rounded"
-                                    />
-                                )}
-                                <div className="flex-1 min-w-0">
-                                    <div className="font-medium text-sm truncate">{item.name}</div>
-                                    <div className="text-xs text-gray-500">
-                                        {item.price} × {item.quantity}
-                                    </div>
-                                </div>
-                                <div className="font-semibold text-sm">
-                                    {(item.price * item.quantity).toFixed(2)}
-                                </div>
-                            </div>
-                        ))}
-
-                        <div className="border-t pt-4 mt-4">
-                            <div className="flex justify-between items-center font-bold text-lg mb-4">
-                                <span>Total:</span>
-                                <span>{getTotalPrice().toFixed(2)}</span>
-                            </div>
-
-                            <Button
-                                type="primary"
-                                size="large"
-                                block
-                                onClick={() => {
-                                    setCartDrawerOpen(false);
-                                    navigate('/buyer/checkout');
-                                }}
-                            >
-                                Commander ({getTotalItems()})
-                            </Button>
-                        </div>
-                    </div>
-                )}
-            </Drawer>
-
-            <Drawer
-                title="Notifications"
-                placement="right"
-                onClose={() => setNotificationDrawerOpen(false)}
-                open={notificationDrawerOpen}
-                width={350}
-            >
-                <Empty description="Aucune notification" />
-            </Drawer>
-
-            {/* Menu mobile */}
-            <Drawer
-                title="Menu"
-                placement="left"
                 onClose={() => setMobileMenuOpen(false)}
                 open={mobileMenuOpen}
-                width={300}
+                width={280}
             >
-                <div className="space-y-4">
-                    <Button block size="large" onClick={() => handleNavigation('/fournisseurs')}>
-                        Fournisseurs
-                    </Button>
-                    <Button block size="large" onClick={() => handleNavigation('/revendeurs')}>
-                        Acheteurs
-                    </Button>
-                    <Button block size="large" onClick={() => handleNavigation('/stock')}>
-                        Stock
-                    </Button>
-                    <Button block size="large" onClick={() => handleNavigation('/about')}>
-                        À propos
-                    </Button>
+                <div className="space-y-2">
+                    {user && getNavigationItems().map((item) => (
+                        <Button
+                            key={item.key}
+                            block
+                            type="text"
+                            size="large"
+                            onClick={() => {
+                                item.onClick();
+                                setMobileMenuOpen(false);
+                            }}
+                            style={{ 
+                                justifyContent: 'flex-start',
+                                height: '48px',
+                                borderRadius: '8px'
+                            }}
+                        >
+                            {item.label}
+                        </Button>
+                    ))}
+                    
+                    {user && (
+                        <>
+                            <div style={{ height: '16px' }} />
+                            <Button
+                                block
+                                danger
+                                type="text"
+                                size="large"
+                                onClick={() => {
+                                    handleLogout();
+                                    setMobileMenuOpen(false);
+                                }}
+                                style={{ 
+                                    justifyContent: 'flex-start',
+                                    height: '48px',
+                                    borderRadius: '8px'
+                                }}
+                            >
+                                <Space>
+                                    <LogoutOutlined />
+                                    <span>Déconnexion</span>
+                                </Space>
+                            </Button>
+                        </>
+                    )}
                 </div>
             </Drawer>
         </nav>
