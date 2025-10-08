@@ -612,6 +612,8 @@ body {
   backdrop-filter: blur(2px);
 }
 
+
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .dashboard-container {
@@ -626,3 +628,4 @@ body {
     width: 100%;
   }
 }
+

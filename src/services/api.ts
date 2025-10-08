@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import Paragraph from "antd/es/skeleton/Paragraph";
 
 const baseQuery = fetchBaseQuery({
     baseUrl: import.meta.env.VITE_BASE_URL,
@@ -21,7 +22,19 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
 export const api = createApi({
     reducerPath: "api",
     baseQuery: baseQueryWithReauth,
-    tagTypes: ['User', 'Admin', 'Receptionist', 'Employee', 'Buyer', 'Supplier', 'Product', 'Batch', 'Sales', 'Visits'],
+    tagTypes: [
+        'User', 
+        'Admin', 
+        'Receptionist', 
+        'Employee', 
+        'Buyer', 
+        'Supplier', 
+        'Product', 
+        'Batch', 
+        'Sales', 
+        'Visits',
+        'Conversations'
+    ],
     endpoints: (builder) => ({
         login: builder.mutation({
             query: (credentials) => ({
@@ -92,8 +105,102 @@ export const api = createApi({
                 method: "POST",
                 body: { name, description, settings },
             }),
-        })
+        }),
+        getDocuments: builder.query({
+            query: ({ projectId, page, limit, status }) => ({
+                url: `/rag/documents`,
+                method: "GET",
+                params: {
+                    projectId,
+                    page,
+                    limit,
+                    status
+                }
+            })
+        }),
+        getProjectDetails: builder.query({
+            query: ({ projectId }) => ({
+                url: `/rag/projects/${projectId}`,
+                method: "GET",
+            })
+        }),
+        getFilePreview: builder.query({
+            query: ({ projectId, documentId }) => ({
+                url: `/rag/projects/${projectId}/documents/${documentId}/preview`,
+                method: "GET",
+            })
+        }),
+        downloadFile: builder.query({
+            query: ({ projectId, documentId }) => ({
+                url: `/rag/projects/${projectId}/documents/${documentId}/download`,
+                method: "GET",
+            })
+        }),
+        getFileData: builder.query({
+            query: ({ projectId, documentId }) => ({
+                url: `/rag/projects/${projectId}/documents/${documentId}/data`,
+                method: "GET",
+            })
+        }),
+        uploadDocuments: builder.mutation({
+            query: (formData) => ({
+                url: `/rag/upload/multiple`,
+                method: "POST",
+                body: formData,
+
+            }),
+        }),
+        // services/api.ts
+        conversationHistory: builder.query({
+            query: ({ projectId, before, limit = 30 }) => ({
+                url: `/conversation/projects/${projectId}/history`,
+                method: "GET",
+                params: { before, limit }
+            }),
+            // Merge strategy pour append les messages
+            serializeQueryArgs: ({ endpointName, queryArgs }) => {
+                return `${endpointName}-${queryArgs.projectId}`;
+            },
+            merge: (currentCache, newItems, { arg }) => {
+                if (!arg.before) {
+                    // Premier chargement
+                    return newItems;
+                }
+                // Charger plus : append au début
+                return {
+                    ...newItems,
+                    data: {
+                        ...newItems.data,
+                        conversations: [
+                            ...newItems.data.conversations,
+                            ...currentCache.data.conversations
+                        ]
+                    }
+                };
+            },
+            forceRefetch: ({ currentArg, previousArg }) => {
+                return currentArg?.before !== previousArg?.before;
+            },
+            providesTags: ['Conversations'], // Tag pour invalider si besoin
+        }),
+
+        // Ajouter cette mutation
+        textSearch: builder.mutation({
+            query: ({ query, projectId, limit = 100 }) => ({
+                url: '/rag/search',
+                method: 'POST',
+                body: {
+                    query,
+                    projectId,
+                    limit
+                }
+            }),
+            invalidatesTags: ['Conversations'], // Invalider le cache des conversations pour recharger
+        }),
+
     }),
+
+
 });
 
 export const {
@@ -103,5 +210,13 @@ export const {
     useLogoutMutation,
     useGetDashboardDataQuery,
     useGetProjectsQuery,
-    useNewProjectMutation
+    useNewProjectMutation,
+    useGetDocumentsQuery,
+    useGetProjectDetailsQuery,
+    useGetFilePreviewQuery,
+    useDownloadFileQuery,
+    useGetFileDataQuery,
+    useUploadDocumentsMutation,
+    useConversationHistoryQuery,
+    useTextSearchMutation
 } = api;

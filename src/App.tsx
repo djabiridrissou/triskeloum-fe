@@ -10,8 +10,9 @@ import Unauthorized from "./pages/Unauthorized";
 import Logout from "./pages/auth/Logout";
 import UnderConstruction from "./pages/UnderConstruction";
 import MainLayout from "./layouts/MainLayout";
-import Projects from "./pages/Projects";
-import NewProject from "./pages/sections/NewProject";
+import Projects from "./pages/projects/Projects";
+import NewProject from "./pages/projects/NewProject";
+import ProjectDetails from "./pages/projects/ProjectDetails";
 
 const App = () => {
   return (
@@ -34,6 +35,7 @@ const App = () => {
              <Route path="/" element={<Home />} />
              <Route path="/projects" element={<Projects />} />
              <Route path="/projects/new" element={<NewProject />} />
+              <Route path="/projects/:projectId" element={<ProjectDetails />} />
           </Route>
          
           <Route path="/login" element={<Login />} />

@@ -357,11 +357,11 @@ const Navbar: React.FC = () => {
 
     return (
         <nav className="vms-navbar">
-            <div className="navbar-container">
+            <div className="navbar-container !pl-[90px]">
                 {/* Logo */}
                 <div className="navbar-logo" onClick={() => navigate('/')}>
                     <div className="logo-icon">
-                      <img src="/images/argusLogo.png" alt="The logo" className='w-[100%] h-[100%] object-contain' />
+                      <img src="/images/argusLogo.png" alt="The logo" className=' w-[100%] h-[100%] object-contain' />
                     </div>
                     <div className="hidden sm:block">
                         <Title level={4} style={{ margin: 0, color: '#1e293b' }}>

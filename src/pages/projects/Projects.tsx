@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGetProjectsQuery } from '../services/api';
-import { EmptyState } from '../components/projects/EmptyState';
-import { ProjectCard } from '../components/dashboard/ProjectCard';
-import { NewProjectModal } from '../modals/NewProjectModal';
+import { useGetProjectsQuery } from '../../services/api';
+import { EmptyState } from '../../components/projects/EmptyState';
+import { ProjectCard } from '../../components/dashboard/ProjectCard';
+import { NewProjectModal } from '../../modals/NewProjectModal';
 
 const Projects: React.FC = () => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const Projects: React.FC = () => {
   });
 
   const handleDoubleClick = (projectId: string) => {
-    navigate(`/projects/${projectId}/chat`);
+    navigate(`/projects/${projectId}`);
   };
 
   const handleCreateProject = () => {
@@ -64,10 +64,10 @@ const Projects: React.FC = () => {
 
   return (
     <>
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-1">
         
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-2">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
             <p className="text-sm text-gray-500 mt-1">
