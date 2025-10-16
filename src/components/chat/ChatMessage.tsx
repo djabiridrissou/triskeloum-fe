@@ -1,40 +1,31 @@
+// components/chat/ChatMessage.tsx (MISE À JOUR)
+
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useEffect, useRef } from "react";
+import ConversationBadge from "./ConversationBadge"; // ✅ IMPORT
 
 const ChatMessage = ({ message, baseUrl, isLatest = false }: any) => {
   const audioRef: any = useRef<HTMLAudioElement>(null);
   
-  // Construire l'URL audio correctement
   const getAudioUrl = () => {
     if (!message.audioUrl) return '';
-    
-    // Nettoyer baseUrl des /api
-    //const cleanBase = baseUrl.replace(/\/api\/?$/, '');
     const cleanBase = baseUrl;
     
-    // Si l'URL est déjà complète (commence par http)
     if (message.audioUrl.startsWith('http')) {
       return message.audioUrl;
     }
-    
-    // Si l'URL commence par /voice/
     if (message.audioUrl.startsWith('/voice/')) {
       return `${cleanBase}${message.audioUrl}`;
     }
-    
-    // Si l'URL commence par voice/ (sans le premier /)
     if (message.audioUrl.startsWith('voice/')) {
       return `${cleanBase}/${message.audioUrl}`;
     }
-    
-    // Sinon, c'est juste le nom du fichier
     return `${cleanBase}/voice/${message.audioUrl}`;
   };
 
   const audioUrl = getAudioUrl();
   
-  // Debug pour voir l'URL générée
   useEffect(() => {
     if (message.audioUrl) {
       console.log('Audio URL generated:', {
@@ -45,19 +36,12 @@ const ChatMessage = ({ message, baseUrl, isLatest = false }: any) => {
     }
   }, [message.audioUrl, audioUrl, baseUrl]);
 
-  // Auto-play pour le dernier message
   useEffect(() => {
     if (audioUrl && audioRef.current && isLatest && !message.isTemp && message.mode === 'voice') {
-      // Attendre un peu que l'audio soit chargé
       setTimeout(() => {
         if (audioRef.current) {
           audioRef.current.play().catch((error: any) => {
             console.error('Autoplay error:', error);
-            console.log('Audio element state:', {
-              src: audioRef.current.src,
-              readyState: audioRef.current.readyState,
-              error: audioRef.current.error
-            });
           });
         }
       }, 100);
@@ -66,6 +50,7 @@ const ChatMessage = ({ message, baseUrl, isLatest = false }: any) => {
 
   return (
     <div className="space-y-2">
+      {/* User Query */}
       <div className="flex justify-end">
         <div className="bg-blue-600 text-white rounded-lg px-4 py-2 max-w-[85%] md:max-w-2xl break-words">
           <p className="text-sm whitespace-pre-wrap">{message.query}</p>
@@ -75,9 +60,11 @@ const ChatMessage = ({ message, baseUrl, isLatest = false }: any) => {
         </div>
       </div>
   
+      {/* Assistant Answer */}
       {message.answer && (
         <div className="flex justify-start">
           <div className="bg-white border border-gray-200 rounded-lg px-4 py-3 max-w-[85%] md:max-w-2xl w-full shadow-sm">
+            {/* Audio Player */}
             {audioUrl && (
               <div className="mb-3">
                 <audio 
@@ -94,6 +81,7 @@ const ChatMessage = ({ message, baseUrl, isLatest = false }: any) => {
               </div>
             )}
             
+            {/* Markdown Content */}
             <div className="markdown-content text-sm text-gray-900">
               <ReactMarkdown 
                 remarkPlugins={[remarkGfm]}
@@ -125,11 +113,24 @@ const ChatMessage = ({ message, baseUrl, isLatest = false }: any) => {
               </ReactMarkdown>
             </div>
             
+            {/* ✅ NOUVEAU - Conversation Badges */}
+            {message.conversational && (
+              <ConversationBadge
+                usedHistory={message.conversational.usedHistory}
+                contradictionCheck={message.conversational.contradictionCheck}
+                sourceConsistency={message.conversational.sourceConsistency}
+                clarificationNeeded={message.conversational.clarificationNeeded}
+              />
+            )}
+            
+            {/* Sources Count */}
             {message.sourcesCount > 0 && (
               <p className="text-xs text-gray-500 mt-3 pt-2 border-t border-gray-100">
                 {message.sourcesCount} source{message.sourcesCount > 1 ? 's' : ''}
               </p>
             )}
+            
+            {/* Timestamp */}
             <p className="text-xs text-gray-400 mt-1">
               {new Date(message.createdAt).toLocaleTimeString()}
             </p>
@@ -137,6 +138,7 @@ const ChatMessage = ({ message, baseUrl, isLatest = false }: any) => {
         </div>
       )}
   
+      {/* Loading Indicator */}
       {message.isTemp && !message.answer && (
         <div className="flex justify-start">
           <div className="bg-white border border-gray-200 rounded-lg px-4 py-2">

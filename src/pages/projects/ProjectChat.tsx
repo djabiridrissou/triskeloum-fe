@@ -1,18 +1,20 @@
-// pages/ProjectChat.tsx
+// pages/ProjectChat.tsx (VERSION CONVERSATIONNELLE)
+
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { useConversationHistoryQuery, useTextSearchMutation } from '../../services/api';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import axios from 'axios';
+import {
+  useConversationHistoryQuery,
+  useConversationalSearchMutation,
+  useConversationalVoiceSearchMutation
+} from '../../services/api';
 import ChatInput from '../../components/chat/ChatInput';
 import ChatMessage from '../../components/chat/ChatMessage';
+import ThreadControls from '../../components/chat/ThreadControls'; // ✅ NOUVEAU
 import { ChatStyles } from '../../components/chat/ChatStyles';
 import VoiceStatusBar from '../../components/VoiceStatusBar';
-import { useContinuousListening, useWakeWordDetection } from '../../hooks/voice';
+import { useContinuousListening } from '../../hooks/voice';
+import { useConversationThread } from '../../hooks/useConversationThread'; // ✅ NOUVEAU
 import { BASE_URL } from '../../services/axios';
-
-
 
 const ProjectChat: React.FC = () => {
   const { projectId } = useParams();
@@ -33,8 +35,19 @@ const ProjectChat: React.FC = () => {
   const audioChunksRef = useRef<Blob[]>([]);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Ajoutez ceci APRÈS handleWakeWord
+  // ✅ NOUVEAU - Gestion du thread conversationnel
+  const {
+    threadId,
+    isNewThread,
+    isLoadingThread,
+    resetThread,
+    updateThreadId
+  } = useConversationThread({
+    projectId: projectId || '',
+    enabled: !!projectId
+  });
 
+  console.log('🧵 Thread State:', { threadId, isNewThread, isLoadingThread });
 
   const { data, isLoading, isFetching } = useConversationHistoryQuery(
     {
@@ -45,7 +58,9 @@ const ProjectChat: React.FC = () => {
     { skip: !projectId }
   );
 
-  const [sendMessage, { isLoading: isSending }] = useTextSearchMutation();
+  // ✅ NOUVEAU - Mutations conversationnelles
+  const [sendMessage, { isLoading: isSending }] = useConversationalSearchMutation();
+  const [sendVoiceMessage, { isLoading: isSendingVoice }] = useConversationalVoiceSearchMutation();
 
   const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
     bottomRef.current?.scrollIntoView({ behavior });
@@ -68,7 +83,10 @@ const ProjectChat: React.FC = () => {
   // Load initial messages
   useEffect(() => {
     if (data?.success && !before) {
-      setMessages(data.data.conversations);
+      const sortedMessages = [...data.data.conversations].sort((a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+      setMessages(sortedMessages);
       setHasMore(data.data.hasMore);
       setTimeout(() => scrollToBottom('auto'), 100);
     }
@@ -77,7 +95,11 @@ const ProjectChat: React.FC = () => {
   // Load more messages
   useEffect(() => {
     if (data?.success && before) {
-      setMessages(prev => [...data.data.conversations, ...prev]);
+      const sortedNewMessages = [...data.data.conversations].sort((a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+
+      setMessages(prev => [...sortedNewMessages, ...prev]);
       setHasMore(data.data.hasMore);
     }
   }, [data, before]);
@@ -106,7 +128,6 @@ const ProjectChat: React.FC = () => {
     if (!isRecording && !isProcessingAudio && !isPlayingAudio) {
       console.log('🎯 Wake word detected! Starting recording...');
 
-      // Play acknowledgment
       const audio = new Audio('/sounds/acknowledgment.mp3');
       audio.volume = 1.0;
       audio.play().catch(() => console.log('No acknowledgment sound'));
@@ -117,15 +138,11 @@ const ProjectChat: React.FC = () => {
     }
   }, [isRecording, isProcessingAudio, isPlayingAudio]);
 
-
   const { isListening, status: listeningStatus } = useContinuousListening({
-    onWakeWordDetected: {
-      handleWakeWord
-    },
+    onWakeWordDetected: handleWakeWord,
     enabled: voiceEnabled && !isRecording && !isProcessingAudio && !isPlayingAudio,
     projectId
   });
-
 
   const playAudioResponse = async (audioUrl: string) => {
     return new Promise<void>((resolve) => {
@@ -153,6 +170,7 @@ const ProjectChat: React.FC = () => {
     });
   };
 
+  // ✅ NOUVEAU - Text Search Conversationnel
   const handleSend = async () => {
     if (!query.trim() || isSending) return;
 
@@ -173,8 +191,16 @@ const ProjectChat: React.FC = () => {
       const response = await sendMessage({
         query,
         projectId,
-        limit: 5
+        threadId, // ✅ Passer le threadId
+        limit: 30
       }).unwrap();
+
+      console.log('📨 Response:', response);
+
+      // ✅ Update threadId si c'est un nouveau thread
+      if (!threadId && response.data.conversational?.threadId) {
+        updateThreadId(response.data.conversational.threadId);
+      }
 
       setMessages(prev =>
         prev.map(m =>
@@ -186,6 +212,7 @@ const ProjectChat: React.FC = () => {
               language: response.data.language,
               mode: 'text',
               sourcesCount: response.data.totalSources,
+              conversational: response.data.conversational, // ✅ Metadata conversationnel
               createdAt: new Date().toISOString()
             }
             : m
@@ -221,7 +248,6 @@ const ProjectChat: React.FC = () => {
       mediaRecorder.start();
       setIsRecording(true);
 
-      // Auto-stop after 10 seconds
       setTimeout(() => {
         if (mediaRecorderRef.current?.state === 'recording') {
           stopRecording();
@@ -248,9 +274,10 @@ const ProjectChat: React.FC = () => {
     }
   };
 
+  // ✅ NOUVEAU - Voice Search Conversationnel
   const handleAudioSend = async (blob: Blob) => {
     setIsProcessingAudio(true);
-  
+
     const userMessage = {
       id: `temp-audio-${Date.now()}`,
       query: 'Processing audio...',
@@ -259,24 +286,30 @@ const ProjectChat: React.FC = () => {
       createdAt: new Date().toISOString(),
       isTemp: true
     };
-  
+
     setMessages(prev => [...prev, userMessage]);
     setTimeout(() => scrollToBottom(), 50);
-  
+
     try {
       const formData = new FormData();
       formData.append('audio', blob, 'recording.webm');
       formData.append('projectId', projectId || '');
-      formData.append('limit', '5');
-  
-      const response = await axios.post(`${BASE_URL}/voice/search`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-  
-      if (response.data.success) {
-        const responseData = response.data.data;
-        
-        // Ne PAS modifier l'audioUrl ici, la garder telle quelle
+      formData.append('threadId', threadId || ''); // ✅ Passer threadId
+      formData.append('limit', '30');
+
+      // ✅ Utiliser la mutation RTK Query
+      const response = await sendVoiceMessage(formData).unwrap();
+
+      console.log('🎤 Voice Response:', response);
+
+      if (response.success) {
+        const responseData = response.data;
+
+        // ✅ Update threadId si nouveau thread
+        if (!threadId && responseData.conversational?.threadId) {
+          updateThreadId(responseData.conversational.threadId);
+        }
+
         setMessages(prev =>
           prev.map(m =>
             m.id === userMessage.id
@@ -284,19 +317,20 @@ const ProjectChat: React.FC = () => {
                 id: responseData.conversationId,
                 query: responseData.transcription,
                 answer: responseData.answer,
-                language: responseData.detectedLanguage,
+                language: responseData.detectedLanguage || responseData.language,
                 mode: 'voice',
-                audioUrl: responseData.audioUrl, // Garder l'URL originale
+                audioUrl: responseData.audioUrl,
                 sourcesCount: responseData.totalSources,
+                conversational: responseData.conversational, // ✅ Metadata conversationnel
                 createdAt: new Date().toISOString(),
                 isTemp: false
               }
               : m
           )
         );
-  
+
         setTimeout(() => scrollToBottom(), 100);
-  
+
         // Auto-play si voice mode activé
         if (voiceEnabled && responseData.audioUrl) {
           await playAudioResponse(responseData.audioUrl);
@@ -305,7 +339,7 @@ const ProjectChat: React.FC = () => {
     } catch (error: any) {
       console.error('Voice search error:', error);
       setMessages(prev => prev.filter(m => m.id !== userMessage.id));
-      alert('Voice search failed: ' + (error.response?.data?.message || error.message));
+      alert('Voice search failed: ' + (error.data?.message || error.message));
     } finally {
       setIsProcessingAudio(false);
     }
@@ -328,6 +362,13 @@ const ProjectChat: React.FC = () => {
     }
   };
 
+  // ✅ NOUVEAU - Handler pour nouvelle conversation
+  const handleNewConversation = () => {
+    resetThread();
+    // Optionnel: Clear messages localement aussi
+    // setMessages([]);
+  };
+
   if (isLoading && messages.length === 0) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -336,21 +377,32 @@ const ProjectChat: React.FC = () => {
     );
   }
 
-
   return (
     <div className="flex flex-col bg-gray-50 max-h-[800px] relative">
       <ChatStyles />
 
+      {/* ✅ NOUVEAU - Thread Controls */}
+      {threadId && (
+        <ThreadControls
+          threadId={threadId}
+          projectId={projectId || ''}
+          onReset={handleNewConversation}
+        />
+      )}
+
+      {/* Voice Status Bar */}
       {voiceEnabled && (
         <VoiceStatusBar
           isListening={isListening}
           isRecording={isRecording}
           isProcessingAudio={isProcessingAudio}
           isPlayingAudio={isPlayingAudio}
-          transcript={listeningStatus} // Utiliser listeningStatus maintenant
+          transcript={listeningStatus}
           onDisable={toggleVoiceMode}
         />
       )}
+
+      {/* Messages Container */}
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto px-6 py-4 space-y-4"
@@ -363,13 +415,30 @@ const ProjectChat: React.FC = () => {
           )}
         </div>
 
+        {/* ✅ Thread Loading Indicator */}
+        {isLoadingThread && messages.length === 0 && (
+          <div className="flex justify-center items-center py-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2" />
+              <p className="text-sm text-gray-600">Loading conversation...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Messages */}
         {messages.map((msg, index) => (
-          <ChatMessage key={msg.id} message={msg} baseUrl={BASE_URL} isLatest={index === messages.length - 1}  />
+          <ChatMessage
+            key={msg.id}
+            message={msg}
+            baseUrl={BASE_URL}
+            isLatest={index === messages.length - 1}
+          />
         ))}
 
         <div ref={bottomRef} />
       </div>
 
+      {/* Scroll to Bottom Button */}
       {showScrollButton && (
         <button
           onClick={() => scrollToBottom()}
@@ -383,6 +452,7 @@ const ProjectChat: React.FC = () => {
         </button>
       )}
 
+      {/* Chat Input */}
       <ChatInput
         query={query}
         setQuery={setQuery}

@@ -33,7 +33,8 @@ export const api = createApi({
         'Batch', 
         'Sales', 
         'Visits',
-        'Conversations'
+        'Conversations',
+        'Threads'
     ],
     endpoints: (builder) => ({
         login: builder.mutation({
@@ -195,9 +196,61 @@ export const api = createApi({
                     limit
                 }
             }),
-            invalidatesTags: ['Conversations'], // Invalider le cache des conversations pour recharger
+            invalidatesTags: ['Conversations'],
         }),
 
+        conversationalSearch: builder.mutation({
+            query: ({ query, projectId, threadId, limit = 30 }) => ({
+                url: '/rag/search',
+                method: 'POST',
+                body: {
+                    query,
+                    projectId,
+                    threadId, // ✅ NOUVEAU
+                    limit
+                }
+            }),
+            invalidatesTags: ['Conversations'],
+        }),
+        conversationalVoiceSearch: builder.mutation({
+            query: (formData) => ({
+                url: '/voice/search',
+                method: 'POST',
+                body: formData,
+                // Note: FormData gère automatiquement Content-Type
+            }),
+            invalidatesTags: ['Conversations'],
+        }),
+        getActiveThread: builder.query({
+            query: ({ projectId }) => ({
+                url: `/conversations/threads/project/${projectId}`,
+                method: 'GET',
+                params: { status: 'active', limit: 1 }
+            }),
+            providesTags: ['Threads'],
+        }),
+        getThreadDetails: builder.query({
+            query: ({ threadId }) => ({
+                url: `/conversations/threads/${threadId}`,
+                method: 'GET',
+            }),
+            providesTags: (result, error, arg) => [{ type: 'Threads', id: arg.threadId }],
+        }),
+        clearThread: builder.mutation({
+            query: ({ threadId }) => ({
+                url: `/conversations/threads/${threadId}/clear`,
+                method: 'POST',
+            }),
+            invalidatesTags: ['Threads', 'Conversations'],
+        }),
+        archiveThread: builder.mutation({
+            query: ({ threadId }) => ({
+                url: `/conversations/threads/${threadId}/archive`,
+                method: 'POST',
+            }),
+            invalidatesTags: ['Threads', 'Conversations'],
+        }),
+        
     }),
 
 
@@ -218,5 +271,11 @@ export const {
     useGetFileDataQuery,
     useUploadDocumentsMutation,
     useConversationHistoryQuery,
-    useTextSearchMutation
+    useTextSearchMutation,
+    useConversationalSearchMutation,
+    useConversationalVoiceSearchMutation,
+    useGetActiveThreadQuery,
+    useGetThreadDetailsQuery,
+    useClearThreadMutation,
+    useArchiveThreadMutation,
 } = api;
