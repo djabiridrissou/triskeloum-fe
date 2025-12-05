@@ -1,21 +1,96 @@
+// src/services/api.ts
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import Paragraph from "antd/es/skeleton/Paragraph";
+import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { ApiResponse, AuthResponse, Course, CourseStats, DashboardOverview, Level, UsersResponse } from "../utils/typeDef";
+import { string } from "@tensorflow/tfjs";
+import { normalizeObject } from "../utils/urlUtils";
+
+export interface Exercise {
+    id: number;
+    title: string;
+    type: string;
+    duration: number;
+    cover?: string;
+    description?: string;
+    contentUrl: string;
+    isActive: boolean;
+    level: Level;
+    createdBy: any;
+    createdAt: string;
+    updatedAt: string;
+}
 
 const baseQuery = fetchBaseQuery({
     baseUrl: import.meta.env.VITE_BASE_URL,
     prepareHeaders: (headers) => {
+        const token = localStorage.getItem('accessToken');
+
+        if (token) {
+            headers.set('Authorization', `Bearer ${token}`);
+        }
+
         headers.set("Content-Type", "application/json");
         return headers;
     },
-    credentials: "include",
 });
 
-const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
+const baseQueryWithNormalization: BaseQueryFn<
+    string | FetchArgs,
+    unknown,
+    FetchBaseQueryError
+> = async (args, api, extraOptions) => {
     let result = await baseQuery(args, api, extraOptions);
-    if (result.error?.status === 401 && window.location.pathname !== "/login") {
-        //localStorage.clear();
-        //window.location.href = "/login";
+    if (result.data) {
+        result.data = normalizeObject(result.data);
     }
+    return result;
+};
+
+const baseQueryWithReauth: BaseQueryFn<
+    string | FetchArgs,
+    unknown,
+    FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+    let result = await baseQueryWithNormalization(args, api, extraOptions);
+
+    if (result.error && result.error.status === 401) {
+        const refreshToken = localStorage.getItem('refreshToken');
+
+        if (refreshToken && window.location.pathname !== "/login") {
+            console.log('🔄 Token expired, attempting refresh...');
+
+            const refreshResult = await baseQueryWithNormalization(
+                {
+                    url: '/auth/refresh-token',
+                    method: 'POST',
+                    body: { refresh_token: refreshToken },
+                },
+                api,
+                extraOptions
+            );
+
+            if (refreshResult.data) {
+                const data = refreshResult.data as ApiResponse<AuthResponse>;
+
+                console.log('✅ Token refreshed successfully');
+
+                localStorage.setItem('accessToken', data.payload.token);
+                localStorage.setItem('refreshToken', data.payload.refreshToken);
+
+                result = await baseQuery(args, api, extraOptions);
+            } else {
+                console.error('❌ Token refresh failed');
+
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                window.location.href = '/login';
+            }
+        } else if (window.location.pathname !== "/login") {
+            localStorage.clear();
+            window.location.href = "/login";
+        }
+    }
+
     return result;
 };
 
@@ -23,259 +98,535 @@ export const api = createApi({
     reducerPath: "api",
     baseQuery: baseQueryWithReauth,
     tagTypes: [
-        'User', 
-        'Admin', 
-        'Receptionist', 
-        'Employee', 
-        'Buyer', 
-        'Supplier', 
-        'Product', 
-        'Batch', 
-        'Sales', 
-        'Visits',
-        'Conversations',
-        'Threads'
+        'User',
+        'Admin',
+        'Dashboard',
+        'Users',
+        'Courses',
+        'Categories',
+        'Levels',
+        'Exercises',
+        'Reels',
+        'Faqs',
+        'Quotes',
     ],
     endpoints: (builder) => ({
-        login: builder.mutation({
+        // ========== AUTH ==========
+        login: builder.mutation<ApiResponse<AuthResponse>, { email: string; password: string; remember?: boolean }>({
             query: (credentials) => ({
-                url: "/auth/login",
+                url: "/auth/signin",
                 method: "POST",
                 body: credentials,
             }),
-            invalidatesTags: ['User'], // Invalidate user cache on login
+            invalidatesTags: ['User'],
+            async onQueryStarted(arg, { queryFulfilled }) {
+                try {
+                    const { data } = await queryFulfilled;
+                    localStorage.setItem('accessToken', data.payload.token);
+                    localStorage.setItem('refreshToken', data.payload.refreshToken);
+                } catch (error) {
+                    console.error('❌ Login failed:', error);
+                }
+            },
         }),
-        logout: builder.mutation({
+
+        logout: builder.mutation<ApiResponse<any>, void>({
             query: () => ({
-                url: "/auth/logout",
+                url: "/auth/signout",
                 method: "POST",
             }),
-            invalidatesTags: ['User', 'Buyer', 'Supplier', 'Product', 'Batch'], // Clear all cache on logout
+            invalidatesTags: ['User'],
+            async onQueryStarted(arg, { queryFulfilled }) {
+                try {
+                    await queryFulfilled;
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
+                } catch (error) {
+                    console.error('❌ Logout failed:', error);
+                }
+            },
         }),
-        loadUser: builder.query({
+
+        loadUser: builder.query<ApiResponse<any>, any>({
             query: () => '/auth/load-user',
-            providesTags: ['User'], // Provide user cache tag
-        }),
-        getBuyers: builder.query({
-            query: ({
-                page = 1,
-                limit = 10,
-                searchQuery = "",
-                sortField = "createdAt",
-                sortOrder = "desc"
-            }) => ({
-                url: "/buyer/all",
-                method: "GET",
-                params: {
-                    page,
-                    limit,
-                    searchQuery,
-                    sortField,
-                    sortOrder,
-                },
-            }),
-            providesTags: ['Buyer'],
-        }),
-        getDashboardData: builder.query({
-            query: () => '/dashboard'
-        }),
-        getProjects: builder.query({
-            query: ({
-                page = 1,
-                limit = 10,
-                status = "",
-                sortField = "createdAt",
-                sortOrder = "desc",
-                searchQuery = ""
-            }) => ({
-                url: `rag/projects`,
-                method: "GET",
-                params: {
-                    page,
-                    limit,
-                    status,
-                    sortField,
-                    sortOrder,
-                    searchQuery
-                },
-            })
-        }),
-        newProject: builder.mutation({
-            query: ({ name, description, settings }) => ({
-                url: `/rag/projects`,
-                method: "POST",
-                body: { name, description, settings },
-            }),
-        }),
-        getDocuments: builder.query({
-            query: ({ projectId, page, limit, status }) => ({
-                url: `/rag/documents`,
-                method: "GET",
-                params: {
-                    projectId,
-                    page,
-                    limit,
-                    status
-                }
-            })
-        }),
-        getProjectDetails: builder.query({
-            query: ({ projectId }) => ({
-                url: `/rag/projects/${projectId}`,
-                method: "GET",
-            })
-        }),
-        getFilePreview: builder.query({
-            query: ({ projectId, documentId }) => ({
-                url: `/rag/projects/${projectId}/documents/${documentId}/preview`,
-                method: "GET",
-            })
-        }),
-        downloadFile: builder.query({
-            query: ({ projectId, documentId }) => ({
-                url: `/rag/projects/${projectId}/documents/${documentId}/download`,
-                method: "GET",
-            })
-        }),
-        getFileData: builder.query({
-            query: ({ projectId, documentId }) => ({
-                url: `/rag/projects/${projectId}/documents/${documentId}/data`,
-                method: "GET",
-            })
-        }),
-        uploadDocuments: builder.mutation({
-            query: (formData) => ({
-                url: `/rag/upload/multiple`,
-                method: "POST",
-                body: formData,
-
-            }),
-        }),
-        // services/api.ts
-        conversationHistory: builder.query({
-            query: ({ projectId, before, limit = 30 }) => ({
-                url: `/conversation/projects/${projectId}/history`,
-                method: "GET",
-                params: { before, limit }
-            }),
-            // Merge strategy pour append les messages
-            serializeQueryArgs: ({ endpointName, queryArgs }) => {
-                return `${endpointName}-${queryArgs.projectId}`;
-            },
-            merge: (currentCache, newItems, { arg }) => {
-                if (!arg.before) {
-                    // Premier chargement
-                    return newItems;
-                }
-                // Charger plus : append au début
-                return {
-                    ...newItems,
-                    data: {
-                        ...newItems.data,
-                        conversations: [
-                            ...newItems.data.conversations,
-                            ...currentCache.data.conversations
-                        ]
-                    }
-                };
-            },
-            forceRefetch: ({ currentArg, previousArg }) => {
-                return currentArg?.before !== previousArg?.before;
-            },
-            providesTags: ['Conversations'], // Tag pour invalider si besoin
+            providesTags: ['User'],
         }),
 
-        // Ajouter cette mutation
-        textSearch: builder.mutation({
-            query: ({ query, projectId, limit = 100 }) => ({
-                url: '/rag/search',
-                method: 'POST',
-                body: {
-                    query,
-                    projectId,
-                    limit
-                }
-            }),
-            invalidatesTags: ['Conversations'],
+        // ========== ADMIN DASHBOARD ==========
+        getDashboardOverview: builder.query<ApiResponse<DashboardOverview>, void>({
+            query: () => '/admin/dashboard/overview',
+            providesTags: ['Dashboard'],
         }),
 
-        conversationalSearch: builder.mutation({
-            query: ({ query, projectId, threadId, limit = 30 }) => ({
-                url: '/rag/search',
+        getUsersGrowthChart: builder.query<ApiResponse<Array<{ date: string; count: number }>>, number>({
+            query: (days = 30) => `/admin/dashboard/users-growth?days=${days}`,
+            providesTags: ['Dashboard'],
+        }),
+
+        getUsersByLevel: builder.query<ApiResponse<Array<{ level: string; count: number }>>, void>({
+            query: () => '/admin/dashboard/users-by-level',
+            providesTags: ['Dashboard'],
+        }),
+
+        getRecentActivity: builder.query<ApiResponse<any>, number>({
+            query: (limit = 10) => `/admin/dashboard/recent-activity?limit=${limit}`,
+            providesTags: ['Dashboard'],
+        }),
+
+        // ========== USERS MANAGEMENT ==========
+        getAllUsers: builder.query<ApiResponse<UsersResponse>, {
+            page?: number;
+            limit?: number;
+            level?: string;
+            role?: string;
+            search?: string;
+        }>({
+            query: ({ page = 1, limit = 20, level, role, search }) => {
+                const params = new URLSearchParams({
+                    page: page.toString(),
+                    limit: limit.toString(),
+                });
+                if (level) params.append('level', level);
+                if (role) params.append('role', role);
+                if (search) params.append('search', search);
+
+                return `/admin/users?${params.toString()}`;
+            },
+            providesTags: ['Users'],
+        }),
+
+        getUserDetails: builder.query<ApiResponse<any>, number>({
+            query: (id) => `/admin/users/${id}`,
+            providesTags: ['Users'],
+        }),
+
+        deleteUser: builder.mutation<ApiResponse<any>, number>({
+            query: (id) => ({
+                url: `/admin/users/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Users', 'Dashboard'],
+        }),
+
+        // ========== COURSES MANAGEMENT ==========
+        getAllCourses: builder.query<ApiResponse<any>, {
+            page?: number;
+            limit?: number;
+            status?: string;
+            level?: string;
+            search?: string;
+        }>({
+            query: ({ page = 1, limit = 20, status, level, search }) => {
+                const params = new URLSearchParams({
+                    page: page.toString(),
+                    limit: limit.toString(),
+                });
+                if (status) params.append('status', status);
+                if (level) params.append('level', level);
+                if (search) params.append('search', search);
+
+                return `/admin/courses?${params.toString()}`;
+            },
+            providesTags: ['Courses'],
+        }),
+
+        getCourseById: builder.query<ApiResponse<Course>, number>({
+            query: (id) => `/app/courses/${id}`,
+            providesTags: (result, error, id) => [{ type: 'Courses', id }],
+        }),
+
+        deleteCourse: builder.mutation<ApiResponse<null>, number>({
+            query: (id) => ({
+                url: `/app/courses/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Courses'],
+        }),
+
+        togglePublishCourse: builder.mutation<ApiResponse<Course>, number>({
+            query: (id) => ({
+                url: `/app/courses/${id}/publish`,
+                method: 'PATCH',
+            }),
+            invalidatesTags: ['Courses'],
+        }),
+
+        // Tu pourras ajouter ces endpoints au backend plus tard si besoin
+        getCourseStats: builder.query<ApiResponse<CourseStats>, void>({
+            query: () => `/admin/courses/stats`,
+            providesTags: ['Courses'],
+        }),
+
+        getAllLevels: builder.query<ApiResponse<Level[]>, void>({
+            query: () => `/app/levels`,
+        }),
+
+        // ========== STATS ==========
+        getFaqsStats: builder.query<ApiResponse<any>, void>({
+            query: () => '/admin/stats/faqs',
+        }),
+
+        getMessagesStats: builder.query<ApiResponse<any>, void>({
+            query: () => '/admin/stats/messages',
+        }),
+        refreshToken: builder.mutation<void, void>({
+            query: () => ({
+                url: '/auth/refresh-token',
                 method: 'POST',
-                body: {
-                    query,
-                    projectId,
-                    threadId, // ✅ NOUVEAU
-                    limit
-                }
+                body: { refresh_token: localStorage.getItem('refreshToken') },
             }),
-            invalidatesTags: ['Conversations'],
         }),
-        conversationalVoiceSearch: builder.mutation({
-            query: (formData) => ({
-                url: '/voice/search',
+        getAllCategories: builder.query<ApiResponse<any>, {
+            page?: number;
+            limit?: number;
+            search?: string;
+        }>({
+            query: ({ page = 1, limit = 20, search }) => {
+                const params = new URLSearchParams({
+                    page: page.toString(),
+                    limit: limit.toString(),
+                });
+                if (search) params.append('search', search);
+
+                return `/app/categories?${params.toString()}`;
+            },
+            providesTags: ['Categories'],
+        }),
+
+        getCategoryById: builder.query<ApiResponse<any>, number>({
+            query: (id) => `/app/categories/${id}`,
+            providesTags: ['Categories'],
+        }),
+
+        createCategory: builder.mutation<ApiResponse<any>, { title: string; cover?: string }>({
+            query: (data) => ({
+                url: '/app/categories',
                 method: 'POST',
-                body: formData,
-                // Note: FormData gère automatiquement Content-Type
+                body: data,
             }),
-            invalidatesTags: ['Conversations'],
+            invalidatesTags: ['Categories'],
         }),
-        getActiveThread: builder.query({
-            query: ({ projectId }) => ({
-                url: `/conversations/threads/project/${projectId}`,
-                method: 'GET',
-                params: { status: 'active', limit: 1 }
+
+        updateCategory: builder.mutation<ApiResponse<any>, { id: number; data: { title?: string; cover?: string } }>({
+            query: ({ id, data }) => ({
+                url: `/app/categories/${id}`,
+                method: 'PUT',
+                body: data,
             }),
-            providesTags: ['Threads'],
+            invalidatesTags: ['Categories'],
         }),
-        getThreadDetails: builder.query({
-            query: ({ threadId }) => ({
-                url: `/conversations/threads/${threadId}`,
-                method: 'GET',
+
+        deleteCategory: builder.mutation<ApiResponse<any>, number>({
+            query: (id) => ({
+                url: `/app/categories/${id}`,
+                method: 'DELETE',
             }),
-            providesTags: (result, error, arg) => [{ type: 'Threads', id: arg.threadId }],
+            invalidatesTags: ['Categories'],
         }),
-        clearThread: builder.mutation({
-            query: ({ threadId }) => ({
-                url: `/conversations/threads/${threadId}/clear`,
+
+        getCategoryStats: builder.query<ApiResponse<any>, void>({
+            query: () => '/app/categories/stats',
+            providesTags: ['Categories'],
+        }),
+
+        getCoursesByCategory: builder.query<ApiResponse<any>, number>({
+            query: (id) => `/app/categories/${id}/courses`,
+            providesTags: ['Courses'],
+        }),
+        getCourseDetails: builder.query<ApiResponse<any>, number>({
+            query: (id) => ({
+                url: `/app/courses/${id}`,
+                params: { id }
+            }),
+            providesTags: ['Courses'],
+        }),
+        createCourse: builder.mutation<ApiResponse<Course>, FormData>({
+            query: (data) => ({
+                url: '/app/courses',
                 method: 'POST',
+                body: data,
+                formData: true,
             }),
-            invalidatesTags: ['Threads', 'Conversations'],
+            invalidatesTags: ['Courses'],
         }),
-        archiveThread: builder.mutation({
-            query: ({ threadId }) => ({
-                url: `/conversations/threads/${threadId}/archive`,
+        updateCourse: builder.mutation<ApiResponse<Course>, { id: number; data: FormData }>({
+            query: ({ id, data }) => ({
+                url: `/app/courses/${id}`,
+                method: 'PUT',
+                body: data,
+                formData: true,
+            }),
+            invalidatesTags: ['Courses'],
+        }),
+        createSection: builder.mutation<ApiResponse<any>, { courseId: number; data: any }>({
+            query: ({ courseId, data }) => ({
+                url: `/app/courses/${courseId}/sections`,
                 method: 'POST',
+                body: data,
             }),
-            invalidatesTags: ['Threads', 'Conversations'],
+            invalidatesTags: ['Courses'],
         }),
-        
+        getLevels: builder.query<ApiResponse<Level[]>, void>({
+            query: () => `/app/levels`,
+            providesTags: ['Courses'],
+        }),
+
+        // ========== ADMIN LEVELS ==========
+        getAdminLevels: builder.query<ApiResponse<any>, { page?: number; limit?: number; search?: string; sortField?: string; sortDirection?: 'ASC' | 'DESC' }>({
+            query: ({ page = 1, limit = 20, search = '', sortField, sortDirection }) => ({
+                url: '/admin/levels',
+                params: { page, limit, search, ...(sortField && { sortField }), ...(sortDirection && { sortDirection }) }
+            }),
+            providesTags: ['Levels'],
+        }),
+
+        getLevelById: builder.query<ApiResponse<any>, number>({
+            query: (id) => `/admin/levels/${id}`,
+            providesTags: ['Levels'],
+        }),
+
+        createLevel: builder.mutation<ApiResponse<any>, { name: string; rank: number; is_public?: boolean }>({
+            query: (data) => ({
+                url: '/admin/levels',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['Levels'],
+        }),
+
+        updateLevel: builder.mutation<ApiResponse<any>, { id: number; data: { name?: string; rank?: number; is_public?: boolean } }>({
+            query: ({ id, data }) => ({
+                url: `/admin/levels/${id}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Levels'],
+        }),
+
+        deleteLevel: builder.mutation<ApiResponse<any>, number>({
+            query: (id) => ({
+                url: `/admin/levels/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Levels'],
+        }),
+
+        getLevelsStats: builder.query<ApiResponse<any>, void>({
+            query: () => '/admin/stats/levels',
+            providesTags: ['Levels'],
+        }),
+
+        // ========== ADMIN EXERCISES ==========
+        getAdminExercises: builder.query<ApiResponse<any>, { page?: number; limit?: number; search?: string; type?: string }>({
+            query: ({ page = 1, limit = 10, search = '', type = '' }) => {
+                const params = new URLSearchParams({
+                    page: page.toString(),
+                    limit: limit.toString(),
+                });
+                if (search) params.append('search', search);
+                if (type) params.append('type', type);
+                return `/admin/exercises?${params.toString()}`;
+            },
+            providesTags: ['Exercises'],
+        }),
+
+        getExerciseById: builder.query<ApiResponse<Exercise>, number>({
+            query: (id) => `/admin/exercises/${id}`,
+            providesTags: ['Exercises'],
+        }),
+
+        deleteExercise: builder.mutation<ApiResponse<null>, number>({
+            query: (id) => ({
+                url: `/admin/exercises/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Exercises'],
+        }),
+
+        toggleActiveExercise: builder.mutation<ApiResponse<Exercise>, number>({
+            query: (id) => ({
+                url: `/admin/exercises/${id}/toggle-active`,
+                method: 'PATCH',
+            }),
+            invalidatesTags: ['Exercises'],
+        }),
+
+        // ========== ADMIN REELS ==========
+        getAdminReels: builder.query<ApiResponse<any>, { page?: number; limit?: number; search?: string }>({
+            query: ({ page = 1, limit = 10, search = '' }) => {
+                const params = new URLSearchParams({
+                    page: page.toString(),
+                    limit: limit.toString(),
+                });
+                if (search) params.append('search', search);
+                return `/admin/reels?${params.toString()}`;
+            },
+            providesTags: ['Reels'],
+        }),
+
+        getReelById: builder.query<ApiResponse<any>, number>({
+            query: (id) => `/admin/reels/${id}`,
+            providesTags: ['Reels'],
+        }),
+
+        deleteReel: builder.mutation<ApiResponse<null>, number>({
+            query: (id) => ({
+                url: `/admin/reels/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Reels'],
+        }),
+
+        toggleActiveReel: builder.mutation<ApiResponse<any>, number>({
+            query: (id) => ({
+                url: `/admin/reels/${id}/toggle-active`,
+                method: 'PATCH',
+            }),
+            invalidatesTags: ['Reels'],
+        }),
+
+        // ========== ADMIN FAQs ==========
+        getAdminFaqs: builder.query<ApiResponse<any>, { page?: number; limit?: number; search?: string }>({
+            query: ({ page = 1, limit = 10, search = '' }) => {
+                const params = new URLSearchParams({
+                    page: page.toString(),
+                    limit: limit.toString(),
+                });
+                if (search) params.append('search', search);
+                return `/admin/faqs?${params.toString()}`;
+            },
+            providesTags: ['Faqs'],
+        }),
+
+        getFaqById: builder.query<ApiResponse<any>, number>({
+            query: (id) => `/admin/faqs/${id}`,
+            providesTags: ['Faqs'],
+        }),
+
+        createFaq: builder.mutation<ApiResponse<any>, any>({
+            query: (data) => ({
+                url: `/admin/faqs`,
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['Faqs'],
+        }),
+
+        updateFaq: builder.mutation<ApiResponse<any>, { id: number; data: any }>({
+            query: ({ id, data }) => ({
+                url: `/admin/faqs/${id}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Faqs'],
+        }),
+
+        deleteFaq: builder.mutation<ApiResponse<null>, number>({
+            query: (id) => ({
+                url: `/admin/faqs/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Faqs'],
+        }),
+
+        // ========== ADMIN QUOTES ==========
+        getAdminQuotes: builder.query<ApiResponse<any>, { page?: number; limit?: number; search?: string }>({
+            query: ({ page = 1, limit = 10, search = '' }) => {
+                const params = new URLSearchParams({
+                    page: page.toString(),
+                    limit: limit.toString(),
+                });
+                if (search) params.append('search', search);
+                return `/admin/quotes?${params.toString()}`;
+            },
+            providesTags: ['Quotes'],
+        }),
+
+        getQuoteById: builder.query<ApiResponse<any>, number>({
+            query: (id) => `/admin/quotes/${id}`,
+            providesTags: ['Quotes'],
+        }),
+
+        createQuote: builder.mutation<ApiResponse<any>, any>({
+            query: (data) => ({
+                url: `/admin/quotes`,
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['Quotes'],
+        }),
+
+        updateQuote: builder.mutation<ApiResponse<any>, { id: number; data: any }>({
+            query: ({ id, data }) => ({
+                url: `/admin/quotes/${id}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['Quotes'],
+        }),
+
+        deleteQuote: builder.mutation<ApiResponse<null>, number>({
+            query: (id) => ({
+                url: `/admin/quotes/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Quotes'],
+        }),
+
     }),
-
-
 });
 
 export const {
     useLoginMutation,
     useLoadUserQuery,
-    useGetBuyersQuery,
     useLogoutMutation,
-    useGetDashboardDataQuery,
-    useGetProjectsQuery,
-    useNewProjectMutation,
-    useGetDocumentsQuery,
-    useGetProjectDetailsQuery,
-    useGetFilePreviewQuery,
-    useDownloadFileQuery,
-    useGetFileDataQuery,
-    useUploadDocumentsMutation,
-    useConversationHistoryQuery,
-    useTextSearchMutation,
-    useConversationalSearchMutation,
-    useConversationalVoiceSearchMutation,
-    useGetActiveThreadQuery,
-    useGetThreadDetailsQuery,
-    useClearThreadMutation,
-    useArchiveThreadMutation,
+    useGetDashboardOverviewQuery,
+    useGetUsersGrowthChartQuery,
+    useGetUsersByLevelQuery,
+    useGetRecentActivityQuery,
+    useGetAllUsersQuery,
+    useGetUserDetailsQuery,
+    useDeleteUserMutation,
+    useGetAllCoursesQuery,
+    useDeleteCourseMutation,
+    useGetFaqsStatsQuery,
+    useGetMessagesStatsQuery,
+    useRefreshTokenMutation,
+    useGetAllCategoriesQuery,
+    useGetCategoryByIdQuery,
+    useCreateCategoryMutation,
+    useUpdateCategoryMutation,
+    useDeleteCategoryMutation,
+    useGetCategoryStatsQuery,
+    useGetCoursesByCategoryQuery,
+    useTogglePublishCourseMutation,
+    useGetCourseDetailsQuery,
+    useCreateCourseMutation,
+    useUpdateCourseMutation,
+    useCreateSectionMutation,
+    useGetAllLevelsQuery,
+    useGetAdminLevelsQuery,
+    useGetLevelByIdQuery,
+    useCreateLevelMutation,
+    useUpdateLevelMutation,
+    useDeleteLevelMutation,
+    useGetLevelsStatsQuery,
+    useGetAdminExercisesQuery,
+    useGetExerciseByIdQuery,
+    useDeleteExerciseMutation,
+    useToggleActiveExerciseMutation,
+    useGetAdminReelsQuery,
+    useGetReelByIdQuery,
+    useDeleteReelMutation,
+    useToggleActiveReelMutation,
+    useGetAdminFaqsQuery,
+    useGetFaqByIdQuery,
+    useCreateFaqMutation,
+    useUpdateFaqMutation,
+    useDeleteFaqMutation,
+    useGetAdminQuotesQuery,
+    useGetQuoteByIdQuery,
+    useCreateQuoteMutation,
+    useUpdateQuoteMutation,
+    useDeleteQuoteMutation,
 } = api;

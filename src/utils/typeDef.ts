@@ -1,3 +1,151 @@
+export interface Level {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    rank: number;
+    name: string;
+    is_public: boolean;
+}
+
+export interface Section {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    title: string;
+    order: number;
+    content: {
+        cover: string;
+        summary: string;
+        parts: {
+            title: string;
+            content: string;
+        }[];
+    };
+}
+
+export interface Course {
+    id: number;
+    created_at: string;
+    updated_at: string;
+    title: string;
+    published: boolean;
+    cover: string;
+    legend: string;
+    est_time_min: number;
+    levels: Level[];
+    category: Category;
+    sections?: Section[];
+    hasMediaContent?: boolean;
+    mediaUrl?: string;
+    mediaType?: 'VIDEO' | 'AUDIO';
+}
+
+export interface CourseStats {
+    total: number;
+    published: number;
+    draft: number;
+    byLevel: {
+        levelName: string;
+        count: number;
+    }[];
+}
+
+export interface Category {
+    id: number;
+    title: string;
+    cover?: string;
+    created_at: string;
+    updated_at: string;
+    courses_count?: number;
+}
+
+export interface CategoryFormData {
+    title: string;
+    cover?: string;
+}
+
+export interface CategoriesResponse {
+    categories: Category[];
+    pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+    };
+}
+
+export interface ApiResponse<T = any> {
+    success: boolean;
+    message: string;
+    payload: T;
+}
+
+export interface AuthResponse {
+    token: string;
+    refreshToken: string;
+    data: any;
+}
+
+export interface DashboardKPIs {
+    totalUsers: number;
+    newUsersWeek: number;
+    newUsersMonth: number;
+    usersGrowth: string;
+    totalCourses: number;
+    publishedCourses: number;
+    messagesToday: number;
+    messagesWeek: number;
+    activeUsers: number;
+    activeUsersPercentage: string;
+}
+
+export interface CourseStats {
+    total: number;
+    published: number;
+    draft: number;
+}
+
+export interface TopCourse {
+    id: number;
+    title: string;
+    enrollments: number;
+    rating: string;
+}
+
+export interface DashboardOverview {
+    kpis: DashboardKPIs;
+    courseStats: CourseStats;
+    topCourses: TopCourse[];
+}
+
+export interface User {
+    id: number;
+    firstname: string;
+    lastname: string;
+    email: string;
+    phone?: string;
+    role: string;
+    created_at: string;
+    last_login?: string;
+    picture?: string;
+    level: {
+        name: string;
+        rank: number;
+    };
+}
+
+export interface PaginationMeta {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+}
+
+export interface UsersResponse {
+    users: User[];
+    pagination: PaginationMeta;
+}
+
 export enum VisitPriority {
     LOW = 'LOW',
     MEDIUM = 'MEDIUM',
@@ -124,21 +272,6 @@ export interface UserFilters {
     status?: string;
 }
 
-export interface User {
-    _id: string;
-    email: string;
-    role: string; // Directement string, pas d'objet
-    companyId?: {
-        _id: string;
-        name: string;
-    };
-    isActive: boolean;
-    connected: boolean; // Nouveau champ
-    lastLogin?: string;
-    createdAt: string;
-    profileId?: string;
-}
-
 export const getStatusColor = (status: string): string => {
     switch (status) {
         case 'PENDING':
@@ -183,3 +316,63 @@ export interface VisitTableProps {
     showActions?: boolean;
 }
 
+// src/utils/typeDef.ts (ajoutez/mettez à jour)
+
+export interface SectionPart {
+    title: string;
+    content: string; // Markdown string
+}
+
+export interface SectionMedia {
+    url: string;
+    type: 'AUDIO' | 'VIDEO';
+}
+
+export interface SectionContent {
+    cover: string;
+    summary: string; // Markdown string
+    parts: SectionPart[];
+    media?: SectionMedia[];
+}
+
+export interface Section {
+    id: number;
+    title: string;
+    order: number;
+    content: SectionContent;
+}
+
+export interface Service {
+    id: string;
+    titleFr: string;
+    titleEn: string;
+    descriptionFr: string;
+    descriptionEn: string;
+    priceEur: number;
+    priceXof: number;
+    icon: string;
+    duration?: string;
+}
+
+export interface Formation {
+    id: string;
+    titleFr: string;
+    titleEn: string;
+    descriptionFr: string;
+    descriptionEn: string;
+    priceEur: number;
+    priceXof: number;
+    duration: string;
+    features: { fr: string; en: string }[];
+    isPremium?: boolean;
+}
+
+export interface TeamMember {
+    id: string;
+    name: string;
+    roleFr: string;
+    roleEn: string;
+    image: string;
+}
+
+export type Language = 'fr' | 'en';

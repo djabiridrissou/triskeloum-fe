@@ -229,19 +229,13 @@ const Navbar: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (response?.user) {
-            setUser(response.user);
-            // Optionnel : sauvegarder l'email dans localStorage
-            localStorage.setItem('userEmail', response.user.email);
-            localStorage.setItem('userId', response.user.id);
-            localStorage.setItem('userRole', response.user.role.name);
-        }
+        
     }, [response]);
 
     const handleLogout = async () => {
         try {
         
-            await logout({}).unwrap();
+            await logout().unwrap();
             
             // Nettoyer le localStorage
             localStorage.removeItem('userEmail');
@@ -361,7 +355,7 @@ const Navbar: React.FC = () => {
                 {/* Logo */}
                 <div className="navbar-logo" onClick={() => navigate('/')}>
                     <div className="logo-icon">
-                      <img src="/images/argusLogo.png" alt="The logo" className=' w-[100%] h-[100%] object-contain' />
+                      <span className="text-black"></span>
                     </div>
                     <div className="hidden sm:block">
                         <Title level={4} style={{ margin: 0, color: '#1e293b' }}>

@@ -119,7 +119,7 @@ const UnderConstruction = () => {
               type="primary"
               size="large"
               icon={<HomeOutlined />}
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/login')}
               key="home"
               style={{
                 height: '44px',

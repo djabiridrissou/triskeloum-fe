@@ -1,58 +1,55 @@
-import { useState, useEffect } from "react";
-import { Button, Input, Card, Form, Checkbox, Divider, Spin } from "antd";
-import { MailOutlined, LockOutlined, TeamOutlined } from "@ant-design/icons";
+import { useEffect } from "react";
+import { Button, Input, Card, Form, Checkbox, Spin } from "antd";
+import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { useLoginMutation, useLoadUserQuery } from "../../services/api";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
     const [login, { isLoading }] = useLoginMutation();
-    const { data: userResponse, isLoading: isCheckingAuth } = useLoadUserQuery({});
+    const hasToken = !!localStorage.getItem('accessToken');
+    const { data: userResponse, isLoading: isCheckingAuth } = useLoadUserQuery(undefined, {
+        skip: !hasToken,
+    });
+    
     const navigate = useNavigate();
 
-    // Fonction pour déterminer la route selon le rôle
     const getDashboardRoute = (role: string) => {
         switch (role) {
-            case 'SYSTEM_ADMIN':
-                return '/admin/home';
-            case 'EMPLOYEE':
-                return '/employee/home';
-            case 'RECEPTIONIST':
-                return '/receptionist/dashboard';
+            case 'user':
+                return '/user';
+            case 'admin':
+                return '/admin';
             default:
-                return '/fsm';
+                return '/login';
         }
     };
 
     useEffect(() => {
-        if (!isCheckingAuth && userResponse?.user) {
-            const userRole = userResponse.user.role.name;
+        if (!isCheckingAuth && userResponse?.payload?.data) {
+            const userRole = userResponse.payload.data.role;
             const redirectRoute = getDashboardRoute(userRole);
             navigate(redirectRoute, { replace: true });
         }
     }, [userResponse, isCheckingAuth, navigate]);
 
-    useEffect(() => {
-        if (!userResponse?.user) {
-            localStorage.removeItem('userEmail');
-            localStorage.removeItem('userId');
-            localStorage.removeItem('userRole');
-        }
-    }, [userResponse]);
-
-    const handleLogin = async (values: { email: string; password: string; companyId?: string }) => {
-        const credentials = {
-            email: values.email,
-            password: values.password,
-            ...(values.companyId && { companyId: values.companyId })
-        };
-
+    const handleLogin = async (values: { 
+        email: string; 
+        password: string; 
+        remember?: boolean; 
+    }) => {
         try {
+            const credentials = {
+                email: values.email,
+                password: values.password,
+                remember: values.remember || false,
+            };
+
             const result: any = await login(credentials);
 
             if ('error' in result) {
-                console.log('Login error:', result.error);
-                const error: any = result.error as any;
+                console.error('Login error:', result.error);
+                const error: any = result.error;
                 const status = error?.status || error?.data?.statusCode;
                 const message = error?.data?.message || 'Erreur de connexion';
 
@@ -60,32 +57,32 @@ const Login = () => {
                     case 404:
                         Swal.fire({
                             icon: 'error',
-                            title: 'User not found',
-                            text: error.data.message || 'Invalid email or password.',
+                            title: 'Utilisateur introuvable',
+                            text: message || 'Email ou mot de passe incorrect.',
                         });
                         break;
 
                     case 401:
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error',
-                            text: error.data.message || 'Invalid email or password.',
+                            title: 'Erreur d\'authentification',
+                            text: message || 'Email ou mot de passe incorrect.',
                         });
                         break;
 
                     case 403:
                         Swal.fire({
                             icon: 'warning',
-                            title: 'Account pending',
-                            text: error.data.message || 'Invalid email or password.',
+                            title: 'Compte en attente',
+                            text: message || 'Votre compte est en attente de validation.',
                         });
                         break;
 
                     default:
                         Swal.fire({
                             icon: 'error',
-                            title: 'Connection error',
-                            text: error.data.message || 'Invalid email or password.',
+                            title: 'Erreur de connexion',
+                            text: message || 'Une erreur est survenue.',
                         });
                         break;
                 }
@@ -94,22 +91,24 @@ const Login = () => {
 
             const response = result.data;
 
-            if (response.success) {
-                const userData = response.data.user;
-                const userRole = response?.data?.user?.role;
+            if (response.success && response.payload) {
+                const userData = response.payload.data;
+                const userRole = userData.role;
+
                 localStorage.setItem('userEmail', userData.email);
                 localStorage.setItem('userId', userData.id);
                 localStorage.setItem('userRole', userRole);
-                localStorage.setItem('companyId', userData.companyId || '');
+
                 Swal.fire({
                     icon: 'success',
                     title: 'Connexion réussie',
-                    text: 'Bienvenue sur VMS !',
+                    text: 'Bienvenue sur TRISKELOUM !',
                     timer: 2000,
                     showConfirmButton: false,
                 });
+
                 const redirectRoute = getDashboardRoute(userRole);
-                console.log('Redirecting to:', redirectRoute);
+                
                 setTimeout(() => {
                     navigate(redirectRoute, { replace: true });
                 }, 1000);
@@ -124,152 +123,175 @@ const Login = () => {
         }
     };
 
-    // Affichage du loader pendant la vérification d'auth
     if (isCheckingAuth) {
         return (
-            <div className="w-full flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+            <div className="w-full flex items-center justify-center min-h-screen bg-black">
                 <div className="text-center">
                     <Spin size="large" />
-                    <div className="mt-4 text-gray-600">Please wait...</div>
+                    <div className="mt-4 text-amber-400">Vérification...</div>
                 </div>
             </div>
         );
     }
 
-    // Ne pas afficher le formulaire si déjà connecté
-    if (userResponse?.user) {
+    if (userResponse?.payload?.data) {
         return null;
     }
 
     return (
-        <div className="w-full flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-            <div className="w-full max-w-md">
-                {/* Logo et titre */}
+        <div className="w-full flex items-center justify-center min-h-screen bg-black p-4 relative overflow-hidden">
+            {/* Animated Background Orbs */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-amber-900/20 blur-3xl animate-pulse" />
+                <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-red-900/10 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+            </div>
+
+            <div className="w-full max-w-md relative z-10">
                 <div className="text-center mb-8">
                     <div className="flex justify-center items-center mb-6">
-                        <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg">
-                            <img src="/images/vms.png" alt="" />
+                        <div className="relative w-24 h-24">
+                            <svg className="absolute inset-0 w-full h-full animate-spin-slow" style={{ animationDuration: '30s' }} viewBox="0 0 200 200">
+                                <defs>
+                                    <linearGradient id="loginGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stopColor="#D4AF37" />
+                                        <stop offset="50%" stopColor="#FFD700" />
+                                        <stop offset="100%" stopColor="#B8860B" />
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="100" cy="100" r="95" fill="none" stroke="url(#loginGold)" strokeWidth="1" strokeDasharray="10 5" />
+                            </svg>
+                            <svg className="absolute inset-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)]" viewBox="0 0 100 100">
+                                <defs>
+                                    <linearGradient id="logoGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stopColor="#D4AF37" />
+                                        <stop offset="100%" stopColor="#B8860B" />
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="50" cy="50" r="45" fill="none" stroke="url(#logoGold)" strokeWidth="2" />
+                                <g className="origin-center">
+                                    {[0, 90, 180, 270].map((rotation, i) => (
+                                        <path
+                                            key={i}
+                                            d="M50 50 Q50 35 40 28 Q28 20 25 32 Q22 45 38 50"
+                                            fill="none"
+                                            stroke="url(#logoGold)"
+                                            strokeWidth="2.5"
+                                            strokeLinecap="round"
+                                            transform={`rotate(${rotation} 50 50)`}
+                                        />
+                                    ))}
+                                </g>
+                                <path d="M50 42 L58 50 L50 58 L42 50 Z" fill="url(#logoGold)" />
+                            </svg>
                         </div>
                     </div>
-                    <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                        Visitor Management System
+                    <h1 className="text-4xl font-light tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 mb-2">
+                        TRISKELOUM
                     </h1>
-                    <p className="text-gray-600">
-                        Enter your credentials to access your account
+                    <p className="text-amber-500/80 text-sm tracking-[0.2em] uppercase">
+                        Cabinet digital de développement spirituel
                     </p>
                 </div>
 
-                {/* Formulaire de connexion */}
-                <Card className="shadow-xl border-0 rounded-2xl overflow-hidden backdrop-blur-sm bg-white/95">
+                <Card className="shadow-2xl border border-amber-900/30 rounded-2xl overflow-hidden backdrop-blur-md bg-black/50" style={{ backgroundColor: 'transparent', backgroundImage: 'none' }}>
                     <div className="p-8">
                         <Form
                             name="vms_login_form"
-                            initialValues={{ remember: true }}
+                            initialValues={{ remember: false }}
                             onFinish={handleLogin}
                             layout="vertical"
                             size="large"
                         >
                             <div className="space-y-6">
                                 <Form.Item
-                                    label={<span className="text-gray-700 font-medium">Email</span>}
+                                    label={<span className="text-amber-400 font-medium">Email</span>}
                                     name="email"
                                     rules={[
                                         {
                                             required: true,
-                                            message: 'Enter your email'
+                                            message: 'Veuillez entrer votre email'
                                         },
                                         {
                                             type: 'email',
-                                            message: 'Invalid email format'
+                                            message: 'Format d\'email invalide'
                                         }
                                     ]}
                                 >
                                     <Input
-                                        prefix={<MailOutlined className="text-gray-400" />}
-                                        placeholder="your@email.com"
-                                        className="rounded-lg border-gray-300 hover:border-blue-400 focus:border-blue-500 h-12"
+                                        prefix={<MailOutlined className="text-amber-600" />}
+                                        placeholder="votre@email.com"
+                                        className="rounded-lg bg-gray-900 border-amber-600/30 text-white placeholder-gray-600 hover:border-amber-500 focus:border-amber-400 h-12"
                                     />
                                 </Form.Item>
 
                                 <Form.Item
-                                    label={<span className="text-gray-700 font-medium">Password</span>}
+                                    label={<span className="text-amber-400 font-medium">Mot de passe</span>}
                                     name="password"
                                     rules={[{
                                         required: true,
-                                        message: 'Enter your password'
+                                        message: 'Veuillez entrer votre mot de passe'
                                     }]}
                                 >
                                     <Input.Password
-                                        prefix={<LockOutlined className="text-gray-400" />}
-                                        placeholder="Your Password"
-                                        className="rounded-lg border-gray-300 hover:border-blue-400 focus:border-blue-500 h-12"
+                                        prefix={<LockOutlined className="text-amber-600" />}
+                                        placeholder="Votre mot de passe"
+                                        className="rounded-lg bg-gray-900 border-amber-600/30 text-white placeholder-gray-600 hover:border-amber-500 focus:border-amber-400 h-12"
                                     />
                                 </Form.Item>
 
                                 <div className="flex justify-between items-center">
                                     <Form.Item name="remember" valuePropName="checked" noStyle>
-                                        <Checkbox className="text-gray-600">
-                                            Remember Me
+                                        <Checkbox className="text-gray-400">
+                                            <span className="text-sm text-gray-400">Se souvenir de moi</span>
                                         </Checkbox>
                                     </Form.Item>
                                     <a
                                         href="#"
-                                        className="text-blue-600 hover:text-blue-800 transition-colors text-sm"
+                                        className="text-amber-400 hover:text-amber-300 transition-colors text-sm"
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            // TODO: Implémenter mot de passe oublié
                                             Swal.fire({
                                                 icon: 'info',
-                                                title: 'Password Forgotten ?',
-                                                text: 'Contact your system administrator.',
+                                                title: 'Mot de passe oublié ?',
+                                                text: 'Contactez votre administrateur système.',
                                             });
                                         }}
                                     >
-                                        Forgot Password?
+                                        Mot de passe oublié ?
                                     </a>
                                 </div>
 
                                 <Form.Item>
-                                    <button
-                                        className="w-full h-12 bg-black cursor-pointer from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 border-0 rounded-lg text-lg font-semibold shadow-lg transition-all duration-300 text-white"
+                                    <Button
+                                        type="primary"
+                                        htmlType="submit"
+                                        loading={isLoading}
+                                        className="w-full h-12 bg-gradient-to-r from-amber-600 to-amber-800 hover:from-amber-500 hover:to-amber-700 border-0 rounded-lg text-lg font-semibold shadow-lg hover:shadow-amber-600/30 transition-all duration-300 text-black"
                                     >
-                                        {isLoading ? 'Connexion...' : 'Log In'}
-                                    </button>
+                                        {isLoading ? 'Connexion...' : 'Se connecter'}
+                                    </Button>
                                 </Form.Item>
                             </div>
                         </Form>
-                        <Divider className="my-6">
-                            <span className="text-gray-400 text-sm">New to Visitor Management System?</span>
-                        </Divider>
-                        <div className="text-center space-y-3">
-                            <Button
-                                type="default"
-                                onClick={() => navigate('/register')}
-                                className="w-full h-11 rounded-lg border-blue-200 text-blue-600 hover:bg-blue-50 bg-bla"
-                            >
-                                Register
-                            </Button>
-                        </div>
                     </div>
                 </Card>
 
-                {/* Informations sur les rôles */}
-                {/*  <div className="mt-6 bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-blue-100">
-                    <h3 className="text-sm font-semibold text-gray-700 mb-2">Types de comptes :</h3>
-                    <div className="space-y-1 text-xs text-gray-600">
-                        <div><strong>Administrateur :</strong> Gestion complète du système</div>
-                        <div><strong>Employé :</strong> Gestion de vos visites et rendez-vous</div>
-                        <div><strong>Réceptionniste :</strong> Accueil et gestion des visiteurs</div>
-                    </div>
-                </div> */}
-
-                {/* Footer */}
-                <div className="text-center mt-6 text-sm text-gray-500">
+                <div className="text-center mt-6 text-sm text-gray-600">
                     <p>
-                        RevGen - Visitor Management System © {new Date().getFullYear()}
+                        TRISKELOUM © {new Date().getFullYear()}
                     </p>
                 </div>
             </div>
+
+            <style>{`
+                @keyframes spin-slow { 
+                    from { transform: rotate(0deg); } 
+                    to { transform: rotate(360deg); } 
+                }
+                .animate-spin-slow { 
+                    animation: spin-slow 30s linear infinite; 
+                }
+            `}</style>
         </div>
     );
 };

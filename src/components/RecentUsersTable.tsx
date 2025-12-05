@@ -1,0 +1,146 @@
+// src/components/admin/RecentUsersTable.tsx
+import React from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { User } from '../utils/typeDef';
+import { getImageUrl } from '../utils/imageUtils';
+
+interface RecentUsersTableProps {
+    users: User[];
+}
+
+const RecentUsersTable: React.FC<RecentUsersTableProps> = ({ users }) => {
+    // ✅ Gérer le cas où il n'y a pas d'utilisateurs
+    if (!users || users.length === 0) {
+        return (
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900">Derniers utilisateurs</h3>
+                </div>
+                <div className="px-6 py-12 text-center">
+                    <p className="text-gray-500">Aucun utilisateur trouvé</p>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="bg-white rounded-lg shadow-md">
+            <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Derniers utilisateurs</h3>
+            </div>
+            <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Utilisateur
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Email
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Niveau
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Inscrit
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Dernière connexion
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {users.map((user) => (
+                            <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="flex items-center">
+                                        <div className="flex-shrink-0 h-10 w-10">
+                                            {/* ✅ Gérer l'absence de firstname/lastname */}
+                                            {user.picture ? (
+                                                <img 
+                                                    className="h-10 w-10 rounded-full object-cover" 
+                                                    src={getImageUrl(user.picture)} 
+                                                    alt={`${user.firstname} ${user.lastname}`}
+                                                />
+                                            ) : (
+                                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                                    <span className="text-sm font-medium text-white">
+                                                        {user.firstname?.[0]?.toUpperCase() || 'U'}
+                                                        {user.lastname?.[0]?.toUpperCase() || ''}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="ml-4">
+                                            <div className="text-sm font-medium text-gray-900">
+                                                {user.firstname} {user.lastname}
+                                            </div>
+                                            {/* ✅ Afficher le rôle si c'est un admin */}
+                                            {user.role === 'admin' && (
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                                    Admin
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="text-sm text-gray-900">{user.email}</div>
+                                    {/* ✅ Afficher le téléphone s'il existe */}
+                                    {user.phone && (
+                                        <div className="text-xs text-gray-500">{user.phone}</div>
+                                    )}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    {/* ✅ Gérer l'absence de niveau */}
+                                    {user.level ? (
+                                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            {user.level.name}
+                                        </span>
+                                    ) : (
+                                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-600">
+                                            Aucun niveau
+                                        </span>
+                                    )}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {/* ✅ Gérer les dates invalides */}
+                                    {user.created_at ? (
+                                        formatDistanceToNow(new Date(user.created_at), { 
+                                            addSuffix: true, 
+                                            locale: fr 
+                                        })
+                                    ) : (
+                                        <span className="text-gray-400">-</span>
+                                    )}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    {/* ✅ Afficher un badge si jamais connecté */}
+                                    {user.last_login ? (
+                                        <div className="flex items-center">
+                                            <div className="flex-shrink-0 w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                                            <span className="text-sm text-gray-500">
+                                                {formatDistanceToNow(new Date(user.last_login), { 
+                                                    addSuffix: true, 
+                                                    locale: fr 
+                                                })}
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center">
+                                            <div className="flex-shrink-0 w-2 h-2 bg-gray-300 rounded-full mr-2"></div>
+                                            <span className="text-sm text-gray-400">Jamais connecté</span>
+                                        </div>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+export default RecentUsersTable;

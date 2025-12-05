@@ -10,51 +10,76 @@ import Unauthorized from "./pages/Unauthorized";
 import Logout from "./pages/auth/Logout";
 import UnderConstruction from "./pages/UnderConstruction";
 import MainLayout from "./layouts/MainLayout";
-import Projects from "./pages/projects/Projects";
-import NewProject from "./pages/projects/NewProject";
-import ProjectDetails from "./pages/projects/ProjectDetails";
+import Categories from "./pages/courses/Categories";
+import Courses from "./pages/courses/Courses";
+import Levels from "./pages/courses/Levels";
+import Exercises from "./pages/courses/Exercises";
+import Reels from "./pages/courses/Reels";
+import Quotes from "./pages/courses/Quotes";
+import Faq from "./pages/courses/Faq";
+import CourseDetail from "./components/CourseDetail";
+import Users from "./pages/admin/Users";
+import CRM from "./pages/admin/CRM";
+import Notifications from "./pages/admin/Notifications";
+import LandingPage from "./pages/public/LandingPage";
+import { SocketProvider } from "./contexts/SocketContext";
+
 
 const App = () => {
   return (
-    <div>
-      <Toaster toastOptions={{
-        duration: 4000,
-        success: {
-          duration: 2000,
-        },
-        error: {
-          duration: 500,
-        }
-      }}
-        position="top-right" />
-      <Router>
-        <Routes>
-        <Route element={
+    <SocketProvider>
+      <div>
+        <Toaster toastOptions={{
+          duration: 5000,
+          success: {
+            duration: 3000,
+          },
+          error: {
+            duration: 8000,
+          }
+        }}
+          position="top-right" />
+        <Router>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            
+            <Route element={
               <MainLayout />
-          }>
-             <Route path="/" element={<Home />} />
-             <Route path="/projects" element={<Projects />} />
-             <Route path="/projects/new" element={<NewProject />} />
-              <Route path="/projects/:projectId" element={<ProjectDetails />} />
-          </Route>
-         
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+            }>
 
-          {/* Routes protégées pour les admins */}
-          <Route element={
-            <ProtectedRoute allowedRoles={['SYSTEM_ADMIN']}>
-              <AdminLayout />
-            </ProtectedRoute>
-          }>
-          </Route>
-          {/* Routes protégées pour les admins */}
-          <Route path="/logout" element={<Logout />} />
-          <Route path="/unauthorized" element={<Unauthorized />} />
-          <Route path="*" element={<UnderConstruction />} />
-        </Routes>
-      </Router>
-    </div>
+            
+            </Route>
+
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+
+            <Route element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminLayout />
+              </ProtectedRoute>
+            }>
+              <Route path="/admin" element={<Home />} />
+              <Route path="/admin/users" element={<Users />} />
+              <Route path="/admin/crm" element={<CRM />} />
+              <Route path="/admin/crm/rooms/:roomId" element={<CRM />} />
+              <Route path="/admin/notifications" element={<Notifications />} />
+              <Route path="/admin/courses/categories" element={<Categories />} />
+              <Route path="/admin/levels" element={<Levels />} />
+              <Route path="/admin/courses/exercises" element={<Exercises />} />
+              <Route path="/admin/courses/reels" element={<Reels />} />
+              <Route path="/admin/courses/quotes" element={<Quotes />} />
+              <Route path="/admin/courses/faqs" element={<Faq />} />
+              <Route path="/admin/courses/list" element={<Courses />} />
+              <Route path="/admin/courses/:id" element={<CourseDetail />} />
+            </Route>
+            {/* Routes protégées pour les admins */}
+            <Route path="/logout" element={<Logout />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
+            <Route path="*" element={<UnderConstruction />} />
+          </Routes>
+        </Router>
+      </div>
+    </SocketProvider>
   );
 };
 

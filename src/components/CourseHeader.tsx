@@ -1,0 +1,71 @@
+// src/components/course/CourseHeader.tsx
+import React from 'react';
+import { Course } from '../utils/typeDef';
+import StatusBadge from './StatusBadge';
+import LevelBadge from './LevelBadge';
+import { getImageUrl } from '../utils/imageUtils';
+
+interface CourseHeaderProps {
+    course: Course;
+}
+
+const CourseHeader: React.FC<CourseHeaderProps> = ({ course }) => {
+  
+    return (
+        <div className="relative">
+            <div className="h-64 bg-blue-800 relative overflow-hidden">
+                {course?.cover && (
+                    <img
+                        src={getImageUrl(course?.cover)}
+                        alt={course.title}
+                        className="w-full h-full object-cover"
+                    />
+                )}
+                <div className="absolute inset-0 bg-transparent bg-opacity-40" />
+
+                {/* Badges flottants */}
+                <div className="absolute top-6 right-6 flex space-x-3">
+                    <StatusBadge published={course.published} />
+                    {course.levels?.[0] && <LevelBadge level={course.levels[0]} />}
+                </div>
+            </div>
+
+            {/* Contenu superposé */}
+            <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black via-black/70 to-transparent">
+                <div className="max-w-4xl">
+                    {/* Catégorie */}
+                    {course.category && (
+                        <span className="inline-block px-3 py-1 bg-black bg-opacity-20 text-white text-sm rounded-full mb-3">
+                            {course.category.title}
+                        </span>
+                    )}
+
+                    {/* Titre */}
+                    <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
+                        {course.title}
+                    </h1>
+
+                    {/* Métadonnées */}
+                    <div className="flex items-center space-x-6 text-white text-sm">
+                        <div className="flex items-center space-x-2">
+                            <span>⏱️</span>
+                            <span>{course.est_time_min} min</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <span>📚</span>
+                            <span>{course.sections?.length || 0} sections</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <span>📅</span>
+                            <span>
+                                Créé le {new Date(course.created_at).toLocaleDateString('fr-FR')}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default CourseHeader;

@@ -12,7 +12,7 @@ const Logout = () => {
   useEffect(() => {
     const handleLogout = async () => {
       try {
-        await logout({}).unwrap();
+        await logout().unwrap();
         localStorage.clear();
         dispatch(api.util.resetApiState());
         navigate('/login', { replace: true });

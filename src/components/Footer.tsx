@@ -1,130 +1,122 @@
-import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
-import { useState } from "react";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const Footer = () => {
-    const [email, setEmail] = useState("");
+    const { lang, t } = useLanguage();
 
-    const handleNewsletterSubmit = () => {
-        if (email.trim()) {
-            console.log("Newsletter subscription:", email);
-            setEmail("");
-            alert("Merci pour votre inscription à notre newsletter !");
-        }
+    const links = {
+        services: [
+            { fr: 'Consultation', en: 'Consultation', href: '#services' },
+            { fr: "Lecture de l'Âme", en: 'Soul Reading', href: '#services' },
+            { fr: 'Bilan Énergétique', en: 'Energy Assessment', href: '#services' },
+            { fr: 'Livre de Vie', en: 'Book of Life', href: '#services' },
+        ],
+        formations: [
+            { fr: 'Formation Classique', en: 'Classic Training', href: '#formations' },
+            { fr: 'Formation Premium', en: 'Premium Training', href: '#formations' },
+            { fr: 'BioGéométrie', en: 'BioGeometry', href: '#biogeometry' },
+        ],
+        about: [
+            { fr: 'Le Maître', en: 'The Master', href: '#about' },
+            { fr: 'Notre Équipe', en: 'Our Team', href: '#about' },
+            { fr: 'Akpé Fondation', en: 'Akpé Foundation', href: '#' },
+        ],
     };
 
     return (
-        <footer className="bg-white text-white">
-            <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Section principale */}
-                <div className="py-12">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {/* À propos */}
-                        <div className="lg:col-span-1">
-                            <div className="flex items-center mb-6">
-                                <div className="w-[150px] h-[150px] rounded-lg flex items-center justify-center mr-3">
-                                    <img src="/images/argusLogo.png" alt="" />
-                                </div>
-                            </div>
-                            <div className="flex space-x-4">
-                              
-                            </div>
+        <footer className="relative bg-black border-t border-amber-900/30">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-12">
+                    {/* Brand */}
+                    <div className="lg:col-span-2">
+                        <div className="flex items-center gap-3 mb-6">
+                            {/* Logo */}
+                            <svg viewBox="0 0 50 50" className="w-10 h-10">
+                                <defs>
+                                    <linearGradient id="footerGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stopColor="#D4AF37" />
+                                        <stop offset="100%" stopColor="#B8860B" />
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="25" cy="25" r="23" fill="none" stroke="url(#footerGold)" strokeWidth="1.5" />
+                                {[0, 90, 180, 270].map((r, i) => (
+                                    <path key={i} d="M25 25 Q25 18 20 15 Q14 12 13 17 Q12 23 20 25" fill="none" stroke="url(#footerGold)" strokeWidth="1.5" transform={`rotate(${r} 25 25)`} />
+                                ))}
+                            </svg>
+                            <span className="text-xl font-light tracking-[0.2em] text-amber-400">TRISKELOUM</span>
                         </div>
-
-                        {/* Solutions */}
-                        <div>
-                            {/*   <h3 className="text-white font-semibold mb-6">Solutions</h3> */}
-                            {/*  <ul className="space-y-3">
-                                <li>
-                                    <a href="/fournisseurs" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
-                                        Espace Fournisseurs
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="/distributeurs" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
-                                        Espace Distributeurs
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="/marketplace" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
-                                        Marketplace
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="/gestion-stock" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
-                                        Gestion de Stock
-                                    </a>
-                                </li>
-                            </ul> */}
+                        <p className="text-gray-500 text-sm leading-relaxed mb-6 max-w-sm">
+                            {t(
+                                "Cabinet digital de développement spirituel. Guérir les maux de l'âme et accompagner chacun dans un voyage profond de connaissance de soi.",
+                                "Digital spiritual development practice. Healing the wounds of the soul and guiding each person on a deep journey of self-discovery."
+                            )}
+                        </p>
+                        <div className="flex gap-4">
+                            {/* Social placeholder icons */}
+                            {['instagram', 'facebook', 'youtube'].map((social) => (
+                                <a key={social} href="#" className="w-10 h-10 rounded-full bg-amber-900/20 border border-amber-700/30 flex items-center justify-center text-amber-500 hover:bg-amber-800/30 hover:border-amber-600/50 transition-colors">
+                                    <span className="text-xs uppercase">{social[0]}</span>
+                                </a>
+                            ))}
                         </div>
+                    </div>
 
-                        {/* Support */}
-                        <div>
-                            {/*  <h3 className="text-white font-semibold mb-6">Support</h3> */}
-                            {/* <ul className="space-y-3">
-                                <li>
-                                    <a href="/aide" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
-                                        Centre d'aide
+                    {/* Services */}
+                    <div>
+                        <h4 className="text-amber-400 font-medium mb-4">{t('Services', 'Services')}</h4>
+                        <ul className="space-y-2">
+                            {links.services.map((link, i) => (
+                                <li key={i}>
+                                    <a href={link.href} className="text-gray-500 hover:text-amber-400 text-sm transition-colors">
+                                        {t(link.fr, link.en)}
                                     </a>
                                 </li>
-                                <li>
-                                    <a href="/contact" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
-                                        Nous contacter
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="/guides" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
-                                        Guides d'utilisation
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="/api" className="text-gray-300 hover:text-white text-sm transition-colors duration-200">
-                                        Documentation API
-                                    </a>
-                                </li>
-                            </ul> */}
-                        </div>
+                            ))}
+                        </ul>
+                    </div>
 
-                        {/* Newsletter */}
-                        <div>
-                          
-                            <div className="space-y-3">
-                                <div className="flex">
-                                   
-                                </div>
-                            </div>
+                    {/* Formations */}
+                    <div>
+                        <h4 className="text-amber-400 font-medium mb-4">{t('Formations', 'Training')}</h4>
+                        <ul className="space-y-2">
+                            {links.formations.map((link, i) => (
+                                <li key={i}>
+                                    <a href={link.href} className="text-gray-500 hover:text-amber-400 text-sm transition-colors">
+                                        {t(link.fr, link.en)}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
 
-                            {/* Contact info */}
-                            <div className="mt-6 space-y-2">
-                               
-                                
-                            </div>
-                        </div>
+                    {/* About */}
+                    <div>
+                        <h4 className="text-amber-400 font-medium mb-4">{t('À propos', 'About')}</h4>
+                        <ul className="space-y-2">
+                            {links.about.map((link, i) => (
+                                <li key={i}>
+                                    <a href={link.href} className="text-gray-500 hover:text-amber-400 text-sm transition-colors">
+                                        {t(link.fr, link.en)}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
 
-                {/* Section bas */}
-                <div className="border-t border-gray-800 py-6">
-                    <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                        <div className="text-gray-400 text-sm">
-                            © {new Date().getFullYear()} Powered by Revgen Technologies All rights reserved.
-                        </div>
-                        <div className="flex space-x-6">
-                            <a href="/mentions-legales" className="text-gray-400 hover:text-white text-sm transition-colors duration-200">
-                               Legal mentions
-                            </a>
-                            <a href="/confidentialite" className="text-gray-400 hover:text-white text-sm transition-colors duration-200">
-                                Privacy
-                            </a>
-                            <a href="/cookies" className="text-gray-400 hover:text-white text-sm transition-colors duration-200">
-                                Cookies
-                            </a>
-                            <a href="/cgu" className="text-gray-400 hover:text-white text-sm transition-colors duration-200">
-                                CGU
-                            </a>
-                        </div>
-                    </div>
+                {/* Bottom */}
+                <div className="mt-12 pt-8 border-t border-amber-900/20 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <p className="text-gray-600 text-sm">
+                        © {new Date().getFullYear()} Triskeloum. {t('Tous droits réservés.', 'All rights reserved.')}
+                    </p>
+                    <p className="text-gray-600 text-sm italic">
+                        "{t("L'éveil spirituel est un briseur d'illusions", "Spiritual awakening is a breaker of illusions")}"
+                    </p>
                 </div>
             </div>
+
+            {/* Decorative corners */}
+            <div className="absolute top-0 left-0 w-24 h-24 border-l border-t border-amber-900/20" />
+            <div className="absolute top-0 right-0 w-24 h-24 border-r border-t border-amber-900/20" />
         </footer>
     );
 };

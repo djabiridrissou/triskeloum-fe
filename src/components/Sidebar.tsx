@@ -1,73 +1,177 @@
+// src/components/Sidebar.tsx
 import React, { useState, useEffect } from 'react';
 import { Button } from 'antd';
 import {
   DashboardOutlined,
-  UserOutlined,
-  ShopOutlined,
   MenuUnfoldOutlined,
+  BookOutlined,
   AppstoreOutlined,
-  TeamOutlined
+  UnorderedListOutlined,
+  DownOutlined,
+  RightOutlined,
+  BarsOutlined,
+  FireOutlined,
+  TeamOutlined,
+  MessageOutlined,
+  BellOutlined,
+  FileTextOutlined,
+  VideoCameraOutlined,
+  QuestionCircleOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
+
+interface MenuItem {
+  key: string;
+  icon: React.ReactNode;
+  label: string;
+  path?: string;
+  children?: MenuItem[];
+}
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [selectedKey, setSelectedKey] = useState('1');
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const userRole = localStorage.getItem('userRole') || 'buyer';
-  
   useEffect(() => {
-    const pathToKey: any = {
-      '/': '1',
-      '/projects': '2'
+    const pathToKey: Record<string, string> = {
+      '/admin': '1',
+      '/admin/users': '2',
+      '/admin/crm': '3',
+      '/admin/courses/exercises': '4',
+      '/admin/courses/reels': '5',
+      '/admin/courses/quotes': '6',
+      '/admin/courses/faqs': '7',
+      '/admin/courses': '8',
+      '/admin/courses/categories': '8-1',
+      '/admin/levels': '9',
+      '/admin/courses/list': '8-3',
     };
 
     const currentKey = pathToKey[location.pathname] || '1';
     setSelectedKey(currentKey);
+
+    if (currentKey.startsWith('8-')) {
+      setOpenKeys(prev => [...new Set([...prev, '8'])]);
+    }
   }, [location.pathname]);
 
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
+    // ✅ Fermer tous les menus quand on collapse
+    if (!collapsed) {
+      setOpenKeys([]);
+    }
   };
 
-  const getMenuItems = () => {
+  const getMenuItems = (): MenuItem[] => {
     return [
       {
         key: '1',
         icon: <DashboardOutlined />,
         label: 'Dashboard',
-        path: '/',
+        path: '/admin',
       },
       {
         key: '2',
-        icon: <DashboardOutlined />,
-        label: 'Projects',
-        path: '/projects',
-      }
+        icon: <TeamOutlined />,
+        label: 'Utilisateurs',
+        path: '/admin/users',
+      },
+      {
+        key: '9',
+        icon: <BarsOutlined />,
+        label: 'Niveaux',
+        path: '/admin/levels',
+      },
+      {
+        key: '8',
+        icon: <BookOutlined />,
+        label: 'Cours',
+        children: [
+          {
+            key: '8-1',
+            icon: <AppstoreOutlined />,
+            label: 'Catégories',
+            path: '/admin/courses/categories',
+          },
+         
+          {
+            key: '8-3',
+            icon: <UnorderedListOutlined />,
+            label: 'Liste',
+            path: '/admin/courses/list',
+          },
+        ],
+      },
+      {
+        key: '4',
+        icon: <FireOutlined />,
+        label: 'Exercices',
+        path: '/admin/courses/exercises',
+      },
+      {
+        key: '3',
+        icon: <MessageOutlined />,
+        label: 'Chat',
+        path: '/admin/crm',
+      },
+      {
+        key: '5',
+        icon: <VideoCameraOutlined />,
+        label: 'Reels',
+        path: '/admin/courses/reels',
+      },
+      {
+        key: '6',
+        icon: <FileTextOutlined />,
+        label: 'Citations',
+        path: '/admin/courses/quotes',
+      },
+      {
+        key: '7',
+        icon: <QuestionCircleOutlined />,
+        label: 'FAQs',
+        path: '/admin/courses/faqs',
+      },
+     
     ];
   };
 
   const menuItems = getMenuItems();
 
-  const handleMenuClick = (item: any) => {
+  const handleMenuClick = (item: MenuItem) => {
     setSelectedKey(item.key);
+    
+    // ✅ Si c'est un parent avec children, toggle l'ouverture
+    if (item.children) {
+      setOpenKeys(prev => 
+        prev.includes(item.key) 
+          ? prev.filter(k => k !== item.key)
+          : [...prev, item.key]
+      );
+    }
+    
+    // ✅ Si c'est un lien, naviguer
     if (item.path) {
       navigate(item.path);
     }
   };
 
-  const getItemStyle = (itemKey: string) => {
+  const isOpen = (key: string) => openKeys.includes(key);
+
+  const getItemStyle = (itemKey: string, isChild = false) => {
     const isSelected = selectedKey === itemKey;
     const isHovered = hoveredKey === itemKey;
     
     return {
       display: 'flex',
       alignItems: 'center',
-      padding: collapsed ? '16px 0' : '16px 24px',
-      margin: collapsed ? '8px 12px' : '8px 16px',
+      padding: collapsed ? '16px 0' : isChild ? '12px 24px 12px 52px' : '16px 24px',
+      margin: collapsed ? '8px 12px' : isChild ? '4px 16px 4px 16px' : '8px 16px',
       borderRadius: '12px',
       cursor: 'pointer',
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -79,10 +183,10 @@ const Sidebar = () => {
         : 'transparent',
       color: isSelected ? '#ffffff' : '#64748b',
       fontWeight: isSelected ? '600' : '500',
-      fontSize: '14px',
+      fontSize: isChild ? '13px' : '14px',
       transform: isHovered && !isSelected ? 'translateX(4px)' : 'translateX(0)',
       boxShadow: isSelected 
-        ? '0 8px 25px rgba(16, 185, 129, 0.3)' 
+        ? '0 8px 25px rgba(0, 0, 0, 0.2)' 
         : isHovered 
         ? '0 2px 8px rgba(0, 0, 0, 0.08)' 
         : 'none',
@@ -98,6 +202,83 @@ const Sidebar = () => {
       color: isSelected ? '#ffffff' : '#94a3b8',
       transition: 'all 0.3s ease',
     };
+  };
+
+  const renderMenuItem = (item: MenuItem, isChild = false) => {
+    const hasChildren = item.children && item.children.length > 0;
+    const isItemOpen = isOpen(item.key);
+
+    return (
+      <div key={item.key}>
+        {/* Menu item */}
+        <div
+          style={getItemStyle(item.key, isChild)}
+          onClick={() => handleMenuClick(item)}
+          onMouseEnter={() => setHoveredKey(item.key)}
+          onMouseLeave={() => setHoveredKey(null)}
+        >
+          <div style={getIconStyle(item.key)}>
+            {item.icon}
+          </div>
+          
+          {!collapsed && (
+            <>
+              <span
+                style={{
+                  fontSize: isChild ? '13px' : '14px',
+                  fontWeight: selectedKey === item.key ? '600' : '500',
+                  transition: 'all 0.3s ease',
+                  flex: 1,
+                }}
+              >
+                {item.label}
+              </span>
+
+              {/* ✅ Flèche pour les items avec children */}
+              {hasChildren && (
+                <div
+                  style={{
+                    marginLeft: '8px',
+                    transition: 'transform 0.3s ease',
+                    transform: isItemOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
+                    color: selectedKey === item.key ? '#ffffff' : '#94a3b8',
+                  }}
+                >
+                  <DownOutlined style={{ fontSize: '10px' }} />
+                </div>
+              )}
+
+              {/* Active indicator pour items sans children */}
+              {selectedKey === item.key && !hasChildren && (
+                <div
+                  style={{
+                    width: '6px',
+                    height: '6px',
+                    borderRadius: '50%',
+                    background: '#ffffff',
+                    opacity: 0.8,
+                    marginLeft: '8px',
+                  }}
+                />
+              )}
+            </>
+          )}
+        </div>
+
+        {/* ✅ Sous-menu (children) */}
+        {hasChildren && !collapsed && (
+          <div
+            style={{
+              maxHeight: isItemOpen ? '500px' : '0',
+              overflow: 'hidden',
+              transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+          >
+            {item.children!.map(child => renderMenuItem(child, true))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -122,9 +303,39 @@ const Sidebar = () => {
           left: 0,
           width: '4px',
           height: '100%',
-         background: 'linear-gradient(180deg, #10b981 0%, #059669 100%)',
+          background: 'linear-gradient(180deg, #000000 0%, #333333 100%)',
         }}
       />
+
+      {/* Header avec logo/titre */}
+      {!collapsed && (
+        <div
+          style={{
+            padding: '24px',
+            borderBottom: '1px solid #e2e8f0',
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              fontSize: '20px',
+              fontWeight: '700',
+              color: '#1e293b',
+            }}
+          >
+            Admin Panel
+          </h2>
+          <p
+            style={{
+              margin: '4px 0 0 0',
+              fontSize: '12px',
+              color: '#94a3b8',
+            }}
+          >
+            Gestion de la plateforme
+          </p>
+        </div>
+      )}
 
       {/* Expand button for collapsed state */}
       {collapsed && (
@@ -153,6 +364,7 @@ const Sidebar = () => {
         </div>
       )}
 
+      {/* Menu items */}
       <div
         style={{
           flex: 1,
@@ -176,47 +388,36 @@ const Sidebar = () => {
           Navigation
         </div>
 
-        {menuItems.map((item) => (
-          <div
-            key={item.key}
-            style={getItemStyle(item.key)}
-            onClick={() => handleMenuClick(item)}
-            onMouseEnter={() => setHoveredKey(item.key)}
-            onMouseLeave={() => setHoveredKey(null)}
-          >
-            <div style={getIconStyle(item.key)}>
-              {item.icon}
-            </div>
-            {!collapsed && (
-              <span
-                style={{
-                  fontSize: '14px',
-                  fontWeight: selectedKey === item.key ? '600' : '500',
-                  transition: 'all 0.3s ease',
-                }}
-              >
-                {item.label}
-              </span>
-            )}
-            
-            {/* Active indicator */}
-            {selectedKey === item.key && (
-              <div
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  width: '6px',
-                  height: '6px',
-                  borderRadius: '50%',
-                  background: '#ffffff',
-                  opacity: 0.8,
-                  display: collapsed ? 'none' : 'block',
-                }}
-              />
-            )}
-          </div>
-        ))}
+        {menuItems.map(item => renderMenuItem(item))}
       </div>
+
+      {/* Footer avec bouton collapse */}
+      {!collapsed && (
+        <div
+          style={{
+            padding: '16px 24px',
+            borderTop: '1px solid #e2e8f0',
+          }}
+        >
+          <Button
+            type="text"
+            icon={<MenuUnfoldOutlined />}
+            onClick={toggleCollapsed}
+            style={{
+              width: '100%',
+              color: '#64748b',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              height: '36px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            Réduire
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

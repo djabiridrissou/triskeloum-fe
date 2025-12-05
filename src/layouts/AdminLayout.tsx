@@ -109,22 +109,14 @@ const AdminLayout = () => {
                     <div
                         style={{
                             flex: 1,
-                            padding: isMobile ? '16px' : '24px',
+                            padding: isMobile ? '16px' : '0px',
                             background: '#f5f5f5',
                             overflow: 'auto',
+                            display: 'flex',
+                            flexDirection: 'column',
                         }}
                     >
-                        <div
-                            style={{
-                                background: '#fff',
-                                padding: '24px',
-                                borderRadius: '8px',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                               // minHeight: 'calc(102vh - 200px)',
-                            }}
-                        >
-                            <Outlet />
-                        </div>
+                        <Outlet />
                     </div>
                 </div>
             </div>

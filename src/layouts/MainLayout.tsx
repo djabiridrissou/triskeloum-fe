@@ -7,12 +7,11 @@ import Sidebar from '../components/Sidebar';
 
 const MainLayout: React.FC = () => {
     return (
-        <div className=" flex flex-col !overflow-y-hidden">
+        <div className="flex flex-col">
             <Navbar />
-            <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-1">
                 <Sidebar />
-                {/* Le contenu des pages enfants sera rendu ici */}
-                <main className="flex-1 !overflow-y-hidden">
+                <main className="flex-1">
                     <Outlet />
                 </main>
             </div>
