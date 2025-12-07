@@ -8,13 +8,15 @@ import {
     LinkIcon,
     XMarkIcon,
     ChevronLeftIcon,
-    ChevronRightIcon
+    ChevronRightIcon,
+    PhoneIcon
 } from '@heroicons/react/24/outline';
 import { useLoadUserQuery } from '../../services/api';
 import axiosClient from '../../services/axiosClient';
 import toast from 'react-hot-toast';
 import { useSocket, setCurrentUserId } from '../../contexts/SocketContext';
 import { useLocation, useParams } from 'react-router-dom';
+import { VoiceRoom } from '../../components/VoiceRoom';
 
 const getAuthHeader = () => {
     const token = localStorage.getItem('accessToken');
@@ -111,6 +113,7 @@ export default function CRMPage() {
     const selectedRoomRef = useRef<Room | null>(null);
     const currentUserRef = useRef(currentUser);
     const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+    const [isVoiceRoomActive, setIsVoiceRoomActive] = useState(false);
 
     // Mettre à jour le user ID global pour les notifications
     useEffect(() => {
@@ -258,13 +261,13 @@ export default function CRMPage() {
         if (!socket) return;
 
         const handleMessageSeen = ({ messageId, seenAt }: any) => {
-            setMessages(prev => prev.map(msg => 
+            setMessages(prev => prev.map(msg =>
                 msg.id === messageId ? { ...msg, seenAt } : msg
             ));
-            
+
             setRooms(prev => prev.map(room => ({
                 ...room,
-                messages: room.messages?.map(msg => 
+                messages: room.messages?.map(msg =>
                     msg.id === messageId ? { ...msg, seenAt } : msg
                 ) || []
             })));
@@ -274,6 +277,33 @@ export default function CRMPage() {
 
         return () => {
             socket.off('message:seen', handleMessageSeen);
+        };
+    }, [socket]);
+
+    // Listener: Salon vocal démarré
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleVoiceRoomStarted = (data: { roomId: number }) => {
+            console.log('🎙️ Voice room started:', data.roomId);
+            if (selectedRoomRef.current?.id === data.roomId) {
+                setIsVoiceRoomActive(true);
+            }
+        };
+
+        const handleVoiceRoomEnded = (data: { roomId: number }) => {
+            console.log('🔇 Voice room ended:', data.roomId);
+            if (selectedRoomRef.current?.id === data.roomId) {
+                setIsVoiceRoomActive(false);
+            }
+        };
+
+        socket.on('voice_room:started', handleVoiceRoomStarted);
+        socket.on('voice_room:ended', handleVoiceRoomEnded);
+
+        return () => {
+            socket.off('voice_room:started', handleVoiceRoomStarted);
+            socket.off('voice_room:ended', handleVoiceRoomEnded);
         };
     }, [socket]);
 
@@ -733,6 +763,17 @@ export default function CRMPage() {
 
                         {/* Actions */}
                         <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => setIsVoiceRoomActive(!isVoiceRoomActive)}
+                                className={`p-2 rounded-lg transition-colors ${
+                                    isVoiceRoomActive
+                                        ? 'bg-green-100 hover:bg-green-200 text-green-600'
+                                        : 'hover:bg-gray-100 text-gray-600'
+                                }`}
+                                title={isVoiceRoomActive ? 'Raccrocher' : 'Démarrer un appel vocal'}
+                            >
+                                <PhoneIcon className="w-5 h-5" />
+                            </button>
                             <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
                                 <LinkIcon className="w-5 h-5 text-gray-600" />
                             </button>
@@ -779,6 +820,31 @@ export default function CRMPage() {
                                         )}
 
                                         <div className="max-w-md">
+                                            {/* Voice Room Invitation */}
+                                            {(msg as any).metadata?.type === 'voice_room_invitation' && (
+                                                <div className="mb-2 p-4 border-2 border-green-200 bg-green-50 rounded-lg">
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+                                                            <PhoneIcon className="w-5 h-5 text-white" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-semibold text-green-900">
+                                                                Invitation au salon vocal
+                                                            </p>
+                                                            <p className="text-sm text-green-700">
+                                                                {(msg as any).metadata?.voiceRoomName}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => window.location.href = '/admin/voice-rooms'}
+                                                        className="w-full mt-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                                                    >
+                                                        Voir le salon
+                                                    </button>
+                                                </div>
+                                            )}
+
                                             {/* Message bubble */}
                                             <div
                                                 className={`px-4 py-2 rounded-2xl ${
@@ -936,6 +1002,14 @@ export default function CRMPage() {
                             </button>
                         </form>
                     </div>
+
+                    {/* Voice Room Widget */}
+                    {isVoiceRoomActive && (
+                        <VoiceRoom
+                            roomId={selectedRoom.id}
+                            onClose={() => setIsVoiceRoomActive(false)}
+                        />
+                    )}
                 </div>
             ) : (
                 <div className="flex -1 flex flex-col items-center justify-center bg-white w-full">

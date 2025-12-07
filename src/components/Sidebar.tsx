@@ -1,4 +1,3 @@
-// src/components/Sidebar.tsx
 import React, { useState, useEffect } from 'react';
 import { Button } from 'antd';
 import {
@@ -8,15 +7,14 @@ import {
   AppstoreOutlined,
   UnorderedListOutlined,
   DownOutlined,
-  RightOutlined,
   BarsOutlined,
   FireOutlined,
   TeamOutlined,
   MessageOutlined,
-  BellOutlined,
   FileTextOutlined,
   VideoCameraOutlined,
-  QuestionCircleOutlined
+  QuestionCircleOutlined,
+  AudioOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -41,6 +39,7 @@ const Sidebar = () => {
       '/admin': '1',
       '/admin/users': '2',
       '/admin/crm': '3',
+      '/admin/voice-rooms': '3-1',
       '/admin/courses/exercises': '4',
       '/admin/courses/reels': '5',
       '/admin/courses/quotes': '6',
@@ -120,6 +119,12 @@ const Sidebar = () => {
         path: '/admin/crm',
       },
       {
+        key: '3-1',
+        icon: <AudioOutlined />,
+        label: 'Salons Vocaux',
+        path: '/admin/voice-rooms',
+      },
+      {
         key: '5',
         icon: <VideoCameraOutlined />,
         label: 'Reels',
@@ -146,7 +151,6 @@ const Sidebar = () => {
   const handleMenuClick = (item: MenuItem) => {
     setSelectedKey(item.key);
     
-    // ✅ Si c'est un parent avec children, toggle l'ouverture
     if (item.children) {
       setOpenKeys(prev => 
         prev.includes(item.key) 
@@ -155,7 +159,6 @@ const Sidebar = () => {
       );
     }
     
-    // ✅ Si c'est un lien, naviguer
     if (item.path) {
       navigate(item.path);
     }
