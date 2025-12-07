@@ -35,7 +35,8 @@ interface VoiceRoomData {
         lastname: string;
     }>;
     activeParticipantIds: number[];
-    createdAt: string;
+    createdAt?: string;
+    created_at?: string;
 }
 
 export default function VoiceRoomsPage() {
@@ -111,7 +112,10 @@ export default function VoiceRoomsPage() {
             setIsLoading(true);
             const response = await axiosClient.get(
                 `${import.meta.env.VITE_BASE_URL}/app/voice-rooms`,
-                { headers: getAuthHeader() }
+                {
+                    headers: getAuthHeader(),
+                    params: { status: 'all' }
+                }
             );
             console.log('Voice rooms response:', response.data);
             setVoiceRooms(response.data.payload || []);
@@ -220,8 +224,11 @@ function VoiceRoomCard({ room, currentUser, onJoin, isJoined }: {
     onJoin: () => void;
     isJoined: boolean;
 }) {
-    const activeCount = room.activeParticipantIds.length;
+    const activeCount = room.activeParticipantIds?.length ?? 0;
     const isCreator = currentUser?.id === room.creator.id;
+    const createdLabel = room.createdAt || (room as any).created_at;
+    const createdText = createdLabel ? new Date(createdLabel).toLocaleString() : null;
+    const participants = room.participants || [];
 
     return (
         <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
@@ -241,6 +248,12 @@ function VoiceRoomCard({ room, currentUser, onJoin, isJoined }: {
                 )}
             </div>
 
+            {createdText && (
+                <div className="text-xs text-gray-500 mb-2">
+                    Créé le {createdText}
+                </div>
+            )}
+
             {/* Creator */}
             <div className="flex items-center gap-2 mb-4 text-sm text-gray-600">
                 <UsersIcon className="w-4 h-4" />
@@ -250,7 +263,7 @@ function VoiceRoomCard({ room, currentUser, onJoin, isJoined }: {
             {/* Participants */}
             <div className="flex items-center gap-2 mb-4">
                 <div className="flex -space-x-2">
-                    {room.participants.slice(0, 5).map((participant, idx) => (
+                    {participants.slice(0, 5).map((participant, idx) => (
                         <div
                             key={participant.id}
                             className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-white text-xs font-medium border-2 border-white"
@@ -259,14 +272,14 @@ function VoiceRoomCard({ room, currentUser, onJoin, isJoined }: {
                             {participant.firstname[0]}{participant.lastname[0]}
                         </div>
                     ))}
-                    {room.participants.length > 5 && (
+                    {participants.length > 5 && (
                         <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs font-medium border-2 border-white">
-                            +{room.participants.length - 5}
+                            +{participants.length - 5}
                         </div>
                     )}
                 </div>
                 <span className="text-sm text-gray-600">
-                    {activeCount} / {room.participants.length} actif{activeCount > 1 ? 's' : ''}
+                    {activeCount} / {participants.length} actif{activeCount > 1 ? 's' : ''}
                 </span>
             </div>
 

@@ -47,7 +47,7 @@ interface Comment {
 }
 
 interface Participant {
-  uid: number;
+  uid: number | string;
   isSpeaking?: boolean;
 }
 
@@ -462,13 +462,13 @@ export const GroupVoiceRoom: React.FC<GroupVoiceRoomProps> = ({ voiceRoomId, onC
             <span className="label">Quitter</span>
           </button>
         </div>
-
+{/* 
         <RecordingControls
           isCreator={isCreator}
           isRecording={voiceRoomData?.isRecording || false}
           onStartRecording={handleStartRecording}
           onStopRecording={handleStopRecording}
-        />
+        /> */}
       </div>
     </div>
   );
