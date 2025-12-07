@@ -301,6 +301,7 @@ function CreateVoiceRoomModal({ onClose, onCreated }: {
     const [users, setUsers] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     useEffect(() => {
         fetchUsers();
@@ -313,7 +314,12 @@ function CreateVoiceRoomModal({ onClose, onCreated }: {
                 { headers: getAuthHeader() }
             );
             console.log('Users response:', response.data);
-            const usersData = response.data.payload || response.data.data || [];
+            const usersData =
+                response.data?.payload?.users ||
+                response.data?.payload ||
+                response.data?.data ||
+                [];
+
             setUsers(Array.isArray(usersData) ? usersData : []);
         } catch (error: any) {
             console.error('Error fetching users:', error);
@@ -366,6 +372,7 @@ function CreateVoiceRoomModal({ onClose, onCreated }: {
     const filteredUsers = users.filter(user =>
         `${user.firstname} ${user.lastname}`.toLowerCase().includes(searchQuery.toLowerCase())
     );
+    const selectedUsers = users.filter((u) => selectedUserIds.includes(u.id));
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -432,33 +439,77 @@ function CreateVoiceRoomModal({ onClose, onCreated }: {
                         <label className="block text-sm font-medium text-black mb-2">
                             Inviter des participants
                         </label>
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black mb-3"
-                            placeholder="Rechercher un utilisateur..."
-                        />
-                        <div className="border border-gray-200 rounded-lg max-h-60 overflow-y-auto">
-                            {filteredUsers.map(user => (
-                                <label
-                                    key={user.id}
-                                    className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer transition-colors"
-                                >
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedUserIds.includes(user.id)}
-                                        onChange={() => toggleUser(user.id)}
-                                        className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
-                                    />
-                                    <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-white text-xs font-medium">
-                                        {user.firstname[0]}{user.lastname[0]}
-                                    </div>
-                                    <span className="text-sm text-black">
+
+                        {selectedUsers.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-3">
+                                {selectedUsers.map((user) => (
+                                    <span
+                                        key={user.id}
+                                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 border border-gray-200 text-sm"
+                                    >
+                                        <span className="w-7 h-7 rounded-full bg-gray-800 text-white flex items-center justify-center text-xs font-semibold">
+                                            {user.firstname[0]}{user.lastname[0]}
+                                        </span>
                                         {user.firstname} {user.lastname}
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleUser(user.id)}
+                                            className="text-gray-500 hover:text-black"
+                                        >
+                                            <XMarkIcon className="w-4 h-4" />
+                                        </button>
                                     </span>
-                                </label>
-                            ))}
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="relative">
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => {
+                                    setSearchQuery(e.target.value);
+                                    setIsDropdownOpen(true);
+                                }}
+                                onFocus={() => setIsDropdownOpen(true)}
+                                onBlur={() => setTimeout(() => setIsDropdownOpen(false), 150)}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black mb-2"
+                                placeholder="Rechercher un utilisateur..."
+                            />
+
+                            {isDropdownOpen && (
+                                <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                    {filteredUsers.length === 0 && (
+                                        <div className="px-4 py-3 text-sm text-gray-500">
+                                            Aucun utilisateur trouvé
+                                        </div>
+                                    )}
+                                    {filteredUsers.map(user => (
+                                        <label
+                                            key={user.id}
+                                            className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer transition-colors"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedUserIds.includes(user.id)}
+                                                onChange={() => toggleUser(user.id)}
+                                                className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                                            />
+                                            <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-white text-xs font-medium">
+                                                {user.firstname[0]}{user.lastname[0]}
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-sm text-black">
+                                                    {user.firstname} {user.lastname}
+                                                </span>
+                                                {user.email && (
+                                                    <span className="text-xs text-gray-500">{user.email}</span>
+                                                )}
+                                            </div>
+                                        </label>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                         {selectedUserIds.length > 0 && (
                             <p className="text-sm text-gray-600 mt-2">
