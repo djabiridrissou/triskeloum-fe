@@ -20,6 +20,7 @@ import Faq from "./pages/courses/Faq";
 import CourseDetail from "./components/CourseDetail";
 import Users from "./pages/admin/Users";
 import CRM from "./pages/admin/CRM";
+import VoiceRooms from "./pages/admin/VoiceRooms";
 import Notifications from "./pages/admin/Notifications";
 import LandingPage from "./pages/public/LandingPage";
 import { SocketProvider } from "./contexts/SocketContext";
@@ -62,6 +63,7 @@ const App = () => {
               <Route path="/admin/users" element={<Users />} />
               <Route path="/admin/crm" element={<CRM />} />
               <Route path="/admin/crm/rooms/:roomId" element={<CRM />} />
+              <Route path="/admin/voice-rooms" element={<VoiceRooms />} />
               <Route path="/admin/notifications" element={<Notifications />} />
               <Route path="/admin/courses/categories" element={<Categories />} />
               <Route path="/admin/levels" element={<Levels />} />
