@@ -109,6 +109,10 @@ export const api = createApi({
         'Reels',
         'Faqs',
         'Quotes',
+        'LandingPageContent',
+        'LandingServices',
+        'PricingPlans',
+        'FormationTags',
     ],
     endpoints: (builder) => ({
         // ========== AUTH ==========
@@ -150,6 +154,23 @@ export const api = createApi({
         loadUser: builder.query<ApiResponse<any>, any>({
             query: () => '/auth/load-user',
             providesTags: ['User'],
+        }),
+
+        updateUserProfile: builder.mutation<ApiResponse<any>, { firstname?: string; lastname?: string; phone?: string }>({
+            query: (data) => ({
+                url: '/auth/update-user-info',
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['User'],
+        }),
+
+        updatePassword: builder.mutation<ApiResponse<any>, { currentPassword: string; newPassword: string }>({
+            query: (data) => ({
+                url: '/auth/update-password',
+                method: 'PUT',
+                body: data,
+            }),
         }),
 
         // ========== ADMIN DASHBOARD ==========
@@ -417,14 +438,15 @@ export const api = createApi({
         }),
 
         // ========== ADMIN EXERCISES ==========
-        getAdminExercises: builder.query<ApiResponse<any>, { page?: number; limit?: number; search?: string; type?: string }>({
-            query: ({ page = 1, limit = 10, search = '', type = '' }) => {
+        getAdminExercises: builder.query<ApiResponse<any>, { page?: number; limit?: number; search?: string; type?: string; isActive?: boolean | undefined }>({
+            query: ({ page = 1, limit = 10, search = '', type = '', isActive = undefined }) => {
                 const params = new URLSearchParams({
                     page: page.toString(),
                     limit: limit.toString(),
                 });
                 if (search) params.append('search', search);
                 if (type) params.append('type', type);
+                if (isActive !== undefined) params.append('isActive', isActive.toString());
                 return `/admin/exercises?${params.toString()}`;
             },
             providesTags: ['Exercises'],
@@ -573,6 +595,115 @@ export const api = createApi({
             invalidatesTags: ['Quotes'],
         }),
 
+        // ========== LANDING PAGE - PUBLIC ==========
+        getLandingPageContent: builder.query<ApiResponse<any>, void>({
+            query: () => '/app/landing-page/content',
+            providesTags: ['LandingPageContent'],
+        }),
+
+        getLandingServices: builder.query<ApiResponse<any>, void>({
+            query: () => '/app/landing-page/services',
+            providesTags: ['LandingServices'],
+        }),
+
+        getPricingPlans: builder.query<ApiResponse<any>, void>({
+            query: () => '/app/landing-page/pricing',
+            providesTags: ['PricingPlans'],
+        }),
+
+        getFormationTags: builder.query<ApiResponse<any>, void>({
+            query: () => '/app/landing-page/tags',
+            providesTags: ['FormationTags'],
+        }),
+
+        // ========== LANDING PAGE - ADMIN ==========
+        updateLandingPageContent: builder.mutation<ApiResponse<any>, { section: string; data: any }>({
+            query: ({ section, data }) => ({
+                url: `/app/admin/landing-page/content/${section}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['LandingPageContent'],
+        }),
+
+        createLandingService: builder.mutation<ApiResponse<any>, any>({
+            query: (data) => ({
+                url: '/app/admin/landing-page/services',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['LandingServices'],
+        }),
+
+        updateLandingService: builder.mutation<ApiResponse<any>, { id: number; data: any }>({
+            query: ({ id, data }) => ({
+                url: `/app/admin/landing-page/services/${id}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['LandingServices'],
+        }),
+
+        deleteLandingService: builder.mutation<ApiResponse<null>, number>({
+            query: (id) => ({
+                url: `/app/admin/landing-page/services/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['LandingServices'],
+        }),
+
+        createPricingPlan: builder.mutation<ApiResponse<any>, any>({
+            query: (data) => ({
+                url: '/app/admin/landing-page/pricing',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['PricingPlans'],
+        }),
+
+        updatePricingPlan: builder.mutation<ApiResponse<any>, { id: number; data: any }>({
+            query: ({ id, data }) => ({
+                url: `/app/admin/landing-page/pricing/${id}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['PricingPlans'],
+        }),
+
+        deletePricingPlan: builder.mutation<ApiResponse<null>, number>({
+            query: (id) => ({
+                url: `/app/admin/landing-page/pricing/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['PricingPlans'],
+        }),
+
+        createFormationTag: builder.mutation<ApiResponse<any>, any>({
+            query: (data) => ({
+                url: '/app/admin/landing-page/tags',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['FormationTags'],
+        }),
+
+        updateFormationTag: builder.mutation<ApiResponse<any>, { id: number; data: any }>({
+            query: ({ id, data }) => ({
+                url: `/app/admin/landing-page/tags/${id}`,
+                method: 'PUT',
+                body: data,
+            }),
+            invalidatesTags: ['FormationTags'],
+        }),
+
+        deleteFormationTag: builder.mutation<ApiResponse<null>, number>({
+            query: (id) => ({
+                url: `/app/admin/landing-page/tags/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['FormationTags'],
+        }),
+
     }),
 });
 
@@ -580,6 +711,8 @@ export const {
     useLoginMutation,
     useLoadUserQuery,
     useLogoutMutation,
+    useUpdateUserProfileMutation,
+    useUpdatePasswordMutation,
     useGetDashboardOverviewQuery,
     useGetUsersGrowthChartQuery,
     useGetUsersByLevelQuery,
@@ -629,4 +762,18 @@ export const {
     useCreateQuoteMutation,
     useUpdateQuoteMutation,
     useDeleteQuoteMutation,
+    useGetLandingPageContentQuery,
+    useGetLandingServicesQuery,
+    useGetPricingPlansQuery,
+    useGetFormationTagsQuery,
+    useUpdateLandingPageContentMutation,
+    useCreateLandingServiceMutation,
+    useUpdateLandingServiceMutation,
+    useDeleteLandingServiceMutation,
+    useCreatePricingPlanMutation,
+    useUpdatePricingPlanMutation,
+    useDeletePricingPlanMutation,
+    useCreateFormationTagMutation,
+    useUpdateFormationTagMutation,
+    useDeleteFormationTagMutation,
 } = api;

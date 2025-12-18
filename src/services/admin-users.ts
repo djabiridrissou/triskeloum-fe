@@ -72,5 +72,13 @@ export const adminUsersService = {
       headers: getAuthHeader()
     });
     return response.data;
+  },
+
+  // Récupérer les statistiques des utilisateurs
+  getUsersStats: async () => {
+    const response = await axiosClient.get(`${BASE_URL}/admin/dashboard/overview`, {
+      headers: getAuthHeader()
+    });
+    return response.data?.payload?.kpis;
   }
 };

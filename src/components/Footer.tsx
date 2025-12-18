@@ -1,7 +1,21 @@
 import { useLanguage } from "../contexts/LanguageContext";
+import { useGetLandingPageContentQuery } from "../services/api";
+import { Facebook, Instagram, Twitter, Linkedin, Youtube, Github } from "lucide-react";
 
 const Footer = () => {
     const { lang, t } = useLanguage();
+    const { data: contentData } = useGetLandingPageContentQuery();
+
+    const socialSection = contentData?.payload?.find((s: any) => s.section === 'social');
+    const socials = socialSection?.metadata || {};
+    const socialLinks = [
+        { key: 'facebook', icon: Facebook, url: socials.facebook },
+        { key: 'instagram', icon: Instagram, url: socials.instagram },
+        { key: 'twitter', icon: Twitter, url: socials.twitter },
+        { key: 'linkedin', icon: Linkedin, url: socials.linkedin },
+        { key: 'youtube', icon: Youtube, url: socials.youtube },
+        { key: 'github', icon: Github, url: socials.github },
+    ].filter(s => !!s.url);
 
     const links = {
         services: [
@@ -50,14 +64,21 @@ const Footer = () => {
                                 "Digital spiritual development practice. Healing the wounds of the soul and guiding each person on a deep journey of self-discovery."
                             )}
                         </p>
-                        <div className="flex gap-4">
-                            {/* Social placeholder icons */}
-                            {['instagram', 'facebook', 'youtube'].map((social) => (
-                                <a key={social} href="#" className="w-10 h-10 rounded-full bg-amber-900/20 border border-amber-700/30 flex items-center justify-center text-amber-500 hover:bg-amber-800/30 hover:border-amber-600/50 transition-colors">
-                                    <span className="text-xs uppercase">{social[0]}</span>
-                                </a>
-                            ))}
-                        </div>
+                        {socialLinks.length > 0 && (
+                            <div className="flex gap-4">
+                                {socialLinks.map(({ key, icon: Icon, url }) => (
+                                    <a
+                                        key={key}
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-10 h-10 rounded-full bg-amber-900/20 border border-amber-700/30 flex items-center justify-center text-amber-500 hover:bg-amber-800/30 hover:border-amber-600/50 transition-colors"
+                                    >
+                                        <Icon className="w-5 h-5" />
+                                    </a>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Services */}

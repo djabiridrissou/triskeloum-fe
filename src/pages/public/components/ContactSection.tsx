@@ -1,7 +1,21 @@
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { useGetLandingPageContentQuery } from '../../../services/api';
 
 const ContactSection = () => {
   const { lang, t } = useLanguage();
+  const { data: contentData } = useGetLandingPageContentQuery();
+
+  // Get contact section content from API or use hardcoded fallback
+  const contactSection = contentData?.payload?.find((section: any) => section.section === 'contact');
+  const title = contactSection ? (lang === 'fr' ? contactSection.titleFr : contactSection.titleEn) : t('Commencez votre voyage', 'Begin Your Journey');
+  const subtitle = contactSection ? (lang === 'fr' ? contactSection.subtitleFr : contactSection.subtitleEn) : t('CONTACT', 'CONTACT');
+  const description = contactSection ? (lang === 'fr' ? contactSection.descriptionFr : contactSection.descriptionEn) : t("Prêt à entreprendre votre transformation intérieure ? Contactez-nous directement sur WhatsApp pour une première consultation.", "Ready to begin your inner transformation? Contact us directly on WhatsApp for an initial consultation.");
+  const whatsapp = contactSection?.metadata?.whatsapp || '22890000000';
+  const email = contactSection?.metadata?.email || 'contact@triskeloum.com';
+  const meta = contactSection?.metadata || {};
+  const location = contactSection
+    ? (lang === 'fr' ? (meta.locationFr ?? meta.location_fr ?? '') : (meta.locationEn ?? meta.location_en ?? ''))
+    : t('Cabinet Digital - Monde entier', 'Digital Practice - Worldwide');
 
   return (
     <section id="contact" className="relative py-24 bg-gradient-to-b from-black to-stone-950 overflow-hidden">
@@ -15,21 +29,18 @@ const ContactSection = () => {
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Header */}
         <span className="inline-block px-4 py-1 mb-4 text-xs tracking-[0.3em] text-amber-500 border border-amber-600/30 rounded-full">
-          {t('CONTACT', 'CONTACT')}
+          {subtitle}
         </span>
         <h2 className="text-3xl md:text-5xl font-light text-white mb-6">
-          {t('Commencez votre voyage', 'Begin Your Journey')}
+          {title}
         </h2>
         <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
-          {t(
-            "Prêt à entreprendre votre transformation intérieure ? Contactez-nous directement sur WhatsApp pour une première consultation.",
-            "Ready to begin your inner transformation? Contact us directly on WhatsApp for an initial consultation."
-          )}
+          {description}
         </p>
 
         {/* WhatsApp CTA */}
         <a
-          href="https://wa.me/22890000000"
+          href={`https://wa.me/${whatsapp}`}
           target="_blank"
           rel="noopener noreferrer"
           className="group inline-flex items-center gap-4 px-10 py-5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 rounded-full transition-all duration-300 hover:shadow-2xl hover:shadow-green-500/30 hover:scale-105"
@@ -50,14 +61,14 @@ const ContactSection = () => {
             <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
-            <span>contact@triskeloum.com</span>
+            <span>{email}</span>
           </div>
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <span>{t('Cabinet Digital - Monde entier', 'Digital Practice - Worldwide')}</span>
+            <span>{location}</span>
           </div>
         </div>
       </div>

@@ -1,16 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
     MicrophoneIcon,
     PlusIcon,
     UsersIcon,
     XMarkIcon,
-    PhoneIcon
+    PhoneIcon,
+    MagnifyingGlassIcon,
+    ClockIcon,
+    DocumentIcon,
+    ChatBubbleLeftIcon,
+    PaperAirplaneIcon,
+    StopIcon,
+    ArrowUpTrayIcon
 } from '@heroicons/react/24/outline';
+import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa';
 import { useLoadUserQuery } from '../../services/api';
 import axiosClient from '../../services/axiosClient';
 import toast from 'react-hot-toast';
 import { useSocket } from '../../contexts/SocketContext';
-import { GroupVoiceRoom } from '../../components/GroupVoiceRoom';
+import AgoraService from '../../services/AgoraService';
 
 const getAuthHeader = () => {
     const token = localStorage.getItem('accessToken');
@@ -37,6 +45,33 @@ interface VoiceRoomData {
     activeParticipantIds: number[];
     createdAt?: string;
     created_at?: string;
+    endedAt?: string;
+    ended_at?: string;
+}
+
+interface VoiceRoomComment {
+    id: number;
+    content: string;
+    user: {
+        id: number;
+        firstname: string;
+        lastname: string;
+    };
+    createdAt: string;
+}
+
+interface VoiceRoomFile {
+    id: number;
+    filename: string;
+    path: string;
+    mimetype: string;
+    size: number;
+    uploadedBy: {
+        id: number;
+        firstname: string;
+        lastname: string;
+    };
+    createdAt: string;
 }
 
 export default function VoiceRoomsPage() {
@@ -45,13 +80,35 @@ export default function VoiceRoomsPage() {
     const { socket } = useSocket();
 
     const [voiceRooms, setVoiceRooms] = useState<VoiceRoomData[]>([]);
+    const [selectedRoom, setSelectedRoom] = useState<VoiceRoomData | null>(null);
+    const [roomComments, setRoomComments] = useState<VoiceRoomComment[]>([]);
+    const [roomFiles, setRoomFiles] = useState<VoiceRoomFile[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingDetails, setIsLoadingDetails] = useState(false);
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [activeVoiceRoomId, setActiveVoiceRoomId] = useState<number | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'finished'>('all');
+
+    // Voice room state
+    const [isJoined, setIsJoined] = useState(false);
+    const [isMuted, setIsMuted] = useState(false);
+    const [isConnecting, setIsConnecting] = useState(false);
+    const [newComment, setNewComment] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [uploadingFile, setUploadingFile] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const commentsEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         fetchVoiceRooms();
-    }, []);
+    }, [filterStatus]);
+
+    // Auto-select first room on load
+    useEffect(() => {
+        if (voiceRooms.length > 0 && !selectedRoom) {
+            handleSelectRoom(voiceRooms[0]);
+        }
+    }, [voiceRooms]);
 
     // Écouter les événements Socket.IO
     useEffect(() => {
@@ -70,6 +127,9 @@ export default function VoiceRoomsPage() {
                     ? { ...room, activeParticipantIds: data.activeParticipantIds }
                     : room
             ));
+            if (selectedRoom?.id === data.voiceRoomId) {
+                setSelectedRoom(prev => prev ? { ...prev, activeParticipantIds: data.activeParticipantIds } : null);
+            }
         };
 
         const handleUserLeft = (data: { voiceRoomId: number; userId: number; activeParticipantIds: number[] }) => {
@@ -79,122 +139,699 @@ export default function VoiceRoomsPage() {
                     ? { ...room, activeParticipantIds: data.activeParticipantIds }
                     : room
             ));
+            if (selectedRoom?.id === data.voiceRoomId) {
+                setSelectedRoom(prev => prev ? { ...prev, activeParticipantIds: data.activeParticipantIds } : null);
+            }
         };
 
         const handleVoiceRoomEnded = (data: { voiceRoomId: number }) => {
             console.log('🔇 Voice room ended:', data.voiceRoomId);
             setVoiceRooms(prev => prev.map(room =>
                 room.id === data.voiceRoomId
-                    ? { ...room, isActive: false, activeParticipantIds: [] }
+                    ? { ...room, isActive: false, activeParticipantIds: [], endedAt: new Date().toISOString() }
                     : room
             ));
-            if (activeVoiceRoomId === data.voiceRoomId) {
-                setActiveVoiceRoomId(null);
+            if (selectedRoom?.id === data.voiceRoomId) {
+                setSelectedRoom(prev => prev ? { ...prev, isActive: false, activeParticipantIds: [] } : null);
+                handleLeaveRoom();
             }
             toast('Salon vocal terminé', { icon: '🔇' });
+        };
+
+        const handleCommentAdded = (data: { voiceRoomId: number; comment: VoiceRoomComment }) => {
+            if (data.voiceRoomId === selectedRoom?.id) {
+                setRoomComments(prev => [...prev, data.comment]);
+            }
+        };
+
+        const handleFileUploaded = (data: { voiceRoomId: number; file: VoiceRoomFile }) => {
+            if (data.voiceRoomId === selectedRoom?.id) {
+                setRoomFiles(prev => [...prev, data.file]);
+            }
         };
 
         socket.on('voice_room:created', handleVoiceRoomCreated);
         socket.on('voice_room:user_joined', handleUserJoined);
         socket.on('voice_room:user_left', handleUserLeft);
         socket.on('voice_room:ended', handleVoiceRoomEnded);
+        socket.on('voice_room:comment_added', handleCommentAdded);
+        socket.on('voice_room:file_uploaded', handleFileUploaded);
 
         return () => {
             socket.off('voice_room:created', handleVoiceRoomCreated);
             socket.off('voice_room:user_joined', handleUserJoined);
             socket.off('voice_room:user_left', handleUserLeft);
             socket.off('voice_room:ended', handleVoiceRoomEnded);
+            socket.off('voice_room:comment_added', handleCommentAdded);
+            socket.off('voice_room:file_uploaded', handleFileUploaded);
         };
-    }, [socket, activeVoiceRoomId]);
+    }, [socket, selectedRoom]);
+
+    // Auto-scroll to bottom when new comments arrive
+    useEffect(() => {
+        commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [roomComments]);
+
+    // Cleanup on unmount
+    useEffect(() => {
+        return () => {
+            if (isJoined) {
+                handleLeaveRoom();
+            }
+        };
+    }, []);
 
     const fetchVoiceRooms = async () => {
         try {
             setIsLoading(true);
+
+            // Map frontend filter to backend status query parameter
+            const statusParam = filterStatus === 'finished' ? 'finished' : filterStatus === 'active' ? 'active' : 'all';
+
             const response = await axiosClient.get(
-                `${import.meta.env.VITE_BASE_URL}/app/voice-rooms`,
+                `${import.meta.env.VITE_BASE_URL}/app/voice-rooms?status=${statusParam}`,
                 {
-                    headers: getAuthHeader(),
-                    params: { status: 'all' }
+                    headers: getAuthHeader()
                 }
             );
             console.log('Voice rooms response:', response.data);
+
             setVoiceRooms(response.data.payload || []);
         } catch (error: any) {
             console.error('Error fetching voice rooms:', error);
-            console.error('Error details:', error.response?.data);
             toast.error(error.response?.data?.message || 'Erreur lors du chargement des salons vocaux');
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleJoinRoom = (roomId: number) => {
-        setActiveVoiceRoomId(roomId);
+    const handleSelectRoom = async (room: VoiceRoomData) => {
+        setSelectedRoom(room);
+
+        // Fetch room details (comments and files) for both active and finished rooms
+        try {
+            setIsLoadingDetails(true);
+
+            // Fetch comments
+            const commentsResponse = await axiosClient.get(
+                `${import.meta.env.VITE_BASE_URL}/app/voice-rooms/${room.id}/comments`,
+                { headers: getAuthHeader() }
+            );
+            setRoomComments(commentsResponse.data.payload || []);
+
+            // Fetch files
+            const filesResponse = await axiosClient.get(
+                `${import.meta.env.VITE_BASE_URL}/app/voice-rooms/${room.id}/files`,
+                { headers: getAuthHeader() }
+            );
+            setRoomFiles(filesResponse.data.payload || []);
+        } catch (error: any) {
+            console.error('Error fetching room details:', error);
+            // Don't show error toast - this is optional data
+            setRoomComments([]);
+            setRoomFiles([]);
+        } finally {
+            setIsLoadingDetails(false);
+        }
     };
 
-    const handleLeaveRoom = () => {
-        setActiveVoiceRoomId(null);
+    // Voice room functions
+    const handleJoinRoom = async () => {
+        if (!selectedRoom) return;
+
+        try {
+            setIsConnecting(true);
+
+            // Join voice room and get Agora credentials from backend
+            const response = await axiosClient.post(
+                `${import.meta.env.VITE_BASE_URL}/app/voice-rooms/${selectedRoom.id}/join`,
+                {},
+                { headers: getAuthHeader() }
+            );
+
+            const { appId, token, channelName, uid } = response.data.payload;
+
+            // Initialize Agora
+            AgoraService.initialize();
+
+            // Join Agora channel with backend-generated token
+            await AgoraService.join(appId, channelName, token, uid);
+
+            setIsJoined(true);
+            toast.success('Connecté au salon vocal');
+        } catch (error: any) {
+            console.error('Error joining voice room:', error);
+            toast.error(error.response?.data?.message || 'Impossible de rejoindre le salon vocal');
+        } finally {
+            setIsConnecting(false);
+        }
+    };
+
+    const handleLeaveRoom = async () => {
+        try {
+            await AgoraService.leave();
+            setIsJoined(false);
+            setIsMuted(false);
+            toast('Déconnecté du salon vocal', { icon: '👋' });
+        } catch (error) {
+            console.error('Error leaving voice room:', error);
+        }
+    };
+
+    const toggleMute = async () => {
+        try {
+            await AgoraService.toggleMute();
+            setIsMuted(!isMuted);
+        } catch (error) {
+            console.error('Error toggling mute:', error);
+            toast.error('Erreur lors du changement de micro');
+        }
+    };
+
+    const handleSendComment = async () => {
+        if (!newComment.trim() || !selectedRoom || isSubmitting) return;
+
+        try {
+            setIsSubmitting(true);
+            await axiosClient.post(
+                `${import.meta.env.VITE_BASE_URL}/app/voice-rooms/${selectedRoom.id}/comments`,
+                { content: newComment.trim() },
+                { headers: getAuthHeader() }
+            );
+            setNewComment('');
+        } catch (error: any) {
+            console.error('Error sending comment:', error);
+            toast.error('Erreur lors de l\'envoi du commentaire');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file || !selectedRoom) return;
+
+        try {
+            setUploadingFile(true);
+            const formData = new FormData();
+            formData.append('file', file);
+
+            await axiosClient.post(
+                `${import.meta.env.VITE_BASE_URL}/app/voice-rooms/${selectedRoom.id}/files`,
+                formData,
+                {
+                    headers: {
+                        ...getAuthHeader(),
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+
+            // Refresh files
+            const filesResponse = await axiosClient.get(
+                `${import.meta.env.VITE_BASE_URL}/app/voice-rooms/${selectedRoom.id}/files`,
+                { headers: getAuthHeader() }
+            );
+            setRoomFiles(filesResponse.data.payload || []);
+
+            toast.success('Fichier partagé avec succès');
+        } catch (error: any) {
+            console.error('Error uploading file:', error);
+            toast.error('Erreur lors du partage du fichier');
+        } finally {
+            setUploadingFile(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
+    };
+
+    const filteredRooms = voiceRooms.filter(room =>
+        room.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        room.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const formatDate = (dateString: string | undefined) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        if (date.toDateString() === today.toDateString()) {
+            return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        } else if (date.toDateString() === yesterday.toDateString()) {
+            return 'Hier';
+        } else {
+            return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+        }
+    };
+
+    const formatFileSize = (bytes: number) => {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
-            {/* Header */}
-            <div className="max-w-7xl mx-auto mb-8">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold text-black flex items-center gap-3">
-                            <div className="p-3 bg-black rounded-xl">
-                                <MicrophoneIcon className="w-8 h-8 text-white" />
-                            </div>
-                            Salons Vocaux
-                        </h1>
-                        <p className="text-gray-600 mt-2">
-                            Créez et rejoignez des salons de discussion vocale
-                        </p>
+        <div className="flex h-screen bg-white dark:bg-bg-primary overflow-hidden">
+            {/* SIDEBAR */}
+            <div className="w-80 bg-white dark:bg-bg-tertiary border-r border-gray-200 dark:border-gray-800 flex flex-col flex-shrink-0">
+                {/* Header */}
+                <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] rounded-xl">
+                            <MicrophoneIcon className="w-5 h-5 text-black" />
+                        </div>
+                        <div>
+                            <h1 className="text-base font-semibold text-black dark:text-text-primary">Salons Vocaux</h1>
+                            <p className="text-xs text-gray-500 dark:text-text-tertiary">
+                                {filteredRooms.length} salon{filteredRooms.length !== 1 ? 's' : ''}
+                            </p>
+                        </div>
                     </div>
+
+                    {/* Create Button */}
                     <button
                         onClick={() => setShowCreateModal(true)}
-                        className="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black rounded-lg hover:from-[#B8860B] hover:to-[#D4AF37] transition-colors font-medium text-sm mb-3"
                     >
-                        <PlusIcon className="w-5 h-5" />
+                        <PlusIcon className="w-4 h-4" />
                         Créer un salon
                     </button>
+
+                    {/* Search */}
+                    <div className="relative mb-3">
+                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-600" />
+                        <input
+                            type="text"
+                            placeholder="Rechercher..."
+                            className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-bg-secondary border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+
+                    {/* Filter Tabs */}
+                    <div className="flex gap-1 bg-gray-100 dark:bg-bg-secondary p-1 rounded-lg">
+                        <button
+                            onClick={() => setFilterStatus('all')}
+                            className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                                filterStatus === 'all'
+                                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-text-primary shadow-sm'
+                                    : 'text-gray-600 dark:text-text-tertiary hover:text-gray-900 dark:hover:text-text-primary'
+                            }`}
+                        >
+                            Tous
+                        </button>
+                        <button
+                            onClick={() => setFilterStatus('active')}
+                            className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                                filterStatus === 'active'
+                                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-text-primary shadow-sm'
+                                    : 'text-gray-600 dark:text-text-tertiary hover:text-gray-900 dark:hover:text-text-primary'
+                            }`}
+                        >
+                            Actifs
+                        </button>
+                        <button
+                            onClick={() => setFilterStatus('finished')}
+                            className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                                filterStatus === 'finished'
+                                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-text-primary shadow-sm'
+                                    : 'text-gray-600 dark:text-text-tertiary hover:text-gray-900 dark:hover:text-text-primary'
+                            }`}
+                        >
+                            Terminés
+                        </button>
+                    </div>
+                </div>
+
+                {/* Rooms List */}
+                <div className="flex-1 overflow-y-auto">
+                    {isLoading ? (
+                        <div className="flex items-center justify-center h-full">
+                            <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 dark:border-gray-700 border-t-amber-600 dark:border-t-amber-400"></div>
+                        </div>
+                    ) : filteredRooms.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full px-4 text-center">
+                            <MicrophoneIcon className="w-12 h-12 text-gray-300 dark:text-gray-700 mb-3" />
+                            <p className="font-medium text-gray-600 dark:text-text-secondary text-sm">Aucun salon</p>
+                            <p className="text-xs text-gray-400 dark:text-text-tertiary mt-1">Créez un nouveau salon vocal</p>
+                        </div>
+                    ) : (
+                        <div className="p-2">
+                            {filteredRooms.map(room => (
+                                <button
+                                    key={room.id}
+                                    onClick={() => handleSelectRoom(room)}
+                                    className={`w-full p-3 rounded-lg mb-2 text-left transition-colors ${
+                                        selectedRoom?.id === room.id
+                                            ? 'bg-gradient-to-r from-[#D4AF37]/10 to-[#FFD700]/10 dark:from-[#D4AF37]/20 dark:to-[#FFD700]/20 border border-[#D4AF37]/30 dark:border-[#D4AF37]/50'
+                                            : 'hover:bg-gray-50 dark:hover:bg-gray-800 border border-transparent'
+                                    }`}
+                                >
+                                    <div className="flex items-start justify-between mb-1">
+                                        <h3 className="font-medium text-sm text-gray-900 dark:text-text-primary truncate flex-1">
+                                            {room.name}
+                                        </h3>
+                                        {room.isActive && (
+                                            <div className="flex items-center gap-1 ml-2">
+                                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {room.description && (
+                                        <p className="text-xs text-gray-500 dark:text-text-tertiary line-clamp-1 mb-1">
+                                            {room.description}
+                                        </p>
+                                    )}
+                                    <div className="flex items-center justify-between text-xs">
+                                        <span className="text-gray-500 dark:text-text-tertiary flex items-center gap-1">
+                                            <UsersIcon className="w-3 h-3" />
+                                            {room.activeParticipantIds?.length || 0}/{room.participants?.length || 0}
+                                        </span>
+                                        <span className="text-gray-400 dark:text-text-tertiary">
+                                            {formatDate(room.createdAt || (room as any).created_at)}
+                                        </span>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Voice Rooms Grid */}
-            <div className="max-w-7xl mx-auto">
-                {isLoading ? (
-                    <div className="flex items-center justify-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-black"></div>
-                    </div>
-                ) : voiceRooms.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20">
-                        <div className="p-6 bg-gray-100 rounded-full mb-4">
-                            <MicrophoneIcon className="w-16 h-16 text-gray-400" />
+            {/* MAIN CONTENT */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+                {!selectedRoom ? (
+                    <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-bg-primary">
+                        <div className="text-center">
+                            <div className="p-6 bg-gradient-to-br from-[#D4AF37]/10 to-[#FFD700]/10 dark:from-[#D4AF37]/20 dark:to-[#FFD700]/20 rounded-full inline-block mb-4 border border-[#D4AF37]/30 dark:border-[#D4AF37]/50">
+                                <MicrophoneIcon className="w-12 h-12 text-amber-600 dark:text-amber-400" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-text-primary mb-2">
+                                Sélectionnez un salon vocal
+                            </h3>
+                            <p className="text-gray-500 dark:text-text-tertiary text-sm">
+                                Choisissez un salon dans la liste pour voir les détails
+                            </p>
                         </div>
-                        <h3 className="text-xl font-semibold text-black mb-2">Aucun salon vocal actif</h3>
-                        <p className="text-gray-500 mb-6">Créez un nouveau salon pour commencer</p>
-                        <button
-                            onClick={() => setShowCreateModal(true)}
-                            className="flex items-center gap-2 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-                        >
-                            <PlusIcon className="w-5 h-5" />
-                            Créer un salon
-                        </button>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {voiceRooms.map(room => (
-                            <VoiceRoomCard
-                                key={room.id}
-                                room={room}
-                                currentUser={currentUser}
-                                onJoin={() => handleJoinRoom(room.id)}
-                                isJoined={activeVoiceRoomId === room.id}
-                            />
-                        ))}
-                    </div>
+                    <>
+                        {/* Room Header */}
+                        <div className="p-6 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-bg-tertiary">
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <h2 className="text-2xl font-bold text-gray-900 dark:text-text-primary">
+                                            {selectedRoom.name}
+                                        </h2>
+                                        {selectedRoom.isActive && (
+                                            <div className="flex items-center gap-1 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-3 py-1 rounded-full text-xs font-medium border border-green-200 dark:border-green-700">
+                                                <div className="w-2 h-2 bg-green-600 dark:bg-green-400 rounded-full animate-pulse"></div>
+                                                En cours
+                                            </div>
+                                        )}
+                                        {!selectedRoom.isActive && (
+                                            <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full text-xs font-medium border border-gray-200 dark:border-gray-700">
+                                                Terminé
+                                            </div>
+                                        )}
+                                    </div>
+                                    {selectedRoom.description && (
+                                        <p className="text-gray-600 dark:text-text-secondary text-sm">
+                                            {selectedRoom.description}
+                                        </p>
+                                    )}
+                                </div>
+                                {selectedRoom.isActive && (
+                                    <>
+                                        {!isJoined ? (
+                                            <button
+                                                onClick={handleJoinRoom}
+                                                disabled={isConnecting}
+                                                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black rounded-lg hover:from-[#B8860B] hover:to-[#D4AF37] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                                            >
+                                                {isConnecting ? (
+                                                    <>
+                                                        <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                                                        Connexion...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <PhoneIcon className="w-5 h-5" />
+                                                        Rejoindre
+                                                    </>
+                                                )}
+                                            </button>
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={toggleMute}
+                                                    className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                                    title={isMuted ? "Activer le micro" : "Couper le micro"}
+                                                >
+                                                    {isMuted ? (
+                                                        <FaMicrophoneSlash className="w-5 h-5 text-red-600" />
+                                                    ) : (
+                                                        <FaMicrophone className="w-5 h-5 text-green-600" />
+                                                    )}
+                                                </button>
+                                                <button
+                                                    onClick={handleLeaveRoom}
+                                                    className="flex items-center gap-2 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                                                >
+                                                    <StopIcon className="w-5 h-5" />
+                                                    Quitter
+                                                </button>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Room Info */}
+                            <div className="flex items-center gap-6 text-sm">
+                                <div className="flex items-center gap-2 text-gray-600 dark:text-text-secondary">
+                                    <UsersIcon className="w-4 h-4" />
+                                    <span>
+                                        Par {selectedRoom.creator.firstname} {selectedRoom.creator.lastname}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2 text-gray-600 dark:text-text-secondary">
+                                    <ClockIcon className="w-4 h-4" />
+                                    <span>
+                                        Créé le {new Date(selectedRoom.createdAt || (selectedRoom as any).created_at).toLocaleDateString('fr-FR', {
+                                            day: 'numeric',
+                                            month: 'long',
+                                            year: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        })}
+                                    </span>
+                                </div>
+                                {!selectedRoom.isActive && selectedRoom.endedAt && (
+                                    <div className="flex items-center gap-2 text-gray-600 dark:text-text-secondary">
+                                        <span>
+                                            Terminé le {new Date(selectedRoom.endedAt).toLocaleDateString('fr-FR', {
+                                                day: 'numeric',
+                                                month: 'long',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Participants */}
+                            <div className="mt-4">
+                                <h4 className="text-sm font-medium text-gray-700 dark:text-text-primary mb-3">
+                                    Participants ({selectedRoom.participants?.length || 0})
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedRoom.participants?.map(participant => {
+                                        const isActive = selectedRoom.activeParticipantIds?.includes(participant.id);
+                                        return (
+                                            <div
+                                                key={participant.id}
+                                                className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
+                                                    isActive
+                                                        ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700'
+                                                        : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                                                }`}
+                                            >
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#FFD700] flex items-center justify-center text-black text-xs font-medium shadow-sm">
+                                                    {participant.firstname[0]}{participant.lastname[0]}
+                                                </div>
+                                                <span className="text-sm text-gray-900 dark:text-text-primary">
+                                                    {participant.firstname} {participant.lastname}
+                                                </span>
+                                                {isActive && (
+                                                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Room Content (for both active and finished rooms) */}
+                        <div className="flex-1 flex flex-col overflow-hidden bg-gray-50 dark:bg-bg-primary">
+                            {isLoadingDetails ? (
+                                <div className="flex items-center justify-center h-full">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 dark:border-gray-700 border-t-amber-600 dark:border-t-amber-400"></div>
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Scrollable Content */}
+                                    <div className="flex-1 overflow-y-auto p-6">
+                                        <div className="max-w-4xl mx-auto space-y-6">
+                                            {/* Comments Section */}
+                                            <div className="bg-white dark:bg-bg-tertiary rounded-lg border border-gray-200 dark:border-gray-800 p-6">
+                                                <div className="flex items-center gap-2 mb-4">
+                                                    <ChatBubbleLeftIcon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-text-primary">
+                                                        Commentaires ({roomComments.length})
+                                                    </h3>
+                                                </div>
+                                                {roomComments.length === 0 ? (
+                                                    <p className="text-gray-500 dark:text-text-tertiary text-sm">
+                                                        {selectedRoom.isActive
+                                                            ? "Aucun commentaire pour le moment"
+                                                            : "Aucun commentaire n'a été publié durant ce salon vocal"}
+                                                    </p>
+                                                ) : (
+                                                    <div className="space-y-3">
+                                                        {roomComments.map(comment => (
+                                                            <div
+                                                                key={comment.id}
+                                                                className="flex gap-3 p-3 bg-gray-50 dark:bg-bg-secondary rounded-lg border border-gray-200 dark:border-gray-700"
+                                                            >
+                                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#FFD700] flex items-center justify-center text-black text-xs font-medium shadow-sm flex-shrink-0">
+                                                                    {comment.user.firstname[0]}{comment.user.lastname[0]}
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <div className="flex items-center gap-2 mb-1">
+                                                                        <span className="font-medium text-sm text-gray-900 dark:text-text-primary">
+                                                                            {comment.user.firstname} {comment.user.lastname}
+                                                                        </span>
+                                                                        <span className="text-xs text-gray-500 dark:text-text-tertiary">
+                                                                            {formatDate(comment.createdAt)}
+                                                                        </span>
+                                                                    </div>
+                                                                    <p className="text-sm text-gray-700 dark:text-text-secondary">
+                                                                        {comment.content}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                        <div ref={commentsEndRef} />
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                    {/* Files Section */}
+                                    <div className="bg-white dark:bg-bg-tertiary rounded-lg border border-gray-200 dark:border-gray-800 p-6">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <DocumentIcon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-text-primary">
+                                                Fichiers partagés ({roomFiles.length})
+                                            </h3>
+                                        </div>
+                                        {roomFiles.length === 0 ? (
+                                            <p className="text-gray-500 dark:text-text-tertiary text-sm">
+                                                {selectedRoom.isActive
+                                                    ? "Aucun fichier partagé pour le moment"
+                                                    : "Aucun fichier n'a été partagé durant ce salon vocal"}
+                                            </p>
+                                        ) : (
+                                            <div className="space-y-2">
+                                                {roomFiles.map(file => (
+                                                    <a
+                                                        key={file.id}
+                                                        href={file.path}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-bg-secondary rounded-lg border border-gray-200 dark:border-gray-700 hover:border-amber-500 dark:hover:border-amber-500 transition-colors group"
+                                                    >
+                                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#D4AF37]/10 to-[#FFD700]/10 dark:from-[#D4AF37]/20 dark:to-[#FFD700]/20 flex items-center justify-center border border-[#D4AF37]/30 dark:border-[#D4AF37]/50 flex-shrink-0">
+                                                                <DocumentIcon className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-sm font-medium text-gray-900 dark:text-text-primary truncate group-hover:text-amber-600 dark:group-hover:text-amber-400">
+                                                                    {file.filename}
+                                                                </p>
+                                                                <p className="text-xs text-gray-500 dark:text-text-tertiary">
+                                                                    Par {file.uploadedBy.firstname} {file.uploadedBy.lastname} • {formatFileSize(file.size)}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <span className="text-xs text-gray-400 dark:text-text-tertiary flex-shrink-0 ml-2">
+                                                            {formatDate(file.createdAt)}
+                                                        </span>
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Chat Input (only for active rooms) */}
+                                    {selectedRoom.isActive && (
+                                        <div className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-bg-tertiary p-4">
+                                            <div className="max-w-4xl mx-auto flex gap-3">
+                                                <input
+                                                    type="file"
+                                                    ref={fileInputRef}
+                                                    onChange={handleFileUpload}
+                                                    className="hidden"
+                                                />
+                                                <button
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                    disabled={uploadingFile || !selectedRoom}
+                                                    className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                    title="Partager un fichier"
+                                                >
+                                                    {uploadingFile ? (
+                                                        <div className="w-5 h-5 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <ArrowUpTrayIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                                                    )}
+                                                </button>
+                                                <input
+                                                    type="text"
+                                                    value={newComment}
+                                                    onChange={(e) => setNewComment(e.target.value)}
+                                                    onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendComment()}
+                                                    placeholder="Écrire un message..."
+                                                    disabled={isSubmitting || !selectedRoom}
+                                                    className="flex-1 px-4 py-3 bg-gray-50 dark:bg-bg-secondary border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-text-primary placeholder-gray-400 dark:placeholder-gray-600 focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                                />
+                                                <button
+                                                    onClick={handleSendComment}
+                                                    disabled={isSubmitting || !newComment.trim() || !selectedRoom}
+                                                    className="p-3 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black rounded-lg hover:from-[#B8860B] hover:to-[#D4AF37] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                    title="Envoyer"
+                                                >
+                                                    {isSubmitting ? (
+                                                        <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <PaperAirplaneIcon className="w-5 h-5" />
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </>
                 )}
             </div>
 
@@ -205,104 +842,11 @@ export default function VoiceRoomsPage() {
                     onCreated={fetchVoiceRooms}
                 />
             )}
-
-            {/* Active Voice Room Widget */}
-            {activeVoiceRoomId && (
-                <GroupVoiceRoom
-                    voiceRoomId={activeVoiceRoomId}
-                    onClose={handleLeaveRoom}
-                />
-            )}
         </div>
     );
 }
 
-// Voice Room Card Component
-function VoiceRoomCard({ room, currentUser, onJoin, isJoined }: {
-    room: VoiceRoomData;
-    currentUser: any;
-    onJoin: () => void;
-    isJoined: boolean;
-}) {
-    const activeCount = room.activeParticipantIds?.length ?? 0;
-    const isCreator = currentUser?.id === room.creator.id;
-    const createdLabel = room.createdAt || (room as any).created_at;
-    const createdText = createdLabel ? new Date(createdLabel).toLocaleString() : null;
-    const participants = room.participants || [];
-
-    return (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow">
-            {/* Header */}
-            <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-black mb-1">{room.name}</h3>
-                    {room.description && (
-                        <p className="text-sm text-gray-500 line-clamp-2">{room.description}</p>
-                    )}
-                </div>
-                {room.isActive && (
-                    <div className="flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded-full text-xs font-medium">
-                        <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
-                        En cours
-                    </div>
-                )}
-            </div>
-
-            {createdText && (
-                <div className="text-xs text-gray-500 mb-2">
-                    Créé le {createdText}
-                </div>
-            )}
-
-            {/* Creator */}
-            <div className="flex items-center gap-2 mb-4 text-sm text-gray-600">
-                <UsersIcon className="w-4 h-4" />
-                <span>Par {room.creator.firstname} {room.creator.lastname}</span>
-            </div>
-
-            {/* Participants */}
-            <div className="flex items-center gap-2 mb-4">
-                <div className="flex -space-x-2">
-                    {participants.slice(0, 5).map((participant, idx) => (
-                        <div
-                            key={participant.id}
-                            className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-white text-xs font-medium border-2 border-white"
-                            title={`${participant.firstname} ${participant.lastname}`}
-                        >
-                            {participant.firstname[0]}{participant.lastname[0]}
-                        </div>
-                    ))}
-                    {participants.length > 5 && (
-                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs font-medium border-2 border-white">
-                            +{participants.length - 5}
-                        </div>
-                    )}
-                </div>
-                <span className="text-sm text-gray-600">
-                    {activeCount} / {participants.length} actif{activeCount > 1 ? 's' : ''}
-                </span>
-            </div>
-
-            {/* Action Button */}
-            <button
-                onClick={onJoin}
-                disabled={!room.isActive}
-                className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                    isJoined
-                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                        : room.isActive
-                        ? 'bg-black text-white hover:bg-gray-800'
-                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                }`}
-            >
-                <PhoneIcon className="w-5 h-5" />
-                {isJoined ? 'En cours...' : room.isActive ? 'Rejoindre' : 'Terminé'}
-            </button>
-        </div>
-    );
-}
-
-// Create Voice Room Modal Component
+// Create Voice Room Modal Component (kept the same as before)
 function CreateVoiceRoomModal({ onClose, onCreated }: {
     onClose: () => void;
     onCreated: () => void;
@@ -336,7 +880,6 @@ function CreateVoiceRoomModal({ onClose, onCreated }: {
             setUsers(Array.isArray(usersData) ? usersData : []);
         } catch (error: any) {
             console.error('Error fetching users:', error);
-            console.error('Error details:', error.response?.data);
             toast.error('Erreur lors du chargement des utilisateurs');
         }
     };
@@ -388,16 +931,16 @@ function CreateVoiceRoomModal({ onClose, onCreated }: {
     const selectedUsers = users.filter((u) => selectedUserIds.includes(u.id));
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-bg-tertiary rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-gray-200 dark:border-gray-800 shadow-xl">
                 {/* Header */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                    <h2 className="text-2xl font-bold text-black">Créer un salon vocal</h2>
+                <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-text-primary">Créer un salon vocal</h2>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                     >
-                        <XMarkIcon className="w-6 h-6 text-gray-600" />
+                        <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-text-secondary" />
                     </button>
                 </div>
 
@@ -405,14 +948,14 @@ function CreateVoiceRoomModal({ onClose, onCreated }: {
                 <form onSubmit={handleCreate} className="flex-1 overflow-y-auto p-6 space-y-6">
                     {/* Name */}
                     <div>
-                        <label className="block text-sm font-medium text-black mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-2">
                             Nom du salon *
                         </label>
                         <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-bg-secondary border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-text-primary focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent transition-all"
                             placeholder="Ex: Discussion équipe"
                             required
                         />
@@ -420,13 +963,13 @@ function CreateVoiceRoomModal({ onClose, onCreated }: {
 
                     {/* Description */}
                     <div>
-                        <label className="block text-sm font-medium text-black mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-2">
                             Description (optionnel)
                         </label>
                         <textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black resize-none"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-bg-secondary border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-text-primary focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent resize-none transition-all"
                             placeholder="Décrivez le sujet du salon..."
                             rows={3}
                         />
@@ -434,14 +977,14 @@ function CreateVoiceRoomModal({ onClose, onCreated }: {
 
                     {/* Max Participants */}
                     <div>
-                        <label className="block text-sm font-medium text-black mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-2">
                             Nombre max de participants (optionnel)
                         </label>
                         <input
                             type="number"
                             value={maxParticipants}
                             onChange={(e) => setMaxParticipants(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-bg-secondary border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-text-primary focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent transition-all"
                             placeholder="Illimité"
                             min="2"
                         />
@@ -449,7 +992,7 @@ function CreateVoiceRoomModal({ onClose, onCreated }: {
 
                     {/* Participants */}
                     <div>
-                        <label className="block text-sm font-medium text-black mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-2">
                             Inviter des participants
                         </label>
 
@@ -458,16 +1001,16 @@ function CreateVoiceRoomModal({ onClose, onCreated }: {
                                 {selectedUsers.map((user) => (
                                     <span
                                         key={user.id}
-                                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 border border-gray-200 text-sm"
+                                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-[#D4AF37]/10 to-[#FFD700]/10 dark:from-[#D4AF37]/20 dark:to-[#FFD700]/20 border border-[#D4AF37]/30 dark:border-[#D4AF37]/50 text-sm"
                                     >
-                                        <span className="w-7 h-7 rounded-full bg-gray-800 text-white flex items-center justify-center text-xs font-semibold">
+                                        <span className="w-7 h-7 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#FFD700] text-black flex items-center justify-center text-xs font-semibold shadow-sm">
                                             {user.firstname[0]}{user.lastname[0]}
                                         </span>
-                                        {user.firstname} {user.lastname}
+                                        <span className="text-gray-900 dark:text-text-primary">{user.firstname} {user.lastname}</span>
                                         <button
                                             type="button"
                                             onClick={() => toggleUser(user.id)}
-                                            className="text-gray-500 hover:text-black"
+                                            className="text-gray-500 dark:text-text-tertiary hover:text-amber-600 dark:hover:text-amber-400"
                                         >
                                             <XMarkIcon className="w-4 h-4" />
                                         </button>
@@ -486,37 +1029,37 @@ function CreateVoiceRoomModal({ onClose, onCreated }: {
                                 }}
                                 onFocus={() => setIsDropdownOpen(true)}
                                 onBlur={() => setTimeout(() => setIsDropdownOpen(false), 150)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-black mb-2"
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-bg-secondary border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-text-primary focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent transition-all mb-2"
                                 placeholder="Rechercher un utilisateur..."
                             />
 
                             {isDropdownOpen && (
-                                <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                <div className="absolute z-10 w-full bg-white dark:bg-bg-secondary border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                                     {filteredUsers.length === 0 && (
-                                        <div className="px-4 py-3 text-sm text-gray-500">
+                                        <div className="px-4 py-3 text-sm text-gray-500 dark:text-text-tertiary">
                                             Aucun utilisateur trouvé
                                         </div>
                                     )}
                                     {filteredUsers.map(user => (
                                         <label
                                             key={user.id}
-                                            className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer transition-colors"
+                                            className="flex items-center gap-3 p-3 hover:bg-amber-50 dark:hover:bg-amber-900/20 cursor-pointer transition-colors"
                                         >
                                             <input
                                                 type="checkbox"
                                                 checked={selectedUserIds.includes(user.id)}
                                                 onChange={() => toggleUser(user.id)}
-                                                className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                                                className="w-4 h-4 text-amber-600 dark:text-amber-500 border-gray-300 dark:border-gray-700 rounded focus:ring-amber-500"
                                             />
-                                            <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-white text-xs font-medium">
+                                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#FFD700] flex items-center justify-center text-black text-xs font-medium shadow-sm">
                                                 {user.firstname[0]}{user.lastname[0]}
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-sm text-black">
+                                                <span className="text-sm text-gray-900 dark:text-text-primary">
                                                     {user.firstname} {user.lastname}
                                                 </span>
                                                 {user.email && (
-                                                    <span className="text-xs text-gray-500">{user.email}</span>
+                                                    <span className="text-xs text-gray-500 dark:text-text-tertiary">{user.email}</span>
                                                 )}
                                             </div>
                                         </label>
@@ -525,7 +1068,7 @@ function CreateVoiceRoomModal({ onClose, onCreated }: {
                             )}
                         </div>
                         {selectedUserIds.length > 0 && (
-                            <p className="text-sm text-gray-600 mt-2">
+                            <p className="text-sm text-gray-600 dark:text-text-secondary mt-2">
                                 {selectedUserIds.length} participant{selectedUserIds.length > 1 ? 's' : ''} sélectionné{selectedUserIds.length > 1 ? 's' : ''}
                             </p>
                         )}
@@ -533,22 +1076,22 @@ function CreateVoiceRoomModal({ onClose, onCreated }: {
                 </form>
 
                 {/* Footer */}
-                <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+                <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-800">
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                        className="px-6 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-text-primary bg-white dark:bg-bg-secondary rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
                     >
                         Annuler
                     </button>
                     <button
                         onClick={handleCreate}
                         disabled={isLoading || !name.trim()}
-                        className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
+                        className="px-6 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black rounded-lg hover:from-[#B8860B] hover:to-[#D4AF37] disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex items-center gap-2"
                     >
                         {isLoading ? (
                             <>
-                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
                                 Création...
                             </>
                         ) : (

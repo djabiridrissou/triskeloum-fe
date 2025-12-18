@@ -18,23 +18,25 @@ const Dashboard: React.FC = () => {
     const { data: activityData, isLoading: isLoadingActivity } = useGetRecentActivityQuery(10);
 
     return (
-        <div className="max-w-8xl mx-2 px-6 py-8 space-y-8">
+        <div className="min-h-screen p-4 md:p-6 bg-gray-50 dark:bg-bg-primary transition-colors duration-300">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Dashboard Admin</h1>
-                    <p className="text-gray-600 mt-1">
-                        Vue d'ensemble de votre plateforme
-                    </p>
-                </div>
-                <div className="text-sm text-gray-500">
-                    Dernière mise à jour : {new Date().toLocaleTimeString('fr-FR')}
-                </div>
+            <div className="mb-6">
+                <h1 className="text-2xl md:text-3xl font-bold mb-1"
+                    style={{
+                        background: 'linear-gradient(135deg, #D4AF37 0%, #FFD700 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                    }}>
+                    Dashboard
+                </h1>
+                <p className="text-sm text-gray-600 dark:text-text-tertiary">
+                    Vue d'ensemble de votre plateforme
+                </p>
             </div>
 
             {/* KPIs */}
             {isLoadingOverview ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     {[...Array(4)].map((_, i) => (
                         <KPICardSkeleton key={i} />
                     ))}
@@ -44,7 +46,7 @@ const Dashboard: React.FC = () => {
             ) : null}
 
             {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
                 {isLoadingGrowth ? (
                     <ChartSkeleton />
                 ) : growthData?.payload ? (
@@ -58,21 +60,23 @@ const Dashboard: React.FC = () => {
                 ) : null}
             </div>
 
-            {/* Recent Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Recent Users */}
-                {isLoadingActivity ? (
-                    <TableSkeleton />
-                ) : activityData?.payload?.users ? (
-                    <RecentUsersTable users={activityData.payload.users} />
-                ) : null}
+            {/* Recent Activity - Hidden for now */}
+            <div className="hidden">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Recent Users */}
+                    {isLoadingActivity ? (
+                        <TableSkeleton />
+                    ) : activityData?.payload?.users ? (
+                        <RecentUsersTable users={activityData.payload.users} />
+                    ) : null}
 
-                {/* Top Courses */}
-                {isLoadingOverview ? (
-                    <TableSkeleton />
-                ) : overviewData?.payload?.topCourses ? (
-                    <TopCoursesTable courses={overviewData.payload.topCourses} />
-                ) : null}
+                    {/* Top Courses */}
+                    {isLoadingOverview ? (
+                        <TableSkeleton />
+                    ) : overviewData?.payload?.topCourses ? (
+                        <TopCoursesTable courses={overviewData.payload.topCourses} />
+                    ) : null}
+                </div>
             </div>
         </div>
     );

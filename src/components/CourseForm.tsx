@@ -191,22 +191,22 @@ const CourseForm: React.FC<CourseFormProps> = ({
         <>
             {/* Prompt restauration brouillon */}
             {showDraftPrompt && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
-                        <h3 className="text-lg font-semibold mb-2">Brouillon détecté</h3>
-                        <p className="text-gray-600 mb-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-bg-tertiary rounded-lg p-6 max-w-md mx-4 shadow-xl border border-gray-200 dark:border-gray-800">
+                        <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-text-primary">Brouillon détecté</h3>
+                        <p className="text-gray-600 dark:text-text-secondary mb-4">
                             Un brouillon de cours a été trouvé. Voulez-vous le restaurer ?
                         </p>
                         <div className="flex space-x-3">
                             <button
                                 onClick={handleRestoreDraft}
-                                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                                className="flex-1 px-4 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black font-medium rounded-md hover:from-[#B8860B] hover:to-[#D4AF37] transition-colors"
                             >
                                 Restaurer
                             </button>
                             <button
                                 onClick={handleDiscardDraft}
-                                className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                                className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-text-primary rounded-md hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
                             >
                                 Ignorer
                             </button>
@@ -219,7 +219,7 @@ const CourseForm: React.FC<CourseFormProps> = ({
                 <form onSubmit={methods.handleSubmit(onFormSubmit)} className="space-y-8">
                     {/* Indicateur de sauvegarde */}
                     {!initialData && (isAutoSaving || isSaving) && (
-                        <div className="flex items-center justify-end space-x-2 text-sm text-gray-500">
+                        <div className="flex items-center justify-end space-x-2 text-sm text-amber-700 dark:text-amber-400">
                             <CloudArrowUpIcon className="w-4 h-4 animate-pulse" />
                             <span>Sauvegarde automatique...</span>
                         </div>
@@ -227,18 +227,18 @@ const CourseForm: React.FC<CourseFormProps> = ({
 
                     {/* Barre de progression upload */}
                     {uploadProgress > 0 && uploadProgress < 100 && (
-                        <div className="bg-blue-50 rounded-lg p-4">
+                        <div className="bg-gradient-to-br from-[#D4AF37]/10 to-[#FFD700]/10 dark:from-[#D4AF37]/20 dark:to-[#FFD700]/20 rounded-lg p-4 border border-[#D4AF37]/30 dark:border-[#D4AF37]/50">
                             <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium text-blue-900">
+                                <span className="text-sm font-medium text-gray-900 dark:text-text-primary">
                                     Upload en cours...
                                 </span>
-                                <span className="text-sm font-medium text-blue-900">
+                                <span className="text-sm font-medium text-amber-700 dark:text-amber-400">
                                     {uploadProgress}%
                                 </span>
                             </div>
-                            <div className="w-full bg-blue-200 rounded-full h-2">
+                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                                 <div
-                                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                    className="bg-gradient-to-r from-[#D4AF37] to-[#FFD700] h-2 rounded-full transition-all duration-300"
                                     style={{ width: `${uploadProgress}%` }}
                                 />
                             </div>
@@ -254,8 +254,8 @@ const CourseForm: React.FC<CourseFormProps> = ({
                     />
 
                     {/* Content Type Toggle */}
-                    <div className="bg-gray-50 rounded-lg p-4 space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-900">Type de contenu</h3>
+                    <div className="bg-gradient-to-br from-[#D4AF37]/5 to-[#FFD700]/5 dark:from-[#D4AF37]/10 dark:to-[#FFD700]/10 rounded-lg p-4 space-y-4 border border-[#D4AF37]/20 dark:border-[#D4AF37]/30">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-text-primary">Type de contenu</h3>
                         <div className="flex gap-4">
                             <label className="flex items-center cursor-pointer">
                                 <input
@@ -263,9 +263,9 @@ const CourseForm: React.FC<CourseFormProps> = ({
                                     value="sections"
                                     checked={contentType === 'sections'}
                                     onChange={(e) => setContentType(e.target.value as 'sections' | 'media')}
-                                    className="h-4 w-4 text-blue-600"
+                                    className="h-4 w-4 text-amber-600 dark:text-amber-500 focus:ring-amber-500"
                                 />
-                                <span className="ml-2 text-gray-700">Sections structurées</span>
+                                <span className="ml-2 text-gray-700 dark:text-text-secondary">Sections structurées</span>
                             </label>
                             <label className="flex items-center cursor-pointer">
                                 <input
@@ -273,16 +273,16 @@ const CourseForm: React.FC<CourseFormProps> = ({
                                     value="media"
                                     checked={contentType === 'media'}
                                     onChange={(e) => setContentType(e.target.value as 'sections' | 'media')}
-                                    className="h-4 w-4 text-blue-600"
+                                    className="h-4 w-4 text-amber-600 dark:text-amber-500 focus:ring-amber-500"
                                 />
-                                <span className="ml-2 text-gray-700">Audio/Vidéo direct</span>
+                                <span className="ml-2 text-gray-700 dark:text-text-secondary">Audio/Vidéo direct</span>
                             </label>
                         </div>
 
                         {/* Media upload (only for media content type) */}
                         {contentType === 'media' && (
-                            <div className="border-t pt-4 mt-4">
-                                <label htmlFor="courseMedia" className="block text-sm font-medium text-gray-700 mb-2">
+                            <div className="border-t border-[#D4AF37]/20 dark:border-[#D4AF37]/30 pt-4 mt-4">
+                                <label htmlFor="courseMedia" className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-2">
                                     Upload Audio ou Vidéo
                                 </label>
                                 <div className="flex items-center space-x-4">
@@ -301,15 +301,15 @@ const CourseForm: React.FC<CourseFormProps> = ({
                                                 }
                                             }
                                         }}
-                                        className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
+                                        className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary rounded-md focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400"
                                     />
                                     {mediaPreview && (
-                                        <div className="flex-1 text-sm text-gray-600 truncate">
+                                        <div className="flex-1 text-sm text-gray-600 dark:text-text-secondary truncate">
                                             {mediaPreview}
                                         </div>
                                     )}
                                 </div>
-                                {!mediaFile && <p className="text-xs text-red-600 mt-1">Un fichier audio ou vidéo est requis</p>}
+                                {!mediaFile && <p className="text-xs text-red-600 dark:text-red-400 mt-1">Un fichier audio ou vidéo est requis</p>}
                             </div>
                         )}
                     </div>
@@ -327,18 +327,18 @@ const CourseForm: React.FC<CourseFormProps> = ({
                     )}
 
                     {/* Actions */}
-                    <div className="flex justify-end space-x-4 pt-4 border-t border-gray-200">
+                    <div className="flex justify-end space-x-4 pt-4 border-t border-gray-200 dark:border-gray-800">
                         <button
                             type="button"
                             onClick={handleCancel}
-                            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                            className="px-6 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-text-primary bg-white dark:bg-bg-secondary rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                             disabled={isSubmitting}
                         >
                             Annuler
                         </button>
                         <button
                             type="submit"
-                            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-6 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black font-medium rounded-md hover:from-[#B8860B] hover:to-[#D4AF37] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={isSubmitting || uploadProgress > 0}
                         >
                             {isSubmitting ? 'Enregistrement...' : initialData ? 'Mettre à jour' : 'Créer le cours'}

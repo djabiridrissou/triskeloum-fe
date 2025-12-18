@@ -1,11 +1,317 @@
+/* ===== DARK MODE - TRISKELOUM THEME ===== */
 
+/* Root variables */
+:root {
+  --color-primary: #D4AF37;
+  --color-primary-light: #FFD700;
+  --color-primary-dark: #B8860B;
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #0a0a0a;
+  --color-bg-tertiary: #1a1a1a;
+  --color-bg-elevated: #1f2937;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #d1d5db;
+  --color-text-tertiary: #9ca3af;
+  --color-text-muted: #6b7280;
+  --color-border: #374151;
+  --color-border-light: #4b5563;
+}
 
+/* Dark mode body */
+.dark body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+}
+
+/* Dark mode Ant Design overrides */
+.dark .ant-layout {
+  background-color: var(--color-bg-primary);
+}
+
+.dark .ant-layout-sider {
+  background-color: var(--color-bg-secondary) !important;
+  border-right: 1px solid var(--color-border);
+}
+
+.dark .ant-menu {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  border-right: none;
+}
+
+.dark .ant-menu-item {
+  color: var(--color-text-secondary);
+}
+
+.dark .ant-menu-item:hover {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-primary);
+}
+
+.dark .ant-menu-item-selected {
+  background-color: var(--color-bg-tertiary) !important;
+  color: var(--color-primary) !important;
+}
+
+.dark .ant-menu-item-selected::after {
+  border-right-color: var(--color-primary);
+}
+
+/* Dark mode cards */
+.dark .ant-card {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .ant-card-head {
+  background-color: var(--color-bg-secondary);
+  border-bottom-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .ant-card-head-title {
+  color: var(--color-text-primary);
+}
+
+/* Dark mode tables */
+.dark .ant-table {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.dark .ant-table-thead > tr > th {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-border);
+}
+
+.dark .ant-table-tbody > tr > td {
+  border-bottom-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .ant-table-tbody > tr:hover > td {
+  background-color: var(--color-bg-secondary);
+}
+
+.dark .ant-table-tbody > tr.ant-table-row-selected > td {
+  background-color: rgba(212, 175, 55, 0.1);
+}
+
+/* Dark mode forms */
+.dark .ant-form-item-label > label {
+  color: var(--color-text-secondary) !important;
+}
+
+.dark .ant-input,
+.dark .ant-input-number,
+.dark .ant-picker,
+.dark .ant-select-selector {
+  background-color: var(--color-bg-secondary) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text-primary) !important;
+}
+
+.dark .ant-input::placeholder,
+.dark .ant-input-number input::placeholder,
+.dark .ant-picker input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.dark .ant-input:hover,
+.dark .ant-input-number:hover,
+.dark .ant-picker:hover,
+.dark .ant-select-selector:hover {
+  border-color: var(--color-primary) !important;
+}
+
+.dark .ant-input:focus,
+.dark .ant-input-number:focus,
+.dark .ant-picker-focused,
+.dark .ant-select-focused .ant-select-selector {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2) !important;
+}
+
+.dark .ant-input-affix-wrapper {
+  background-color: var(--color-bg-secondary) !important;
+  border-color: var(--color-border) !important;
+}
+
+.dark .ant-input-affix-wrapper:hover,
+.dark .ant-input-affix-wrapper:focus {
+  border-color: var(--color-primary) !important;
+}
+
+/* Dark mode select dropdowns */
+.dark .ant-select-dropdown {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+}
+
+.dark .ant-select-item {
+  color: var(--color-text-secondary);
+}
+
+.dark .ant-select-item:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.dark .ant-select-item-option-selected {
+  background-color: rgba(212, 175, 55, 0.2);
+  color: var(--color-primary);
+}
+
+/* Dark mode buttons - Gold accent */
+.dark .ant-btn-primary {
+  background: linear-gradient(135deg, #D4AF37 0%, #FFD700 50%, #B8860B 100%) !important;
+  border: none !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+.dark .ant-btn-primary:hover {
+  background: linear-gradient(135deg, #FFD700 0%, #D4AF37 50%, #D4AF37 100%) !important;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+.dark .ant-btn:not(.ant-btn-primary) {
+  background-color: var(--color-bg-tertiary) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text-secondary) !important;
+}
+
+.dark .ant-btn:not(.ant-btn-primary):hover {
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+/* Dark mode modals */
+.dark .ant-modal-content {
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+}
+
+.dark .ant-modal-header {
+  background-color: var(--color-bg-secondary);
+  border-bottom-color: var(--color-border);
+}
+
+.dark .ant-modal-title {
+  color: var(--color-text-primary);
+}
+
+.dark .ant-modal-body {
+  color: var(--color-text-secondary);
+}
+
+.dark .ant-modal-footer {
+  border-top-color: var(--color-border);
+}
+
+/* Dark mode tabs */
+.dark .ant-tabs-nav {
+  color: var(--color-text-secondary);
+}
+
+.dark .ant-tabs-tab {
+  color: var(--color-text-tertiary);
+}
+
+.dark .ant-tabs-tab:hover {
+  color: var(--color-primary);
+}
+
+.dark .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--color-primary) !important;
+}
+
+.dark .ant-tabs-ink-bar {
+  background-color: var(--color-primary);
+}
+
+/* Dark mode pagination */
+.dark .ant-pagination-item {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+}
+
+.dark .ant-pagination-item a {
+  color: var(--color-text-secondary);
+}
+
+.dark .ant-pagination-item:hover {
+  border-color: var(--color-primary);
+}
+
+.dark .ant-pagination-item:hover a {
+  color: var(--color-primary);
+}
+
+.dark .ant-pagination-item-active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.dark .ant-pagination-item-active a {
+  color: #000000;
+}
+
+/* Dark mode alerts */
+.dark .ant-alert {
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .ant-alert-message,
+.dark .ant-alert-description {
+  color: var(--color-text-secondary);
+}
+
+/* Dark mode badges */
+.dark .ant-badge-count {
+  background-color: var(--color-primary);
+  color: #000000;
+}
+
+/* Dark mode tooltips */
+.dark .ant-tooltip-inner {
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+}
+
+.dark .ant-tooltip-arrow-content {
+  background-color: var(--color-bg-elevated);
+}
+
+/* Dark mode drawer */
+.dark .ant-drawer-content {
+  background-color: var(--color-bg-tertiary);
+}
+
+.dark .ant-drawer-header {
+  background-color: var(--color-bg-secondary);
+  border-bottom-color: var(--color-border);
+}
+
+.dark .ant-drawer-title {
+  color: var(--color-text-primary);
+}
+
+.dark .ant-drawer-body {
+  color: var(--color-text-secondary);
+}
+
+/* Light mode body (default) */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f0f2f5;
   margin: 0;
   padding: 0;
   font-size: 11px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 

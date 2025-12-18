@@ -31,6 +31,10 @@ export const normalizeUrl = (url: string): string => {
   return url;
 };
 
+const snakeToCamel = (str: string): string => {
+  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+};
+
 export const normalizeObject = (obj: any): any => {
   if (!obj) return obj;
 
@@ -45,7 +49,8 @@ export const normalizeObject = (obj: any): any => {
   if (typeof obj === 'object') {
     const normalized: any = {};
     for (const [key, value] of Object.entries(obj)) {
-      normalized[key] = normalizeObject(value);
+      const camelKey = snakeToCamel(key);
+      normalized[camelKey] = normalizeObject(value);
     }
     return normalized;
   }

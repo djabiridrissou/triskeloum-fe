@@ -29,37 +29,48 @@ const UsersGrowthChart: React.FC<UsersGrowthChartProps> = ({ data }) => {
     }));
 
     return (
-        <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Évolution des inscriptions
-            </h3>
+        <div className="relative bg-gradient-to-br from-amber-50/30 to-white dark:from-transparent dark:to-transparent dark:bg-bg-tertiary rounded-xl p-6 border border-gray-200 dark:border-gray-800 transition-colors duration-300 hover:border-amber-500 dark:hover:border-amber-500 group overflow-hidden shadow-sm hover:shadow-md">
+            {/* Gold gradient accent - always visible */}
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent dark:from-amber-500/5 dark:to-transparent pointer-events-none" />
+            <div className="relative z-10">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-text-primary mb-4">
+                    Évolution des inscriptions
+                </h3>
             <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={formattedData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                        dataKey="formattedDate" 
-                        tick={{ fontSize: 12 }}
+                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+                    <XAxis
+                        dataKey="formattedDate"
+                        tick={{ fontSize: 12, fill: '#9ca3af' }}
+                        stroke="#374151"
                     />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip 
-                        contentStyle={{ 
-                            backgroundColor: '#fff',
-                            border: '1px solid #e5e7eb',
-                            borderRadius: '0.5rem'
+                    <YAxis
+                        tick={{ fontSize: 12, fill: '#9ca3af' }}
+                        stroke="#374151"
+                    />
+                    <Tooltip
+                        contentStyle={{
+                            backgroundColor: '#1a1a1a',
+                            border: '1px solid #D4AF37',
+                            borderRadius: '0.5rem',
+                            color: '#ffffff'
                         }}
                     />
-                    <Legend />
-                    <Line 
-                        type="monotone" 
-                        dataKey="count" 
-                        stroke="#3b82f6" 
-                        strokeWidth={2}
+                    <Legend
+                        wrapperStyle={{ color: '#9ca3af' }}
+                    />
+                    <Line
+                        type="monotone"
+                        dataKey="count"
+                        stroke="#D4AF37"
+                        strokeWidth={3}
                         name="Nouveaux utilisateurs"
-                        dot={{ fill: '#3b82f6', r: 4 }}
-                        activeDot={{ r: 6 }}
+                        dot={{ fill: '#FFD700', r: 4, strokeWidth: 2, stroke: '#D4AF37' }}
+                        activeDot={{ r: 6, fill: '#FFD700', stroke: '#D4AF37', strokeWidth: 2 }}
                     />
                 </LineChart>
             </ResponsiveContainer>
+            </div>
         </div>
     );
 };

@@ -57,7 +57,7 @@ const AdminLayout = () => {
             <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
                 {/* Sidebar pour Desktop - Version simplifiée */}
                 {!isMobile && (
-                    <div style={{ width: '256px', flexShrink: 0 }}>
+                    <div style={{ width: '200px', flexShrink: 0 }}>
                         <Sidebar />
                     </div>
                 )}
@@ -81,9 +81,9 @@ const AdminLayout = () => {
                     {/* Header mobile avec bouton menu */}
                     {isMobile && (
                         <div
+                            className="dark:bg-bg-secondary bg-white dark:text-text-primary dark:shadow-amber-900/10"
                             style={{
                                 padding: '16px',
-                                background: '#fff',
                                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -95,22 +95,23 @@ const AdminLayout = () => {
                                 type="text"
                                 icon={<MenuOutlined />}
                                 onClick={toggleMobileDrawer}
+                                className="dark:text-amber-400 dark:hover:bg-amber-900/20"
                                 style={{
                                     fontSize: '16px',
                                     width: 40,
                                     height: 40,
                                 }}
                             />
-                            <h3 style={{ margin: 0, marginLeft: '16px' }}>Dashboard</h3>
+                            <h3 className="dark:text-text-primary" style={{ margin: 0, marginLeft: '16px' }}>Dashboard</h3>
                         </div>
                     )}
 
                     {/* Contenu principal avec Outlet - Zone scrollable */}
                     <div
+                        className="dark:bg-bg-primary bg-gray-50"
                         style={{
                             flex: 1,
                             padding: isMobile ? '16px' : '0px',
-                            background: '#f5f5f5',
                             overflow: 'auto',
                             display: 'flex',
                             flexDirection: 'column',

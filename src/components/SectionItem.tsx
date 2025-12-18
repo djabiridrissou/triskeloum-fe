@@ -96,15 +96,15 @@ const SectionItem: React.FC<SectionItemProps> = ({
   };
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+    <div className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden shadow-sm">
       {/* Section header */}
-      <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3">
+      <div className="bg-gradient-to-r from-[#D4AF37]/10 to-[#FFD700]/10 dark:from-[#D4AF37]/20 dark:to-[#FFD700]/20 px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1">
             <button
               type="button"
               onClick={onToggle}
-              className="text-gray-500 hover:text-gray-700 transition-colors"
+              className="text-gray-500 dark:text-text-secondary hover:text-gray-700 dark:hover:text-text-primary transition-colors"
             >
               {isCollapsed ? (
                 <ChevronDownIcon className="w-5 h-5" />
@@ -112,47 +112,47 @@ const SectionItem: React.FC<SectionItemProps> = ({
                 <ChevronUpIcon className="w-5 h-5" />
               )}
             </button>
-            <span className="w-7 h-7 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold">
+            <span className="w-7 h-7 bg-gradient-to-br from-[#D4AF37] to-[#FFD700] text-black rounded-full flex items-center justify-center text-sm font-bold">
               {sectionIndex + 1}
             </span>
             <input
               type="text"
               value={section.title}
               onChange={(e) => onChange('title', e.target.value)}
-              className="font-semibold text-gray-900 bg-transparent border-none focus:ring-0 p-0 flex-1"
+              className="font-semibold text-gray-900 dark:text-text-primary bg-transparent border-none focus:ring-0 p-0 flex-1"
               placeholder="Titre de la section"
             />
           </div>
           <button
             type="button"
             onClick={onRemove}
-            className="text-red-600 hover:text-red-800 hover:bg-red-50 px-3 py-1 rounded transition-all duration-200"
+            className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/30 px-3 py-1 rounded transition-all duration-200"
           >
             Supprimer
           </button>
         </div>
       </div>
-      
+
       {/* Section content */}
       {!isCollapsed && (
-        <div className="p-4 space-y-4 bg-white">
+        <div className="p-4 space-y-4 bg-white dark:bg-bg-secondary">
           {/* Section cover */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-2">
               Image de couverture de la section
             </label>
             <div className="flex items-start space-x-4">
               <div className="flex-1">
-                <label 
+                <label
                   htmlFor={`section-cover-${sectionIndex}`}
-                  className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all duration-200"
+                  className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg cursor-pointer hover:border-amber-500 dark:hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-all duration-200"
                 >
                   <div className="text-center">
-                    <PhotoIcon className="mx-auto h-8 w-8 text-gray-400" />
-                    <p className="mt-1 text-sm text-gray-600">
+                    <PhotoIcon className="mx-auto h-8 w-8 text-gray-400 dark:text-gray-600" />
+                    <p className="mt-1 text-sm text-gray-600 dark:text-text-secondary">
                       {coverPreview ? 'Changer l\'image' : 'Cliquez pour uploader'}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-text-tertiary mt-1">
                       PNG, JPG, GIF jusqu'à 5MB
                     </p>
                   </div>
@@ -167,17 +167,17 @@ const SectionItem: React.FC<SectionItemProps> = ({
               </div>
               {coverPreview && (
                 <div className="relative">
-                  <div className="w-24 h-24 rounded-lg overflow-hidden border-2 border-gray-200">
-                    <img 
-                      src={coverPreview} 
-                      alt="Section cover preview" 
+                  <div className="w-24 h-24 rounded-lg overflow-hidden border-2 border-[#D4AF37]/30 dark:border-[#D4AF37]/50">
+                    <img
+                      src={coverPreview}
+                      alt="Section cover preview"
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={onCoverRemove}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                    className="absolute -top-2 -right-2 bg-red-500 dark:bg-red-600 text-white rounded-full p-1 hover:bg-red-600 dark:hover:bg-red-700 transition-colors"
                   >
                     <XMarkIcon className="w-4 h-4" />
                   </button>
@@ -185,10 +185,10 @@ const SectionItem: React.FC<SectionItemProps> = ({
               )}
             </div>
           </div>
-          
+
           {/* Section summary */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-2">
               Résumé de la section
             </label>
             <RichTextEditor
@@ -197,17 +197,17 @@ const SectionItem: React.FC<SectionItemProps> = ({
               placeholder="Résumé de la section..."
             />
           </div>
-          
+
           {/* Section parts */}
           <div className="mt-6">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-semibold text-gray-700">
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-text-primary">
                 Parties de la section ({section.content.parts.length})
               </h4>
               <button
                 type="button"
                 onClick={handleAddPart}
-                className="text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-3 py-1 rounded transition-all duration-200"
+                className="text-sm text-amber-700 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/30 px-3 py-1 rounded transition-all duration-200"
               >
                 + Ajouter une partie
               </button>

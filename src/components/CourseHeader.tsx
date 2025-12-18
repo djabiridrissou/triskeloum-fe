@@ -13,7 +13,7 @@ const CourseHeader: React.FC<CourseHeaderProps> = ({ course }) => {
   
     return (
         <div className="relative">
-            <div className="h-64 bg-blue-800 relative overflow-hidden">
+            <div className="h-64 bg-gradient-to-br from-[#D4AF37] to-[#FFD700] relative overflow-hidden">
                 {course?.cover && (
                     <img
                         src={getImageUrl(course?.cover)}
@@ -21,7 +21,7 @@ const CourseHeader: React.FC<CourseHeaderProps> = ({ course }) => {
                         className="w-full h-full object-cover"
                     />
                 )}
-                <div className="absolute inset-0 bg-transparent bg-opacity-40" />
+                <div className="absolute inset-0 bg-black/20 dark:bg-black/40" />
 
                 {/* Badges flottants */}
                 <div className="absolute top-6 right-6 flex space-x-3">
@@ -31,17 +31,22 @@ const CourseHeader: React.FC<CourseHeaderProps> = ({ course }) => {
             </div>
 
             {/* Contenu superposé */}
-            <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black via-black/70 to-transparent">
+            <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black via-black/80 to-transparent">
                 <div className="max-w-4xl">
                     {/* Catégorie */}
                     {course.category && (
-                        <span className="inline-block px-3 py-1 bg-black bg-opacity-20 text-white text-sm rounded-full mb-3">
+                        <span className="inline-block px-3 py-1 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black text-sm font-medium rounded-full mb-3">
                             {course.category.title}
                         </span>
                     )}
 
                     {/* Titre */}
-                    <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
+                    <h1 className="text-3xl md:text-4xl font-bold mb-3"
+                        style={{
+                            background: 'linear-gradient(135deg, #D4AF37 0%, #FFD700 100%)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}>
                         {course.title}
                     </h1>
 

@@ -17,6 +17,19 @@
     <meta name="theme-color" content="#10b981" />
 
     <title>TRISKELOUM</title>
+
+    <!-- Prevent dark mode flash -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('triskeloum-theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = savedTheme || (prefersDark ? 'dark' : 'dark'); // default to dark
+
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
 </head>
 
 <body>
