@@ -1,4 +1,4 @@
-/* ===== DARK MODE - TRISKELOUM THEME ===== */
+/* ===== DARK MODE - SERANOUN THEME ===== */
 
 /* Root variables */
 :root {
@@ -925,13 +925,20 @@ body {
   .dashboard-container {
     padding: 16px;
   }
-  
+
   .add-button-container {
     justify-content: flex-start;
   }
-  
+
   .add-advertisement-button {
     width: 100%;
   }
+}
+
+/* ===== CUSTOM FLAME CURSOR - LANDING PAGE ===== */
+
+/* Keep default cursor visible - flame appears at cursor edge */
+.landing-page-cursor {
+  cursor: default;
 }
 

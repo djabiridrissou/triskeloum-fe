@@ -8,13 +8,15 @@ import FormationSection from './components/FormationSection';
 import BioGeometrySection from './components/BioGeometrySection';
 import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
+import FlameCustomCursor from '../../components/FlameCustomCursor';
 
 const LandingPage = () => {
   const navigate = useNavigate();
 
   return (
     <LanguageProvider>
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-black landing-page-cursor">
+        <FlameCustomCursor />
         <Header />
       
       <main>

@@ -153,7 +153,7 @@ export class FirebaseNotificationService {
             const notificationOptions: any = {
                 body: notification.body,
                 icon: notification.icon || '/icons/notification-icon.png',
-                tag: 'triskeloum-notification',
+                tag: 'seranoun-notification',
                 badge: '/icons/badge-icon.png'
             };
             

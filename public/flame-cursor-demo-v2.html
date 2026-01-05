@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animated Flame Cursor v2 - SERANOUN</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: #000;
+      color: #FFD700;
+      font-family: 'Josefin Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: default;
+      overflow: hidden;
+    }
+
+    .demo-content {
+      text-align: center;
+      z-index: 1;
+    }
+
+    h1 {
+      font-size: 4rem;
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 2rem;
+    }
+
+    p {
+      font-size: 1.5rem;
+      color: #D4AF37;
+      letter-spacing: 0.2em;
+    }
+
+    .flame-cursor {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(12px, -24px);
+      will-change: transform;
+      transition: left 0.08s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  top 0.08s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .flame-svg {
+      filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
+      animation: flameFlicker 0.12s ease-in-out infinite;
+    }
+
+    @keyframes flameFlicker {
+      0% { transform: scaleY(1) scaleX(1) rotate(-2deg); filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5)) brightness(1); }
+      20% { transform: scaleY(1.08) scaleX(0.96) rotate(1deg); filter: drop-shadow(0 0 5px rgba(255, 165, 0, 0.6)) brightness(1.12); }
+      40% { transform: scaleY(0.95) scaleX(1.04) rotate(-1deg); filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.4)) brightness(0.92); }
+      60% { transform: scaleY(1.04) scaleX(0.98) rotate(2deg); filter: drop-shadow(0 0 5px rgba(255, 140, 0, 0.55)) brightness(1.08); }
+      80% { transform: scaleY(0.98) scaleX(1.02) rotate(-1deg); filter: drop-shadow(0 0 4px rgba(255, 200, 0, 0.5)) brightness(0.96); }
+      100% { transform: scaleY(1.06) scaleX(0.97) rotate(1deg); filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.65)) brightness(1.15); }
+    }
+
+    .flame-glow { animation: glowPulse 0.5s ease-in-out infinite alternate; }
+    @keyframes glowPulse {
+      0% { opacity: 0.4; transform: scale(0.95); }
+      50% { opacity: 0.6; transform: scale(1.05); }
+      100% { opacity: 0.5; transform: scale(1.1); }
+    }
+
+    .flame-body { animation: bodyShapeShift 0.8s ease-in-out infinite; }
+    @keyframes bodyShapeShift {
+      0% { opacity: 1; transform: scaleY(1) scaleX(1); }
+      25% { opacity: 0.95; transform: scaleY(1.06) scaleX(0.96); }
+      50% { opacity: 1; transform: scaleY(0.97) scaleX(1.04); }
+      75% { opacity: 0.96; transform: scaleY(1.04) scaleX(0.98); }
+      100% { opacity: 1; transform: scaleY(1) scaleX(1); }
+    }
+
+    .flame-lick-left { animation: lickLeft 0.35s ease-in-out infinite alternate; transform-origin: 7px 8px; }
+    @keyframes lickLeft {
+      0% { opacity: 0.5; transform: translateX(0) translateY(0) scaleY(1) rotate(0deg); }
+      33% { opacity: 0.7; transform: translateX(-0.8px) translateY(-0.5px) scaleY(1.12) rotate(-3deg); }
+      66% { opacity: 0.6; transform: translateX(-0.3px) translateY(0.3px) scaleY(0.96) rotate(2deg); }
+      100% { opacity: 0.75; transform: translateX(-1px) translateY(-0.8px) scaleY(1.15) rotate(-4deg); }
+    }
+
+    .flame-lick-right { animation: lickRight 0.3s ease-in-out infinite alternate; transform-origin: 11px 8px; }
+    @keyframes lickRight {
+      0% { opacity: 0.5; transform: translateX(0) translateY(0) scaleY(1) rotate(0deg); }
+      33% { opacity: 0.72; transform: translateX(0.7px) translateY(-0.6px) scaleY(1.1) rotate(3deg); }
+      66% { opacity: 0.58; transform: translateX(0.4px) translateY(0.2px) scaleY(0.94) rotate(-2deg); }
+      100% { opacity: 0.78; transform: translateX(1.2px) translateY(-1px) scaleY(1.18) rotate(5deg); }
+    }
+
+    .flame-core { animation: coreFlicker 0.2s ease-in-out infinite; }
+    @keyframes coreFlicker {
+      0% { opacity: 0.8; transform: scaleY(1) scaleX(1); }
+      33% { opacity: 0.92; transform: scaleY(1.08) scaleX(0.96); }
+      66% { opacity: 0.85; transform: scaleY(0.95) scaleX(1.03); }
+      100% { opacity: 0.88; transform: scaleY(1.05) scaleX(0.98); }
+    }
+
+    .flame-hotspot { animation: hotspotFlicker 0.1s ease-in-out infinite; }
+    @keyframes hotspotFlicker {
+      0% { opacity: 0.75; transform: scale(1) translateY(0); }
+      16% { opacity: 0.88; transform: scale(1.12) translateY(-0.3px); }
+      33% { opacity: 0.82; transform: scale(0.96) translateY(0.2px); }
+      50% { opacity: 0.92; transform: scale(1.08) translateY(-0.2px); }
+      66% { opacity: 0.78; transform: scale(0.92) translateY(0.3px); }
+      83% { opacity: 0.95; transform: scale(1.15) translateY(-0.4px); }
+      100% { opacity: 0.8; transform: scale(1.02) translateY(0.1px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-content">
+    <h1>SERANOUN</h1>
+    <p>Move your mouse - small burning flame at cursor edge</p>
+  </div>
+
+  <div class="flame-cursor" id="flameCursor">
+    <svg class="flame-svg" xmlns="http://www.w3.org/2000/svg" width="18" height="24" viewBox="0 0 18 24">
+      <defs>
+        <radialGradient id="flameGlow" cx="50%" cy="60%" r="50%">
+          <stop offset="0%" style="stop-color:#FFFACD;stop-opacity:0.8" />
+          <stop offset="40%" style="stop-color:#FFD700;stop-opacity:0.6" />
+          <stop offset="70%" style="stop-color:#FF8C00;stop-opacity:0.3" />
+          <stop offset="100%" style="stop-color:#FF4500;stop-opacity:0" />
+        </radialGradient>
+        <linearGradient id="flameBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#FFFACD;stop-opacity:1" />
+          <stop offset="20%" style="stop-color:#FFD700;stop-opacity:1" />
+          <stop offset="50%" style="stop-color:#FFA500;stop-opacity:0.95" />
+          <stop offset="80%" style="stop-color:#FF6347;stop-opacity:0.85" />
+          <stop offset="100%" style="stop-color:#D4AF37;stop-opacity:0.6" />
+        </linearGradient>
+        <linearGradient id="innerFlame" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.9" />
+          <stop offset="40%" style="stop-color:#FFFACD;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#FFD700;stop-opacity:0.7" />
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="1" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      <ellipse class="flame-glow" cx="9" cy="14" rx="7" ry="9" fill="url(#flameGlow)" opacity="0.5" />
+      <path class="flame-body" d="M 9 1 C 8.2 2, 7 3.5, 6.5 5 C 6 6.5, 5.5 8.5, 5.2 10.5 C 5 12.5, 5 14.5, 5.5 16 C 6 17.5, 7 19, 8 20 C 8.5 20.5, 9 21, 9 21 C 9 21, 9.5 20.5, 10 20 C 11 19, 12 17.5, 12.5 16 C 13 14.5, 13 12.5, 12.8 10.5 C 12.5 8.5, 12 6.5, 11.5 5 C 11 3.5, 9.8 2, 9 1 Z" fill="url(#flameBody)" filter="url(#glow)" />
+      <path class="flame-lick-left" d="M 7 5 Q 5.5 7, 5.2 9 Q 5.5 10.5, 6.5 11 Q 7 9, 7 7 Z" fill="#FFA500" opacity="0.6" />
+      <path class="flame-lick-right" d="M 11 5 Q 12.5 7, 12.8 9 Q 12.5 10.5, 11.5 11 Q 11 9, 11 7 Z" fill="#FFA500" opacity="0.6" />
+      <path class="flame-core" d="M 9 5 C 8.5 6.5, 7.8 8.5, 7.5 10.5 C 7.3 12, 7.5 13.5, 8 15 C 8.5 16, 9 16.5, 9 16.5 C 9 16.5, 9.5 16, 10 15 C 10.5 13.5, 10.7 12, 10.5 10.5 C 10.2 8.5, 9.5 6.5, 9 5 Z" fill="url(#innerFlame)" opacity="0.85" />
+      <ellipse class="flame-hotspot" cx="9" cy="11" rx="1" ry="2" fill="#FFFFFF" opacity="0.8" />
+    </svg>
+  </div>
+
+  <script>
+    const cursor = document.getElementById('flameCursor');
+
+    document.addEventListener('mousemove', (e) => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
+  </script>
+</body>
+</html>

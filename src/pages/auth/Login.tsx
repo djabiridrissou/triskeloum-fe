@@ -102,7 +102,7 @@ const Login = () => {
                 Swal.fire({
                     icon: 'success',
                     title: 'Connexion réussie',
-                    text: 'Bienvenue sur TRISKELOUM !',
+                    text: 'Bienvenue sur SERANOUN !',
                     timer: 2000,
                     showConfirmButton: false,
                 });
@@ -150,43 +150,19 @@ const Login = () => {
                 <div className="text-center mb-8">
                     <div className="flex justify-center items-center mb-6">
                         <div className="relative w-24 h-24">
-                            <svg className="absolute inset-0 w-full h-full animate-spin-slow" style={{ animationDuration: '30s' }} viewBox="0 0 200 200">
-                                <defs>
-                                    <linearGradient id="loginGold" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stopColor="#D4AF37" />
-                                        <stop offset="50%" stopColor="#FFD700" />
-                                        <stop offset="100%" stopColor="#B8860B" />
-                                    </linearGradient>
-                                </defs>
-                                <circle cx="100" cy="100" r="95" fill="none" stroke="url(#loginGold)" strokeWidth="1" strokeDasharray="10 5" />
-                            </svg>
-                            <svg className="absolute inset-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)]" viewBox="0 0 100 100">
-                                <defs>
-                                    <linearGradient id="logoGold" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stopColor="#D4AF37" />
-                                        <stop offset="100%" stopColor="#B8860B" />
-                                    </linearGradient>
-                                </defs>
-                                <circle cx="50" cy="50" r="45" fill="none" stroke="url(#logoGold)" strokeWidth="2" />
-                                <g className="origin-center">
-                                    {[0, 90, 180, 270].map((rotation, i) => (
-                                        <path
-                                            key={i}
-                                            d="M50 50 Q50 35 40 28 Q28 20 25 32 Q22 45 38 50"
-                                            fill="none"
-                                            stroke="url(#logoGold)"
-                                            strokeWidth="2.5"
-                                            strokeLinecap="round"
-                                            transform={`rotate(${rotation} 50 50)`}
-                                        />
-                                    ))}
-                                </g>
-                                <path d="M50 42 L58 50 L50 58 L42 50 Z" fill="url(#logoGold)" />
-                            </svg>
+                            {/* Seranoun Logo with subtle animation */}
+                            <div className="absolute inset-0 w-full h-full animate-pulse opacity-30">
+                                <div className="w-full h-full rounded-full bg-gradient-to-br from-amber-400 to-amber-600 blur-xl"></div>
+                            </div>
+                            <img
+                                src="/images/rmvLogoSeranoun.png"
+                                alt="SERANOUN Logo"
+                                className="relative w-full h-full object-contain"
+                            />
                         </div>
                     </div>
                     <h1 className="text-4xl font-light tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 mb-2">
-                        TRISKELOUM
+                        SERANOUN
                     </h1>
                     <p className="text-amber-500/80 text-sm tracking-[0.2em] uppercase">
                         Cabinet digital de développement spirituel
@@ -278,7 +254,7 @@ const Login = () => {
 
                 <div className="text-center mt-6 text-sm text-gray-600">
                     <p>
-                        TRISKELOUM © {new Date().getFullYear()}
+                        SERANOUN © {new Date().getFullYear()}
                     </p>
                 </div>
             </div>

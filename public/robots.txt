@@ -1,3 +1,41 @@
+# Robots.txt for SERANOUN - Cabinet Digital de Développement Spirituel
+# https://seranoun.com
+
+# Allow all search engines to crawl the site
 User-agent: *
 Allow: /
-Sitemap: https://terminalechange.com/sitemap.xml
+
+# Disallow admin and user dashboard areas
+Disallow: /admin/
+Disallow: /user/
+Disallow: /api/
+
+# Disallow authentication pages from indexing
+Disallow: /login
+Disallow: /register
+Disallow: /reset-password
+
+# Allow crawling of public assets
+Allow: /images/
+Allow: /fonts/
+Allow: /assets/
+
+# Sitemap location
+Sitemap: https://seranoun.com/sitemap.xml
+
+# Crawl-delay for specific bots (optional)
+User-agent: Googlebot
+Crawl-delay: 0
+
+User-agent: Bingbot
+Crawl-delay: 1
+
+# Block bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /

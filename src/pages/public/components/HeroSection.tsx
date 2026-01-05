@@ -20,7 +20,7 @@ const HeroSection = () => {
 
     // Get home section content from API or use hardcoded fallback
     const homeSection = contentData?.payload?.find((section: any) => section.section === 'home');
-    const title = homeSection ? (lang === 'fr' ? homeSection.titleFr : homeSection.titleEn) : 'TRISKELOUM';
+    const title = homeSection ? (lang === 'fr' ? homeSection.titleFr : homeSection.titleEn) : 'SERANOUN';
     const subtitle = homeSection ? (lang === 'fr' ? homeSection.subtitleFr : homeSection.subtitleEn) : t('Cabinet digital de développement spirituel', 'Digital Spiritual Development Practice');
     const description = homeSection ? (lang === 'fr' ? homeSection.descriptionFr : homeSection.descriptionEn) : t("Guérir les maux de l'âme et accompagner chacun dans un voyage profond de connaissance de soi.", "Healing the wounds of the soul and guiding each person on a deep journey of self-discovery.");
     const ctaText = homeSection ? (lang === 'fr' ? homeSection.ctaTextFr : homeSection.ctaTextEn) : t('Commencer le voyage', 'Begin the journey');
@@ -97,15 +97,9 @@ const HeroSection = () => {
                     </div>
                 </div>
 
-                {/* Title - TRISKELOUM avec CSS */}
-                <h1 className="mb-6 flex items-center justify-center text-4xl md:text-5xl lg:text-6xl font-light tracking-[0.3em] md:tracking-[0.4em]">
-                    <span className="title-text">TRISKEL</span>
-                    {/* O stylisé */}
-                    <span className="relative -ml-4 inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 mx-1">
-                        <span className="absolute inset-0 rounded-full border-2 border-amber-500"></span>
-                        <span className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-amber-500"></span>
-                    </span>
-                    <span className="title-text">UM</span>
+                {/* Title - SERANOUN */}
+                <h1 className="mb-6 text-4xl md:text-5xl lg:text-6xl font-light tracking-[0.3em] md:tracking-[0.4em] text-center">
+                    <span className="title-text">{title}</span>
                 </h1>
 
                 <p className="text-amber-500/80 text-sm md:text-base tracking-[0.25em] uppercase mb-8">

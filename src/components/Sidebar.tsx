@@ -78,7 +78,7 @@ const Sidebar = () => {
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
           }}>
-          TRISKELOUM
+          SERANOUN
         </h2>
       </div>
 

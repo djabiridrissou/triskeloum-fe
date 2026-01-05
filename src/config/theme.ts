@@ -1,5 +1,5 @@
 /**
- * Triskeloum Design System
+ * Seranoun Design System
  * Premium black and gold spiritual aesthetic
  */
 
