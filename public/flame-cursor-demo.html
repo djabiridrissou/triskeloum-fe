@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animated Flame Cursor Demo - SERANOUN</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: #000;
+      color: #FFD700;
+      font-family: 'Josefin Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: none;
+      overflow: hidden;
+    }
+
+    .demo-content {
+      text-align: center;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    h1 {
+      font-size: 4rem;
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 2rem;
+    }
+
+    p {
+      font-size: 1.5rem;
+      color: #D4AF37;
+      letter-spacing: 0.2em;
+    }
+
+    .flame-cursor {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-14px, -6px);
+      will-change: transform;
+      transition: left 0.05s ease-out, top 0.05s ease-out;
+    }
+
+    .flame-svg {
+      filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+      animation: flameFlicker 0.15s infinite alternate;
+    }
+
+    @keyframes flameFlicker {
+      0% {
+        transform: scaleY(1) scaleX(1);
+        filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6)) brightness(1);
+      }
+      25% {
+        transform: scaleY(1.05) scaleX(0.98);
+        filter: drop-shadow(0 0 10px rgba(255, 165, 0, 0.7)) brightness(1.1);
+      }
+      50% {
+        transform: scaleY(0.98) scaleX(1.02);
+        filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.5)) brightness(0.95);
+      }
+      75% {
+        transform: scaleY(1.02) scaleX(0.99);
+        filter: drop-shadow(0 0 9px rgba(255, 140, 0, 0.65)) brightness(1.05);
+      }
+      100% {
+        transform: scaleY(1.03) scaleX(1.01);
+        filter: drop-shadow(0 0 11px rgba(255, 215, 0, 0.8)) brightness(1.15);
+      }
+    }
+
+    .flame-glow { animation: glowPulse 0.3s ease-in-out infinite alternate; }
+    @keyframes glowPulse {
+      0% { opacity: 0.3; transform: scale(1); }
+      100% { opacity: 0.5; transform: scale(1.1); }
+    }
+
+    .flame-body { animation: bodyFlicker 0.2s ease-in-out infinite; }
+    @keyframes bodyFlicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.95; }
+    }
+
+    .flame-lick-left { animation: lickLeft 0.25s ease-in-out infinite alternate; transform-origin: 10px 10px; }
+    @keyframes lickLeft {
+      0% { opacity: 0.6; transform: translateX(0) scaleY(1); }
+      100% { opacity: 0.8; transform: translateX(-1px) scaleY(1.1); }
+    }
+
+    .flame-lick-right { animation: lickRight 0.2s ease-in-out infinite alternate; transform-origin: 18px 10px; }
+    @keyframes lickRight {
+      0% { opacity: 0.6; transform: translateX(0) scaleY(1); }
+      100% { opacity: 0.8; transform: translateX(1px) scaleY(1.08); }
+    }
+
+    .flame-core { animation: coreFlicker 0.15s ease-in-out infinite; }
+    @keyframes coreFlicker {
+      0%, 100% { opacity: 0.9; }
+      50% { opacity: 1; }
+    }
+
+    .flame-hot-core { animation: hotCoreFlicker 0.1s linear infinite; }
+    @keyframes hotCoreFlicker {
+      0%, 100% { opacity: 0.95; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    .flame-hotspot { animation: hotspotFlicker 0.08s ease-in-out infinite; }
+    @keyframes hotspotFlicker {
+      0% { opacity: 0.85; transform: scale(1); }
+      25% { opacity: 0.95; transform: scale(1.1); }
+      50% { opacity: 0.9; transform: scale(0.95); }
+      75% { opacity: 1; transform: scale(1.05); }
+      100% { opacity: 0.88; transform: scale(1.02); }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-content">
+    <h1>SERANOUN</h1>
+    <p>Move your mouse to see the burning flame cursor</p>
+  </div>
+
+  <div class="flame-cursor" id="flameCursor">
+    <svg class="flame-svg" xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
+      <defs>
+        <radialGradient id="flameGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" style="stop-color:#FFFACD;stop-opacity:1" />
+          <stop offset="30%" style="stop-color:#FFD700;stop-opacity:0.9" />
+          <stop offset="60%" style="stop-color:#FF8C00;stop-opacity:0.6" />
+          <stop offset="100%" style="stop-color:#FF4500;stop-opacity:0.2" />
+        </radialGradient>
+        <linearGradient id="flameBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#FFF8DC;stop-opacity:1" />
+          <stop offset="15%" style="stop-color:#FFD700;stop-opacity:1" />
+          <stop offset="40%" style="stop-color:#FFA500;stop-opacity:1" />
+          <stop offset="70%" style="stop-color:#FF6347;stop-opacity:0.95" />
+          <stop offset="100%" style="stop-color:#B8860B;stop-opacity:0.7" />
+        </linearGradient>
+        <linearGradient id="innerFlame" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" style="stop-color:#FFFACD;stop-opacity:1" />
+          <stop offset="50%" style="stop-color:#FFD700;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#FFA500;stop-opacity:0.8" />
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      <ellipse class="flame-glow" cx="14" cy="20" rx="12" ry="14" fill="url(#flameGlow)" opacity="0.4" filter="url(#glow)" />
+      <path class="flame-body" d="M 14 2 C 13 3, 11 5, 10 7 C 9 9, 7.5 12, 7 15 C 6.5 18, 6.2 21, 7 24 C 7.5 26, 9 28, 11 30 C 12 31, 13 31.5, 14 32 C 15 31.5, 16 31, 17 30 C 19 28, 20.5 26, 21 24 C 21.8 21, 21.5 18, 21 15 C 20.5 12, 19 9, 18 7 C 17 5, 15 3, 14 2 Z" fill="url(#flameBody)" filter="url(#glow)" />
+      <path class="flame-lick-left" d="M 10 7 Q 8 10, 7.5 13 Q 8 15, 9 16 Q 9.5 13, 10 10 Z" fill="#FFA500" opacity="0.7" />
+      <path class="flame-lick-right" d="M 18 7 Q 20 10, 20.5 13 Q 20 15, 19 16 Q 18.5 13, 18 10 Z" fill="#FFA500" opacity="0.7" />
+      <path class="flame-core" d="M 14 8 C 13 10, 11.5 13, 11 16 C 10.8 18, 11 20, 12 22 C 12.5 23, 13 24, 14 24.5 C 15 24, 15.5 23, 16 22 C 17 20, 17.2 18, 17 16 C 16.5 13, 15 10, 14 8 Z" fill="url(#innerFlame)" opacity="0.9" />
+      <path class="flame-hot-core" d="M 14 12 C 13.2 14, 12.5 16, 12.5 18 C 12.5 19.5, 13 21, 14 21.5 C 15 21, 15.5 19.5, 15.5 18 C 15.5 16, 14.8 14, 14 12 Z" fill="#FFFACD" opacity="1" />
+      <ellipse class="flame-hotspot" cx="14" cy="17" rx="1.5" ry="2.5" fill="#FFFFFF" opacity="0.9" />
+    </svg>
+  </div>
+
+  <script>
+    const cursor = document.getElementById('flameCursor');
+    let mouseX = 0, mouseY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      cursor.style.left = mouseX + 'px';
+      cursor.style.top = mouseY + 'px';
+    });
+  </script>
+</body>
+</html>

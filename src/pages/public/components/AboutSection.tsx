@@ -1,18 +1,37 @@
 import { useState } from 'react';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { useGetLandingPageContentQuery } from '../../../services/api';
 
 const AboutSection = () => {
   const { lang, t } = useLanguage();
+  const { data: contentData } = useGetLandingPageContentQuery();
 
-  const initiations = [
-    { icon: '🙏', label: t('Hare Krishna', 'Hare Krishna') },
-    { icon: '🐍', label: t('Vodou Thron', 'Vodou Thron') },
-    { icon: '🔮', label: t('Initié au Fa', 'Fa Initiate') },
-    { icon: '⚡', label: t('Bioénergie', 'Bioenergy') },
-    { icon: '📐', label: t('BioGéométrie', 'BioGeometry') },
-  ];
+  // Get about section content from API or use hardcoded fallback
+  const aboutSection = contentData?.payload?.find((section: any) => section.section === 'about');
+  const title = aboutSection ? (lang === 'fr' ? (aboutSection.titleFr ?? aboutSection.title_fr) : (aboutSection.titleEn ?? aboutSection.title_en)) : t('Le Maître', 'The Master');
+  const subtitle = aboutSection ? (lang === 'fr' ? (aboutSection.subtitleFr ?? aboutSection.subtitle_fr) : (aboutSection.subtitleEn ?? aboutSection.subtitle_en)) : t('À PROPOS', 'ABOUT');
+  const description = aboutSection ? (lang === 'fr' ? (aboutSection.descriptionFr ?? aboutSection.description_fr) : (aboutSection.descriptionEn ?? aboutSection.description_en)) : t("Physicien micro-vibratoire et fondateur du cabinet Seranoun ainsi que de l'association Akpé Fondation, j'accompagne les êtres dans leur chemin de transformation intérieure et de réalisation spirituelle.", "Micro-vibratory physicist and founder of Seranoun as well as the Akpé Foundation, I guide beings on their path of inner transformation and spiritual realization.");
+  const content = aboutSection ? (lang === 'fr' ? (aboutSection.contentFr ?? aboutSection.content_fr) : (aboutSection.contentEn ?? aboutSection.content_en)) : t("Ma quête a commencé à l'âge de 16 ans, guidée par une soif profonde de comprendre les mystères de l'existence. Ce parcours initiatique m'a conduit à recevoir de nombreuses transmissions sacrées, issues de traditions anciennes et complémentaires.", "My quest began at the age of 16, guided by a deep thirst to understand the mysteries of existence. This initiatory path led me to receive many sacred transmissions from ancient and complementary traditions.");
+  const meta = aboutSection?.metadata || {};
+  const masterName = meta.master_name ?? meta.masterName ?? 'Taj Rasmoon';
+  const masterTitle = aboutSection?.metadata ? (lang === 'fr' ? (meta.master_title_fr ?? meta.masterTitleFr ?? 'Maître spirituel') : (meta.master_title_en ?? meta.masterTitleEn ?? 'Spiritual Master')) : t('Maître spirituel', 'Spiritual Master');
+  const quote = aboutSection?.metadata ? (lang === 'fr' ? (meta.quote_fr ?? meta.quoteFr ?? '') : (meta.quote_en ?? meta.quoteEn ?? '')) : t("L'éveil spirituel est un briseur d'illusions.", "Spiritual awakening is a breaker of illusions.");
 
-  const expertise = [
+  const initiationsRaw = aboutSection?.metadata?.initiations || [];
+  const initiations = (initiationsRaw.length ? initiationsRaw : [
+    { icon: '🙏', labelFr: 'Hare Krishna', labelEn: 'Hare Krishna' },
+    { icon: '🐍', labelFr: 'Vodou Thron', labelEn: 'Vodou Thron' },
+    { icon: '🔮', labelFr: 'Initié au Fa', labelEn: 'Fa Initiate' },
+    { icon: '⚡', labelFr: 'Bioénergie', labelEn: 'Bioenergy' },
+    { icon: '📐', labelFr: 'BioGéométrie', labelEn: 'BioGeometry' },
+  ]).map((init: any) => ({
+    icon: init.icon,
+    labelFr: init.label_fr ?? init.labelFr ?? '',
+    labelEn: init.label_en ?? init.labelEn ?? '',
+  }));
+
+  const expertiseRaw = aboutSection?.metadata ? (lang === 'fr' ? (meta.expertise_fr ?? meta.expertiseFr) : (meta.expertise_en ?? meta.expertiseEn)) : null;
+  const expertise = expertiseRaw && expertiseRaw.length ? expertiseRaw : [
     t('Hermétisme', 'Hermeticism'),
     t('Kabbale égyptienne', 'Egyptian Kabbalah'),
     t('Hindouisme', 'Hinduism'),
@@ -21,6 +40,16 @@ const AboutSection = () => {
     t('Bioénergie', 'Bioenergy'),
     t('BioGéométrie', 'BioGeometry'),
   ];
+
+  const teamData = aboutSection?.metadata?.team || [];
+  const team = (teamData.length ? teamData.map((member: any) => ({
+    name: member.name,
+    roleFr: member.role_fr ?? member.roleFr ?? '',
+    roleEn: member.role_en ?? member.roleEn ?? '',
+  })) : [
+    { name: 'Taj Rasmoon', roleFr: 'PDG Seranoun - Maître spirituel', roleEn: 'CEO Seranoun - Spiritual Master' },
+    { name: 'Sali Mondor', roleFr: 'Consultante | Sophrologue | Soins', roleEn: 'Consultant | Sophrologist | Healing' },
+  ]);
 
   return (
     <section id="about" className="relative py-24 bg-gradient-to-b from-black via-stone-950 to-black overflow-hidden">
@@ -32,10 +61,10 @@ const AboutSection = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <span className="inline-block px-4 py-1 mb-4 text-xs tracking-[0.3em] text-amber-500 border border-amber-600/30 rounded-full">
-            {t('À PROPOS', 'ABOUT')}
+            {subtitle}
           </span>
           <h2 className="text-3xl md:text-5xl font-light text-white mb-4">
-            {t('Le Maître', 'The Master')}
+            {title}
           </h2>
         </div>
 
@@ -67,8 +96,8 @@ const AboutSection = () => {
 
               {/* Name Card */}
               <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 px-8 py-4 bg-black/90 border border-amber-600/30 rounded-2xl backdrop-blur-sm">
-                <h3 className="text-xl font-medium text-amber-400 text-center">Taj Rasmoon</h3>
-                <p className="text-sm text-gray-400 text-center">{t('Maître spirituel', 'Spiritual Master')}</p>
+                <h3 className="text-xl font-medium text-amber-400 text-center">{masterName}</h3>
+                <p className="text-sm text-gray-400 text-center">{masterTitle}</p>
               </div>
             </div>
           </div>
@@ -77,16 +106,10 @@ const AboutSection = () => {
           <div className="space-y-6">
             <div className="prose prose-invert">
               <p className="text-lg text-gray-300 leading-relaxed">
-                {t(
-                  "Physicien micro-vibratoire et fondateur du cabinet Triskeloum ainsi que de l'association Akpé Fondation, j'accompagne les êtres dans leur chemin de transformation intérieure et de réalisation spirituelle.",
-                  "Micro-vibratory physicist and founder of Triskeloum as well as the Akpé Foundation, I guide beings on their path of inner transformation and spiritual realization."
-                )}
+                {description}
               </p>
               <p className="text-gray-400 leading-relaxed">
-                {t(
-                  "Ma quête a commencé à l'âge de 16 ans, guidée par une soif profonde de comprendre les mystères de l'existence. Ce parcours initiatique m'a conduit à recevoir de nombreuses transmissions sacrées, issues de traditions anciennes et complémentaires.",
-                  "My quest began at the age of 16, guided by a deep thirst to understand the mysteries of existence. This initiatory path led me to receive many sacred transmissions from ancient and complementary traditions."
-                )}
+                {content}
               </p>
             </div>
 
@@ -100,7 +123,7 @@ const AboutSection = () => {
                     className="px-4 py-2 bg-gradient-to-r from-amber-900/30 to-red-900/20 border border-amber-700/30 rounded-full text-sm text-amber-300"
                   >
                     <span className="mr-2">{init.icon}</span>
-                    {init.label}
+                    {lang === 'fr' ? init.labelFr : init.labelEn}
                   </span>
                 ))}
               </div>
@@ -127,10 +150,7 @@ const AboutSection = () => {
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
               </svg>
               <p className="text-lg italic text-amber-100/80 pl-10">
-                {t(
-                  "L'éveil spirituel est un briseur d'illusions.",
-                  "Spiritual awakening is a breaker of illusions."
-                )}
+                {quote}
               </p>
             </blockquote>
           </div>
@@ -143,18 +163,7 @@ const AboutSection = () => {
           </h3>
           
           <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-            {[
-              {
-                name: 'Taj Rasmoon',
-                roleFr: 'PDG Triskeloum - Maître spirituel',
-                roleEn: 'CEO Triskeloum - Spiritual Master',
-              },
-              {
-                name: 'Sali Mondor',
-                roleFr: 'Consultante | Sophrologue | Soins',
-                roleEn: 'Consultant | Sophrologist | Healing',
-              },
-            ].map((member, i) => (
+            {team.map((member, i) => (
               <div
                 key={i}
                 className="group relative p-6 bg-gradient-to-b from-amber-900/10 to-transparent border border-amber-900/30 rounded-2xl hover:border-amber-600/50 transition-all duration-300"
@@ -167,7 +176,7 @@ const AboutSection = () => {
                   </div>
                   <div>
                     <h4 className="text-lg font-medium text-amber-400">{member.name}</h4>
-                    <p className="text-sm text-gray-400">{t(member.roleFr, member.roleEn)}</p>
+                    <p className="text-sm text-gray-400">{lang === 'fr' ? member.roleFr : member.roleEn}</p>
                   </div>
                 </div>
               </div>

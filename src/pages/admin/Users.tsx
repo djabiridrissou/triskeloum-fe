@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TrashIcon, LockClosedIcon, LockOpenIcon, PencilIcon, PlusIcon, ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
+import { TrashIcon, LockClosedIcon, LockOpenIcon, PencilIcon, PlusIcon, ChatBubbleLeftIcon, UsersIcon, UserPlusIcon, UserGroupIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import axiosClient from '../../services/axiosClient';
@@ -64,6 +64,10 @@ const Users: React.FC = () => {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [levels, setLevels] = useState<any[]>([]);
 
+  // Stats state
+  const [stats, setStats] = useState<any>(null);
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+
   // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -99,6 +103,23 @@ const Users: React.FC = () => {
     fetchUsers();
   }, [page, debouncedSearch, sortField, sortDirection]);
 
+  // Fetch stats
+  const fetchStats = async () => {
+    try {
+      setIsLoadingStats(true);
+      const data = await adminUsersService.getUsersStats();
+      setStats(data);
+    } catch (error: any) {
+      console.error('Error loading stats:', error);
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
   const handleSort = (field: string) => {
     if (sortField === field) {
       setSortDirection(sortDirection === 'ASC' ? 'DESC' : 'ASC');
@@ -111,11 +132,11 @@ const Users: React.FC = () => {
 
   const SortIcon = ({ field }: { field: string }) => {
     if (sortField !== field) {
-      return <span className="ml-1 text-gray-400">⇅</span>;
+      return <span className="ml-1 text-gray-400 dark:text-gray-600">⇅</span>;
     }
-    return sortDirection === 'ASC' 
-      ? <span className="ml-1 text-blue-600">▲</span>
-      : <span className="ml-1 text-blue-600">▼</span>;
+    return sortDirection === 'ASC'
+      ? <span className="ml-1 text-amber-600 dark:text-amber-400">▲</span>
+      : <span className="ml-1 text-amber-600 dark:text-amber-400">▼</span>;
   };
 
   // Load levels on mount
@@ -270,99 +291,170 @@ const Users: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 p-8 overflow-auto">
+    <div className="flex-1 flex flex-col bg-gray-50 dark:bg-bg-primary p-4 md:p-6 overflow-auto transition-colors duration-300">
       <div className="max-w-8xl mx-auto w-full">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Gestion des Utilisateurs</h1>
-            <p className="text-gray-600 mt-2">Gérez et contrôlez les utilisateurs de la plateforme</p>
+            <h1 className="text-2xl md:text-3xl font-bold mb-1"
+              style={{
+                background: 'linear-gradient(135deg, #D4AF37 0%, #FFD700 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}>
+              Gestion des Utilisateurs
+            </h1>
+            <p className="text-sm text-gray-600 dark:text-text-tertiary">Gérez et contrôlez les utilisateurs de la plateforme</p>
           </div>
           <button
             onClick={handleCreateUser}
-            className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black font-medium rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200"
           >
             <PlusIcon className="h-5 w-5" />
             Créer utilisateur
           </button>
         </div>
 
-        {/* Search and Stats */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 flex justify-between items-center gap-4">
-          <div className="w-full max-w-md">
-            <SearchBar 
-              value={search} 
+        {/* Stats Cards */}
+        {isLoadingStats ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-white dark:bg-bg-tertiary rounded-xl p-6 border border-gray-200 dark:border-gray-800 animate-pulse">
+                <div className="h-12 w-12 bg-gray-200 dark:bg-gray-700 rounded-lg mb-4" />
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 mb-2" />
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-16" />
+              </div>
+            ))}
+          </div>
+        ) : stats && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {/* Total Users */}
+            <div className="relative bg-gradient-to-br from-amber-50/30 to-white dark:from-transparent dark:to-transparent dark:bg-bg-tertiary rounded-xl p-6 border border-gray-200 dark:border-gray-800 hover:border-amber-500 dark:hover:border-amber-500 transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-md">
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent dark:from-amber-500/5 dark:to-transparent" />
+              <div className="relative">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#FFD700] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <UsersIcon className="h-6 w-6 text-black" />
+                </div>
+                <h3 className="text-sm font-medium text-gray-600 dark:text-text-tertiary mb-1">Total Utilisateurs</h3>
+                <p className="text-2xl font-bold text-gray-900 dark:text-text-primary">{stats.totalUsers || 0}</p>
+              </div>
+            </div>
+
+            {/* New Users This Week */}
+            <div className="relative bg-gradient-to-br from-amber-50/30 to-white dark:from-transparent dark:to-transparent dark:bg-bg-tertiary rounded-xl p-6 border border-gray-200 dark:border-gray-800 hover:border-amber-500 dark:hover:border-amber-500 transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-md">
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent dark:from-amber-500/5 dark:to-transparent" />
+              <div className="relative">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#FFD700] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <UserPlusIcon className="h-6 w-6 text-black" />
+                </div>
+                <h3 className="text-sm font-medium text-gray-600 dark:text-text-tertiary mb-1">Nouveaux (7 jours)</h3>
+                <p className="text-2xl font-bold text-gray-900 dark:text-text-primary">{stats.newUsersWeek || 0}</p>
+              </div>
+            </div>
+
+            {/* Active Users */}
+            <div className="relative bg-gradient-to-br from-amber-50/30 to-white dark:from-transparent dark:to-transparent dark:bg-bg-tertiary rounded-xl p-6 border border-gray-200 dark:border-gray-800 hover:border-amber-500 dark:hover:border-amber-500 transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-md">
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent dark:from-amber-500/5 dark:to-transparent" />
+              <div className="relative">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#FFD700] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <UserGroupIcon className="h-6 w-6 text-black" />
+                </div>
+                <h3 className="text-sm font-medium text-gray-600 dark:text-text-tertiary mb-1">Utilisateurs Actifs</h3>
+                <p className="text-2xl font-bold text-gray-900 dark:text-text-primary">{stats.activeUsers || 0}</p>
+                <p className="text-xs text-gray-500 dark:text-text-muted mt-1">{stats.activeUsersPercentage || 0}% du total</p>
+              </div>
+            </div>
+
+            {/* New Users This Month */}
+            <div className="relative bg-gradient-to-br from-amber-50/30 to-white dark:from-transparent dark:to-transparent dark:bg-bg-tertiary rounded-xl p-6 border border-gray-200 dark:border-gray-800 hover:border-amber-500 dark:hover:border-amber-500 transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-md">
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent dark:from-amber-500/5 dark:to-transparent" />
+              <div className="relative">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#FFD700] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <ClockIcon className="h-6 w-6 text-black" />
+                </div>
+                <h3 className="text-sm font-medium text-gray-600 dark:text-text-tertiary mb-1">Nouveaux (30 jours)</h3>
+                <p className="text-2xl font-bold text-gray-900 dark:text-text-primary">{stats.newUsersMonth || 0}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Search and Total */}
+        <div className="bg-gradient-to-br from-amber-50/30 to-white dark:from-transparent dark:to-transparent dark:bg-bg-tertiary rounded-xl shadow-sm hover:shadow-md p-6 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-gray-200 dark:border-gray-800 transition-all duration-300">
+          <div className="w-full sm:max-w-md">
+            <SearchBar
+              value={search}
               onChange={setSearch}
               placeholder="Rechercher par nom, email ou téléphone..."
             />
           </div>
           <div className="text-right">
-            <p className="text-sm text-gray-600">Total: <span className="font-bold text-lg">{pagination.total}</span></p>
+            <p className="text-sm text-gray-600 dark:text-text-tertiary">Total: <span className="font-bold text-lg text-gray-900 dark:text-text-primary">{pagination.total}</span></p>
           </div>
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto rounded-lg shadow">
-        <table className="min-w-full divide-y divide-gray-200 bg-white">
-          <thead className="bg-gray-50">
+        <div className="overflow-x-auto rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800 bg-white dark:bg-bg-tertiary">
+          <thead className="bg-gray-50 dark:bg-bg-secondary">
             <tr>
-              <th 
+              <th
                 onClick={() => handleSort('firstname')}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-text-tertiary uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <div className="flex items-center">
                   Utilisateur
                   <SortIcon field="firstname" />
                 </div>
               </th>
-              <th 
+              <th
                 onClick={() => handleSort('email')}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-text-tertiary uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <div className="flex items-center">
                   Email
                   <SortIcon field="email" />
                 </div>
               </th>
-              <th 
+              <th
                 onClick={() => handleSort('phone')}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-text-tertiary uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <div className="flex items-center">
                   Téléphone
                   <SortIcon field="phone" />
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-text-tertiary uppercase tracking-wider">
                 Niveau
               </th>
-              <th 
+              <th
                 onClick={() => handleSort('role')}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-text-tertiary uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <div className="flex items-center">
                   Rôle
                   <SortIcon field="role" />
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-text-tertiary uppercase tracking-wider">
                 Statut
               </th>
-              <th 
+              <th
                 onClick={() => handleSort('last_login')}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-text-tertiary uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <div className="flex items-center">
                   Dernière connexion
                   <SortIcon field="last_login" />
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-text-tertiary uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
             {isLoading ? (
               <tr>
                 <td colSpan={8} className="px-6 py-8">
@@ -373,7 +465,7 @@ const Users: React.FC = () => {
               <tr>
                 <td colSpan={8} className="px-6 py-8">
                   <div className="text-center py-12">
-                    <p className="text-gray-500 text-sm">
+                    <p className="text-gray-500 dark:text-text-tertiary text-sm">
                       {search ? 'Aucun utilisateur correspondant à votre recherche' : 'Aucun utilisateur trouvé'}
                     </p>
                   </div>
@@ -381,40 +473,40 @@ const Users: React.FC = () => {
               </tr>
             ) : (
               users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-amber-900/10 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold">
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#FFD700] flex items-center justify-center text-black font-bold">
                         {user.firstname.charAt(0)}{user.lastname.charAt(0)}
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{user.firstname} {user.lastname}</p>
+                        <p className="font-medium text-gray-900 dark:text-text-primary">{user.firstname} {user.lastname}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-text-secondary">
                     {user.email}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-text-secondary">
                     {user.phone || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {user.level ? (
                       <div className="flex items-center gap-2">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400">
                           {user.level.name}
                         </span>
-                        <span className="text-xs text-gray-500 font-medium">#{user.level.rank}</span>
+                        <span className="text-xs text-gray-500 dark:text-text-tertiary font-medium">#{user.level.rank}</span>
                       </div>
                     ) : (
-                      <span className="text-sm text-gray-400">-</span>
+                      <span className="text-sm text-gray-400 dark:text-text-tertiary">-</span>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      user.role === 'admin' 
-                        ? 'bg-red-100 text-red-800' 
-                        : 'bg-blue-100 text-blue-800'
+                      user.role === 'admin'
+                        ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400'
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300'
                     }`}>
                       {user.role === 'admin' ? 'Administrateur' : 'Utilisateur'}
                     </span>
@@ -422,13 +514,13 @@ const Users: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       user.is_blocked
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-green-100 text-green-800'
+                        ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400'
+                        : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400'
                     }`}>
-                      {user.is_blocked ? '🔒 Bloqué' : '✅ Actif'}
+                      {user.is_blocked ? 'Bloqué' : 'Actif'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-text-secondary">
                     {formatDate(user.last_login)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -436,7 +528,7 @@ const Users: React.FC = () => {
                       <button
                         onClick={() => handleStartChat(user)}
                         disabled={isProcessing || isChatLoading === user.id}
-                        className="p-2 rounded-md text-green-600 hover:bg-green-50 disabled:opacity-50 transition-colors"
+                        className="p-2 rounded-md text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 disabled:opacity-50 transition-colors"
                         title="Démarrer un chat"
                       >
                         <ChatBubbleLeftIcon className="h-5 w-5" />
@@ -444,7 +536,7 @@ const Users: React.FC = () => {
                       <button
                         onClick={() => handleEditUser(user)}
                         disabled={isProcessing}
-                        className="p-2 rounded-md text-blue-600 hover:bg-blue-50 disabled:opacity-50 transition-colors"
+                        className="p-2 rounded-md text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50 transition-colors"
                         title="Modifier l'utilisateur"
                       >
                         <PencilIcon className="h-5 w-5" />
@@ -453,7 +545,7 @@ const Users: React.FC = () => {
                         <button
                           onClick={() => handleUnblock(user)}
                           disabled={isProcessing}
-                          className="p-2 rounded-md text-green-600 hover:bg-green-50 disabled:opacity-50 transition-colors"
+                          className="p-2 rounded-md text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 disabled:opacity-50 transition-colors"
                           title="Débloquer l'utilisateur"
                         >
                           <LockOpenIcon className="h-5 w-5" />
@@ -462,7 +554,7 @@ const Users: React.FC = () => {
                         <button
                           onClick={() => handleBlock(user)}
                           disabled={isProcessing}
-                          className="p-2 rounded-md text-yellow-600 hover:bg-yellow-50 disabled:opacity-50 transition-colors"
+                          className="p-2 rounded-md text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-50 transition-colors"
                           title="Bloquer l'utilisateur"
                         >
                           <LockClosedIcon className="h-5 w-5" />
@@ -471,7 +563,7 @@ const Users: React.FC = () => {
                       <button
                         onClick={() => handleDeleteClick(user)}
                         disabled={isProcessing}
-                        className="p-2 rounded-md text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
+                        className="p-2 rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 transition-colors"
                         title="Supprimer l'utilisateur"
                       >
                         <TrashIcon className="h-5 w-5" />

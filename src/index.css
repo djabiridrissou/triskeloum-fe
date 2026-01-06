@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 html {
   font-size: 88%;
@@ -162,20 +164,98 @@ html {
   .scrollbar-thin {
     scrollbar-width: thin;
   }
-  
+
   .scrollbar-thumb-gray-600::-webkit-scrollbar-thumb {
     background-color: #4b5563;
     border-radius: 4px;
   }
-  
+
   .scrollbar-track-gray-800::-webkit-scrollbar-track {
     background-color: #1f2937;
   }
-  
+
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
+}
+
+/* Fix autocomplete white background in dark mode */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #1f2937 inset !important;
+  -webkit-text-fill-color: #f3f4f6 !important;
+  box-shadow: 0 0 0 1000px #1f2937 inset !important;
+  caret-color: #f3f4f6 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* For light mode */
+html:not(.dark) input:-webkit-autofill,
+html:not(.dark) input:-webkit-autofill:hover,
+html:not(.dark) input:-webkit-autofill:focus,
+html:not(.dark) input:-webkit-autofill:active,
+html:not(.dark) textarea:-webkit-autofill,
+html:not(.dark) textarea:-webkit-autofill:hover,
+html:not(.dark) textarea:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #111827 !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  caret-color: #111827 !important;
+}
+
+/* For Ant Design inputs (Login page) */
+.ant-input:-webkit-autofill,
+.ant-input:-webkit-autofill:hover,
+.ant-input:-webkit-autofill:focus,
+.ant-input:-webkit-autofill:active,
+.ant-input-password input:-webkit-autofill,
+.ant-input-password input:-webkit-autofill:hover,
+.ant-input-password input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #111827 inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  box-shadow: 0 0 0 1000px #111827 inset !important;
+  caret-color: #ffffff !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Fix Ant Design Dropdown in dark mode */
+.ant-dropdown {
+  z-index: 1050 !important;
+}
+
+.dark .ant-dropdown-menu {
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+}
+
+.dark .ant-dropdown-menu-item {
+  color: #f3f4f6 !important;
+}
+
+.dark .ant-dropdown-menu-item:hover {
+  background-color: #374151 !important;
+}
+
+.dark .ant-dropdown-menu-item-danger {
+  color: #f87171 !important;
+}
+
+.dark .ant-dropdown-menu-item-danger:hover {
+  background-color: #7f1d1d !important;
+  color: #fca5a5 !important;
+}
+
+.dark .ant-dropdown-menu-item-divider {
+  background-color: #374151 !important;
 }
 
 

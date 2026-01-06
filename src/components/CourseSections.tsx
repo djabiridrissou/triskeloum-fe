@@ -43,15 +43,20 @@ const CourseSections: React.FC<CourseSectionsProps> = ({ sections }) => {
 
   if (!sections || sections.length === 0) {
     return (
-      <div className="text-center py-12 bg-gray-50 rounded-lg">
-        <p className="text-gray-500">Aucune section disponible pour ce cours.</p>
+      <div className="text-center py-12 bg-gray-50 dark:bg-bg-secondary rounded-lg border border-gray-200 dark:border-gray-800">
+        <p className="text-gray-500 dark:text-text-tertiary">Aucune section disponible pour ce cours.</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">
+      <h2 className="text-2xl font-bold mb-6"
+        style={{
+          background: 'linear-gradient(135deg, #D4AF37 0%, #FFD700 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+        }}>
         Contenu du cours
       </h2>
 
@@ -61,33 +66,33 @@ const CourseSections: React.FC<CourseSectionsProps> = ({ sections }) => {
         return (
           <div
             key={section.id}
-            className="border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white transition-all duration-200 hover:shadow-md"
+            className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden shadow-sm bg-white dark:bg-bg-secondary transition-all duration-200 hover:shadow-md hover:border-amber-500 dark:hover:border-amber-500"
           >
             {/* En-tête de section */}
             <button
               type="button"
               onClick={() => toggleSection(sectionIndex)}
-              className="w-full px-6 py-4 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-150 transition-all duration-200"
+              className="w-full px-6 py-4 bg-gradient-to-r from-[#D4AF37]/10 to-[#FFD700]/10 dark:from-[#D4AF37]/20 dark:to-[#FFD700]/20 hover:from-[#D4AF37]/20 hover:to-[#FFD700]/20 dark:hover:from-[#D4AF37]/30 dark:hover:to-[#FFD700]/30 transition-all duration-200"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <span className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md">
+                  <span className="w-8 h-8 bg-gradient-to-br from-[#D4AF37] to-[#FFD700] text-black rounded-full flex items-center justify-center text-sm font-bold shadow-md">
                     {sectionIndex + 1}
                   </span>
-                  <h3 className="text-lg font-semibold text-gray-900 text-left">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-text-primary text-left">
                     {section.title}
                   </h3>
                 </div>
                 <div className="flex items-center space-x-2">
                   {section.content?.parts && (
-                    <span className="text-xs bg-blue-200 text-blue-700 px-2 py-1 rounded-full font-medium">
+                    <span className="text-xs bg-gradient-to-r from-[#D4AF37]/20 to-[#FFD700]/20 dark:from-[#D4AF37]/30 dark:to-[#FFD700]/30 text-amber-700 dark:text-amber-400 px-2 py-1 rounded-full font-medium border border-[#D4AF37]/30 dark:border-[#D4AF37]/50">
                       {section.content.parts.length} partie{section.content.parts.length > 1 ? 's' : ''}
                     </span>
                   )}
                   {isSectionExpanded ? (
-                    <ChevronUpIcon className="w-5 h-5 text-gray-600" />
+                    <ChevronUpIcon className="w-5 h-5 text-gray-600 dark:text-text-secondary" />
                   ) : (
-                    <ChevronDownIcon className="w-5 h-5 text-gray-600" />
+                    <ChevronDownIcon className="w-5 h-5 text-gray-600 dark:text-text-secondary" />
                   )}
                 </div>
               </div>
@@ -109,14 +114,19 @@ const CourseSections: React.FC<CourseSectionsProps> = ({ sections }) => {
 
                 {/* Résumé */}
                 {section.content?.summary && (
-                  <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border-l-4 border-blue-600">
-                    <h4 className="text-sm font-semibold text-blue-900 mb-3 flex items-center">
-                      <span className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs mr-2">
+                  <div className="mb-6 p-4 bg-gradient-to-r from-[#D4AF37]/5 to-[#FFD700]/5 dark:from-[#D4AF37]/10 dark:to-[#FFD700]/10 rounded-lg border-l-4 border-[#D4AF37]">
+                    <h4 className="text-sm font-semibold mb-3 flex items-center"
+                      style={{
+                        background: 'linear-gradient(135deg, #D4AF37 0%, #FFD700 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                      }}>
+                      <span className="w-6 h-6 bg-gradient-to-br from-[#D4AF37] to-[#FFD700] text-black rounded-full flex items-center justify-center text-xs mr-2">
                         i
                       </span>
                       Résumé
                     </h4>
-                    <div className="prose prose-sm max-w-none text-gray-700">
+                    <div className="prose prose-sm max-w-none text-gray-700 dark:text-text-secondary">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {section.content.summary}
                       </ReactMarkdown>
@@ -127,11 +137,11 @@ const CourseSections: React.FC<CourseSectionsProps> = ({ sections }) => {
                 {/* Fichiers Media */}
                 {section.content?.media && section.content.media.length > 0 && (
                   <div className="mb-6 space-y-3">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-text-primary mb-3">
                       Contenu Média
                     </h4>
                     {section.content.media.map((media, mediaIndex) => (
-                      <div key={mediaIndex} className="border border-gray-200 rounded-lg overflow-hidden bg-gray-50 p-4">
+                      <div key={mediaIndex} className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden bg-gray-50 dark:bg-bg-tertiary p-4">
                         {media.type === 'VIDEO' ? (
                           <video 
                             controls 
@@ -169,7 +179,7 @@ const CourseSections: React.FC<CourseSectionsProps> = ({ sections }) => {
                 {/* Parties */}
                 {section.content?.parts && section.content.parts.length > 0 && (
                   <div className="space-y-3">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-text-primary mb-3">
                       Contenu détaillé
                     </h4>
                     {section.content.parts.map((part, partIndex) => {
@@ -179,35 +189,35 @@ const CourseSections: React.FC<CourseSectionsProps> = ({ sections }) => {
                       return (
                         <div
                           key={partIndex}
-                          className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-sm transition-shadow duration-200"
+                          className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden hover:shadow-sm transition-shadow duration-200"
                         >
                           {/* En-tête de partie */}
                           <button
                             type="button"
                             onClick={() => togglePart(sectionIndex, partIndex)}
-                            className="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-bg-tertiary hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-3 flex-1">
-                                <span className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">
+                                <span className="flex-shrink-0 w-6 h-6 bg-gradient-to-br from-[#D4AF37]/20 to-[#FFD700]/20 dark:from-[#D4AF37]/30 dark:to-[#FFD700]/30 text-amber-700 dark:text-amber-400 rounded-full flex items-center justify-center text-xs font-bold border border-[#D4AF37]/30 dark:border-[#D4AF37]/50">
                                   {partIndex + 1}
                                 </span>
-                                <h5 className="font-medium text-gray-900 text-left">
+                                <h5 className="font-medium text-gray-900 dark:text-text-primary text-left">
                                   {part.title}
                                 </h5>
                               </div>
                               {isPartExpanded ? (
-                                <ChevronUpIcon className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                                <ChevronUpIcon className="w-4 h-4 text-gray-600 dark:text-text-secondary flex-shrink-0" />
                               ) : (
-                                <ChevronDownIcon className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                                <ChevronDownIcon className="w-4 h-4 text-gray-600 dark:text-text-secondary flex-shrink-0" />
                               )}
                             </div>
                           </button>
 
                           {/* Contenu de partie */}
                           {isPartExpanded && part.content && (
-                            <div className="p-4 bg-white border-t border-gray-100 animate-in">
-                              <div className="prose prose-sm max-w-none text-gray-700">
+                            <div className="p-4 bg-white dark:bg-bg-secondary border-t border-gray-100 dark:border-gray-800 animate-in">
+                              <div className="prose prose-sm max-w-none text-gray-700 dark:text-text-secondary dark:prose-invert">
                                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                   {part.content}
                                 </ReactMarkdown>

@@ -1,11 +1,11 @@
 // src/components/admin/StatsGrid.tsx
 import React from 'react';
 import KPICard from './KPICard';
-import { 
-    UsersIcon, 
-    AcademicCapIcon, 
+import {
+    UsersIcon,
+    AcademicCapIcon,
     ChatBubbleLeftRightIcon,
-    ChartBarIcon 
+    ChartBarIcon
 } from '@heroicons/react/24/outline';
 import { DashboardKPIs } from '../utils/typeDef';
 
@@ -16,41 +16,37 @@ interface StatsGridProps {
 
 const StatsGrid: React.FC<StatsGridProps> = ({ kpis }) => {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <KPICard
                 title="Utilisateurs totaux"
                 value={kpis.totalUsers.toLocaleString()}
                 subtitle={`+${kpis.newUsersWeek} cette semaine`}
-                icon={<UsersIcon className="w-8 h-8 text-white" />}
+                icon={<UsersIcon className="w-6 h-6" />}
                 trend={{
                     value: kpis.usersGrowth,
                     isPositive: parseFloat(kpis.usersGrowth) > 0
                 }}
-                color="blue"
             />
-            
+
             <KPICard
                 title="Cours disponibles"
                 value={kpis.totalCourses}
                 subtitle={`${kpis.publishedCourses} publiés`}
-                icon={<AcademicCapIcon className="w-8 h-8 text-white" />}
-                color="green"
+                icon={<AcademicCapIcon className="w-6 h-6" />}
             />
-            
+
             <KPICard
                 title="Messages"
                 value={kpis.messagesToday}
                 subtitle={`${kpis.messagesWeek} cette semaine`}
-                icon={<ChatBubbleLeftRightIcon className="w-8 h-8 text-white" />}
-                color="purple"
+                icon={<ChatBubbleLeftRightIcon className="w-6 h-6" />}
             />
-            
+
             <KPICard
                 title="Utilisateurs actifs"
                 value={kpis.activeUsers}
                 subtitle={`${kpis.activeUsersPercentage}% du total`}
-                icon={<ChartBarIcon className="w-8 h-8 text-white" />}
-                color="orange"
+                icon={<ChartBarIcon className="w-6 h-6" />}
             />
         </div>
     );

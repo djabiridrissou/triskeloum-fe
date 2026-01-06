@@ -626,18 +626,18 @@ export default function CRMPage() {
     const isOtherUserOnline = otherUser ? onlineUsers.has(otherUser.id) : false;
 
     return (
-        <div className="flex h-screen bg-white overflow-hidden">
+        <div className="flex h-screen bg-white dark:bg-bg-primary overflow-hidden">
             {/* SIDEBAR */}
-            <div className="w-100 bg-white border-r border-gray-200 items-center flex flex-col ">
+            <div className="w-80 bg-white dark:bg-bg-tertiary border-r border-gray-200 dark:border-gray-800 flex flex-col flex-shrink-0">
                 {/* Header */}
-                <div className="p-4 border-b border-gray-200 flex-shrink-0">
+                <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 bg-black rounded-xl">
-                            <ChatBubbleLeftRightIcon className="w-5 h-5 text-white" />
+                        <div className="p-2 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] rounded-xl">
+                            <ChatBubbleLeftRightIcon className="w-5 h-5 text-black" />
                         </div>
                         <div>
-                            <h1 className="text-base font-semibold text-black">Messages</h1>
-                            <p className="text-xs text-gray-500">
+                            <h1 className="text-base font-semibold text-black dark:text-text-primary">Messages</h1>
+                            <p className="text-xs text-gray-500 dark:text-text-tertiary">
                                 {filteredRooms.length} conversation{filteredRooms.length !== 1 ? 's' : ''}
                             </p>
                         </div>
@@ -645,11 +645,11 @@ export default function CRMPage() {
 
                     {/* Search */}
                     <div className="relative">
-                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-600" />
                         <input
                             type="text"
                             placeholder="Rechercher..."
-                            className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gray-400"
+                            className="w-full pl-9 pr-4 py-2 bg-gray-50 dark:bg-bg-secondary border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -660,13 +660,13 @@ export default function CRMPage() {
                 <div className="flex-1 overflow-y-auto">
                     {isLoading ? (
                         <div className="flex items-center justify-center h-full">
-                            <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-black"></div>
+                            <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 dark:border-gray-700 border-t-amber-600 dark:border-t-amber-400"></div>
                         </div>
                     ) : filteredRooms.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full px-4 text-center">
-                            <ChatBubbleLeftRightIcon className="w-12 h-12 text-gray-300 mb-3" />
-                            <p className="font-medium text-gray-600 text-sm">Aucune conversation</p>
-                            <p className="text-xs text-gray-400 mt-1">Commencez une nouvelle discussion</p>
+                            <ChatBubbleLeftRightIcon className="w-12 h-12 text-gray-300 dark:text-gray-700 mb-3" />
+                            <p className="font-medium text-gray-600 dark:text-text-secondary text-sm">Aucune conversation</p>
+                            <p className="text-xs text-gray-400 dark:text-text-tertiary mt-1">Commencez une nouvelle discussion</p>
                         </div>
                     ) : (
                         <div className="p-2">
@@ -674,7 +674,7 @@ export default function CRMPage() {
                                 const displayName = getRoomDisplayName(room);
                                 const otherU = room.users.find(u => u.id !== currentUser?.id);
                                 const lastMessage = room.messages && room.messages.length > 0
-                                    ? room.messages.reduce((prev, current) => 
+                                    ? room.messages.reduce((prev, current) =>
                                         (new Date(current.createdAt || 0) > new Date(prev.createdAt || 0)) ? current : prev
                                       )
                                     : null;
@@ -688,7 +688,7 @@ export default function CRMPage() {
                                         key={room.id}
                                         onClick={() => setSelectedRoom(room)}
                                         className={`w-full p-3 rounded-lg mb-1 transition-colors text-left ${
-                                            isSelected ? 'bg-gray-100' : 'hover:bg-gray-50'
+                                            isSelected ? 'bg-gradient-to-r from-[#D4AF37]/10 to-[#FFD700]/10 dark:from-[#D4AF37]/20 dark:to-[#FFD700]/20' : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                                         }`}
                                     >
                                         <div className="flex mx-4 items-center gap-3">
@@ -699,31 +699,31 @@ export default function CRMPage() {
                                                     {otherU?.lastname?.[0] || displayName[1] || ''}
                                                 </div>
                                                 {isOnline && (
-                                                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                                                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-bg-tertiary"></div>
                                                 )}
                                             </div>
 
                                             {/* Content */}
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex justify-between items-start mb-1">
-                                                    <h3 className="font-medium text-sm text-black truncate">
+                                                    <h3 className="font-medium text-sm text-black dark:text-text-primary truncate">
                                                         {displayName}
                                                     </h3>
                                                     <div className="flex items-center gap-2 ml-2 flex-shrink-0">
                                                         {lastMessage && (
-                                                            <span className="text-xs text-gray-400">
+                                                            <span className="text-xs text-gray-400 dark:text-text-tertiary">
                                                                 {formatMessageTime(lastMessage.createdAt)}
                                                             </span>
                                                         )}
                                                         {unreadCount > 0 && (
-                                                            <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-yellow-400 rounded-full flex-shrink-0">
+                                                            <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-black bg-gradient-to-r from-[#D4AF37] to-[#FFD700] rounded-full flex-shrink-0">
                                                                 {unreadCount > 99 ? '99+' : unreadCount}
                                                             </span>
                                                         )}
                                                     </div>
                                                 </div>
                                                 <p className={`text-xs truncate ${
-                                                    unreadCount > 0 ? 'text-gray-700 font-medium' : 'text-gray-500'
+                                                    unreadCount > 0 ? 'text-gray-700 dark:text-text-secondary font-medium' : 'text-gray-500 dark:text-text-tertiary'
                                                 }`}>
                                                     {lastMessage ? (
                                                         lastMessage.user.id === currentUser?.id
@@ -745,17 +745,17 @@ export default function CRMPage() {
             {selectedRoom ? (
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Header */}
-                    <div className="h-16 px-6 bg-white border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+                    <div className="h-16 px-6 bg-white dark:bg-bg-tertiary border-b border-gray-200 dark:border-gray-800 flex items-center justify-between flex-shrink-0">
                         <div className="flex items-center gap-3">
                             <div className={`w-10 h-10 rounded-full ${getInitialsStyle(otherUser?.firstname || '')} flex items-center justify-center text-white font-medium text-sm`}>
                                 {otherUser?.firstname[0]}{otherUser?.lastname[0]}
                             </div>
                             <div>
-                                <h2 className="text-sm font-semibold text-black">
+                                <h2 className="text-sm font-semibold text-black dark:text-text-primary">
                                     {otherUser?.firstname} {otherUser?.lastname}
                                 </h2>
-                                <p className="text-xs text-gray-500 flex items-center gap-1.5">
-                                    <span className={`w-2 h-2 rounded-full ${isOtherUserOnline ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                                <p className="text-xs text-gray-500 dark:text-text-tertiary flex items-center gap-1.5">
+                                    <span className={`w-2 h-2 rounded-full ${isOtherUserOnline ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`}></span>
                                     {isOtherUserOnline ? 'En ligne' : 'Hors ligne'}
                                 </p>
                             </div>
@@ -767,34 +767,34 @@ export default function CRMPage() {
                                 onClick={() => setIsVoiceRoomActive(!isVoiceRoomActive)}
                                 className={`p-2 rounded-lg transition-colors ${
                                     isVoiceRoomActive
-                                        ? 'bg-green-100 hover:bg-green-200 text-green-600'
-                                        : 'hover:bg-gray-100 text-gray-600'
+                                        ? 'bg-green-100 dark:bg-green-900/30 hover:bg-green-200 dark:hover:bg-green-900/40 text-green-600 dark:text-green-400'
+                                        : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-text-secondary'
                                 }`}
                                 title={isVoiceRoomActive ? 'Raccrocher' : 'Démarrer un appel vocal'}
                             >
                                 <PhoneIcon className="w-5 h-5" />
                             </button>
-                            <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                                <LinkIcon className="w-5 h-5 text-gray-600" />
+                            <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                <LinkIcon className="w-5 h-5 text-gray-600 dark:text-text-secondary" />
                             </button>
-                            <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-                                <EllipsisVerticalIcon className="w-5 h-5 text-gray-600" />
+                            <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                                <EllipsisVerticalIcon className="w-5 h-5 text-gray-600 dark:text-text-secondary" />
                             </button>
                         </div>
                     </div>
 
                     {/* Messages */}
-                    <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-6 space-y-4">
+                    <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50 dark:bg-bg-primary">
                         {isLoadingOlderMessages && (
                             <div className="flex justify-center py-2">
-                                <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-black"></div>
+                                <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 dark:border-gray-700 border-t-amber-600 dark:border-t-amber-400"></div>
                             </div>
                         )}
                         {messages.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-full">
-                                <ChatBubbleLeftRightIcon className="w-16 h-16 text-gray-200 mb-4" />
-                                <p className="font-medium text-gray-600">Début de la conversation</p>
-                                <p className="text-sm text-gray-400 mt-1">Envoyez un message pour démarrer</p>
+                                <ChatBubbleLeftRightIcon className="w-16 h-16 text-gray-200 dark:text-gray-700 mb-4" />
+                                <p className="font-medium text-gray-600 dark:text-text-secondary">Début de la conversation</p>
+                                <p className="text-sm text-gray-400 dark:text-text-tertiary mt-1">Envoyez un message pour démarrer</p>
                             </div>
                         ) : (
                             messages.map((msg, idx) => {
@@ -849,8 +849,8 @@ export default function CRMPage() {
                                             <div
                                                 className={`px-4 py-2 rounded-2xl ${
                                                     isCurrentUser
-                                                        ? 'bg-black text-white'
-                                                        : 'bg-gray-100 text-black'
+                                                        ? 'bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black'
+                                                        : 'bg-white dark:bg-bg-secondary text-black dark:text-text-primary border border-gray-200 dark:border-gray-700'
                                                 }`}
                                             >
                                                 {msg.attachments && msg.attachments.length > 0 && (
@@ -926,7 +926,7 @@ export default function CRMPage() {
                     </div>
 
                     {/* Input */}
-                    <div className="p-4 bg-white border-t border-gray-200 flex-shrink-0">
+                    <div className="p-4 bg-white dark:bg-bg-tertiary border-t border-gray-200 dark:border-gray-800 flex-shrink-0">
                         {selectedFiles.length > 0 && (
                             <div className="mb-3 flex gap-2 overflow-x-auto pb-2">
                                 {selectedFiles.map((file, idx) => {
@@ -934,14 +934,14 @@ export default function CRMPage() {
                                     return (
                                         <div key={idx} className="relative flex-shrink-0">
                                             {isImage ? (
-                                                <img 
-                                                    src={getFilePreviewUrl(file)} 
+                                                <img
+                                                    src={getFilePreviewUrl(file)}
                                                     alt={file.name}
-                                                    className="h-20 w-20 object-cover rounded"
+                                                    className="h-20 w-20 object-cover rounded border border-gray-200 dark:border-gray-700"
                                                 />
                                             ) : (
-                                                <div className="h-20 w-20 bg-gray-100 rounded flex items-center justify-center">
-                                                    <span className="text-xs text-center px-1 font-medium text-gray-600 truncate">
+                                                <div className="h-20 w-20 bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center border border-gray-200 dark:border-gray-700">
+                                                    <span className="text-xs text-center px-1 font-medium text-gray-600 dark:text-text-secondary truncate">
                                                         {file.name.substring(0, 10)}
                                                     </span>
                                                 </div>
@@ -949,7 +949,7 @@ export default function CRMPage() {
                                             <button
                                                 type="button"
                                                 onClick={() => removeSelectedFile(idx)}
-                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                                                className="absolute -top-2 -right-2 bg-red-500 dark:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 dark:hover:bg-red-700"
                                             >
                                                 ×
                                             </button>
@@ -971,7 +971,7 @@ export default function CRMPage() {
                                 type="button"
                                 onClick={() => fileInputRef.current?.click()}
                                 disabled={isSending}
-                                className="px-3 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="px-3 py-2 text-gray-600 dark:text-text-secondary hover:text-gray-800 dark:hover:text-text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 title="Ajouter un fichier"
                             >
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -981,7 +981,7 @@ export default function CRMPage() {
                             <input
                                 type="text"
                                 placeholder="Écrivez un message..."
-                                className="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gray-400"
+                                className="flex-1 px-4 py-2 bg-gray-50 dark:bg-bg-secondary border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent"
                                 value={messageInput}
                                 onChange={(e) => setMessageInput(e.target.value)}
                                 disabled={isSending}
@@ -989,10 +989,10 @@ export default function CRMPage() {
                             <button
                                 type="submit"
                                 disabled={isSending || (!messageInput.trim() && selectedFiles.length === 0)}
-                                className="px-5 py-2 bg-black text-white rounded-lg font-medium text-sm hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                                className="px-5 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black rounded-lg font-medium text-sm hover:from-[#B8860B] hover:to-[#D4AF37] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                             >
                                 {isSending ? (
-                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-black border-t-transparent"></div>
                                 ) : (
                                     <>
                                         <PaperAirplaneIcon className="w-4 h-4" />
@@ -1012,12 +1012,12 @@ export default function CRMPage() {
                     )}
                 </div>
             ) : (
-                <div className="flex -1 flex flex-col items-center justify-center bg-white w-full">
-                    <div className="p-6 rounded-full bg-gray-100 mb-4">
-                        <ChatBubbleLeftRightIcon className="w-16 h-16 text-gray-300" />
+                <div className="flex-1 flex flex-col items-center justify-center bg-white dark:bg-bg-primary w-full">
+                    <div className="p-6 rounded-full bg-gradient-to-br from-[#D4AF37]/10 to-[#FFD700]/10 dark:from-[#D4AF37]/20 dark:to-[#FFD700]/20 mb-4">
+                        <ChatBubbleLeftRightIcon className="w-16 h-16 text-gray-300 dark:text-gray-700" />
                     </div>
-                    <p className="text-lg font-semibold text-black mb-2">Aucune conversation sélectionnée</p>
-                    <p className="text-sm text-gray-500">Choisissez une conversation pour commencer</p>
+                    <p className="text-lg font-semibold text-black dark:text-text-primary mb-2">Aucune conversation sélectionnée</p>
+                    <p className="text-sm text-gray-500 dark:text-text-tertiary">Choisissez une conversation pour commencer</p>
                 </div>
             )}
 

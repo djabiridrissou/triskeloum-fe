@@ -74,20 +74,18 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
 
     return (
         <div>
-            <label className="block text-sm font-medium text-gray-900 mb-3">
-                {label} {isRequired && <span className="text-red-500">*</span>}
+            <label className="block text-sm font-semibold text-gray-700 dark:text-text-primary mb-2">
+                {label} {isRequired && <span className="text-red-500 dark:text-red-400">*</span>}
             </label>
 
             <motion.div
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                animate={{
-                    backgroundColor: isDragging ? 'rgba(59, 130, 246, 0.1)' : 'rgba(249, 250, 251, 1)',
-                    borderColor: isDragging ? 'rgb(59, 130, 246)' : 'rgb(229, 231, 235)',
-                }}
                 className={`relative border-2 border-dashed rounded-xl p-8 transition-all cursor-pointer ${
-                    isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                    isDragging
+                        ? 'border-amber-500 dark:border-amber-400 bg-amber-50 dark:bg-amber-900/10'
+                        : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-bg-secondary hover:border-amber-400 dark:hover:border-amber-500'
                 }`}
                 onClick={() => !selectedFile && !previewData && inputRef.current?.click()}
             >
@@ -127,14 +125,14 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                                 />
                             )}
 
-                            <div className="flex items-center justify-between bg-blue-50 rounded-lg p-3">
+                            <div className="flex items-center justify-between bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3 border border-amber-200 dark:border-amber-800">
                                 <div className="flex items-center gap-2 min-w-0">
                                     {type === 'video' ? (
-                                        <Play className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                        <Play className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                                     ) : (
-                                        <ImageIcon className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                        <ImageIcon className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                                     )}
-                                    <span className="text-sm text-gray-700 truncate">
+                                    <span className="text-sm text-gray-700 dark:text-text-primary truncate font-medium">
                                         {selectedFile?.name || 'Fichier prévisualisé'}
                                     </span>
                                 </div>
@@ -146,9 +144,9 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                                         e.stopPropagation();
                                         handleRemove();
                                     }}
-                                    className="ml-2 p-1 hover:bg-blue-200 rounded-lg transition-colors flex-shrink-0"
+                                    className="ml-2 p-1 hover:bg-amber-200 dark:hover:bg-amber-900/40 rounded-lg transition-colors flex-shrink-0"
                                 >
-                                    <X className="w-5 h-5 text-blue-600" />
+                                    <X className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                                 </motion.button>
                             </div>
 
@@ -160,7 +158,7 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                                     e.stopPropagation();
                                     inputRef.current?.click();
                                 }}
-                                className="w-full py-2 px-4 text-sm text-blue-600 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
+                                className="w-full py-2 px-4 text-sm text-amber-700 dark:text-amber-400 bg-white dark:bg-bg-tertiary border border-amber-300 dark:border-amber-700 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors font-medium"
                             >
                                 Remplacer le fichier
                             </motion.button>
@@ -178,12 +176,12 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                                 transition={{ repeat: Infinity, duration: 2 }}
                                 className="mb-4"
                             >
-                                <Upload className="w-12 h-12 text-gray-400 mx-auto" />
+                                <Upload className="w-12 h-12 text-amber-600 dark:text-amber-400 mx-auto" />
                             </motion.div>
-                            <p className="text-sm font-medium text-gray-700 mb-1">
+                            <p className="text-sm font-semibold text-gray-700 dark:text-text-primary mb-1">
                                 Glissez-déposez votre fichier
                             </p>
-                            <p className="text-xs text-gray-500">
+                            <p className="text-xs text-gray-500 dark:text-text-tertiary">
                                 ou cliquez pour parcourir
                             </p>
                         </motion.div>

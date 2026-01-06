@@ -13,59 +13,59 @@ const RecentUsersTable: React.FC<RecentUsersTableProps> = ({ users }) => {
     // ✅ Gérer le cas où il n'y a pas d'utilisateurs
     if (!users || users.length === 0) {
         return (
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900">Derniers utilisateurs</h3>
+            <div className="bg-white dark:bg-bg-tertiary rounded-xl border border-gray-200 dark:border-border overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-200 dark:border-border">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-text-primary">Derniers utilisateurs</h3>
                 </div>
                 <div className="px-6 py-12 text-center">
-                    <p className="text-gray-500">Aucun utilisateur trouvé</p>
+                    <p className="text-gray-500 dark:text-text-muted">Aucun utilisateur trouvé</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="bg-white rounded-lg shadow-md">
-            <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Derniers utilisateurs</h3>
+        <div className="bg-white dark:bg-bg-tertiary rounded-xl border border-gray-200 dark:border-border transition-colors duration-300 hover:border-amber-500 dark:hover:border-amber-500 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-border">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-text-primary">Derniers utilisateurs</h3>
             </div>
             <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-border">
+                    <thead className="bg-gray-50 dark:bg-bg-secondary">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-text-tertiary uppercase tracking-wider">
                                 Utilisateur
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-text-tertiary uppercase tracking-wider">
                                 Email
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-text-tertiary uppercase tracking-wider">
                                 Niveau
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-text-tertiary uppercase tracking-wider">
                                 Inscrit
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-text-tertiary uppercase tracking-wider">
                                 Dernière connexion
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-bg-tertiary divide-y divide-gray-200 dark:divide-border">
                         {users.map((user) => (
-                            <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                            <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-amber-900/10 transition-colors">
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="flex items-center">
                                         <div className="flex-shrink-0 h-10 w-10">
                                             {/* ✅ Gérer l'absence de firstname/lastname */}
                                             {user.picture ? (
-                                                <img 
-                                                    className="h-10 w-10 rounded-full object-cover" 
-                                                    src={getImageUrl(user.picture)} 
+                                                <img
+                                                    className="h-10 w-10 rounded-full object-cover"
+                                                    src={getImageUrl(user.picture)}
                                                     alt={`${user.firstname} ${user.lastname}`}
                                                 />
                                             ) : (
-                                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                                    <span className="text-sm font-medium text-white">
+                                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#FFD700] flex items-center justify-center">
+                                                    <span className="text-sm font-medium text-black">
                                                         {user.firstname?.[0]?.toUpperCase() || 'U'}
                                                         {user.lastname?.[0]?.toUpperCase() || ''}
                                                     </span>
@@ -73,12 +73,12 @@ const RecentUsersTable: React.FC<RecentUsersTableProps> = ({ users }) => {
                                             )}
                                         </div>
                                         <div className="ml-4">
-                                            <div className="text-sm font-medium text-gray-900">
+                                            <div className="text-sm font-medium text-gray-900 dark:text-text-primary">
                                                 {user.firstname} {user.lastname}
                                             </div>
                                             {/* ✅ Afficher le rôle si c'est un admin */}
                                             {user.role === 'admin' && (
-                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400">
                                                     Admin
                                                 </span>
                                             )}
@@ -86,25 +86,25 @@ const RecentUsersTable: React.FC<RecentUsersTableProps> = ({ users }) => {
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-gray-900">{user.email}</div>
+                                    <div className="text-sm text-gray-900 dark:text-text-primary">{user.email}</div>
                                     {/* ✅ Afficher le téléphone s'il existe */}
                                     {user.phone && (
-                                        <div className="text-xs text-gray-500">{user.phone}</div>
+                                        <div className="text-xs text-gray-500 dark:text-text-muted">{user.phone}</div>
                                     )}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     {/* ✅ Gérer l'absence de niveau */}
                                     {user.level ? (
-                                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400">
                                             {user.level.name}
                                         </span>
                                     ) : (
-                                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-600">
+                                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
                                             Aucun niveau
                                         </span>
                                     )}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-text-muted">
                                     {/* ✅ Gérer les dates invalides */}
                                     {user.created_at ? (
                                         formatDistanceToNow(new Date(user.created_at), { 
@@ -120,17 +120,17 @@ const RecentUsersTable: React.FC<RecentUsersTableProps> = ({ users }) => {
                                     {user.last_login ? (
                                         <div className="flex items-center">
                                             <div className="flex-shrink-0 w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-                                            <span className="text-sm text-gray-500">
-                                                {formatDistanceToNow(new Date(user.last_login), { 
-                                                    addSuffix: true, 
-                                                    locale: fr 
+                                            <span className="text-sm text-gray-500 dark:text-text-muted">
+                                                {formatDistanceToNow(new Date(user.last_login), {
+                                                    addSuffix: true,
+                                                    locale: fr
                                                 })}
                                             </span>
                                         </div>
                                     ) : (
                                         <div className="flex items-center">
-                                            <div className="flex-shrink-0 w-2 h-2 bg-gray-300 rounded-full mr-2"></div>
-                                            <span className="text-sm text-gray-400">Jamais connecté</span>
+                                            <div className="flex-shrink-0 w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full mr-2"></div>
+                                            <span className="text-sm text-gray-400 dark:text-text-muted">Jamais connecté</span>
                                         </div>
                                     )}
                                 </td>

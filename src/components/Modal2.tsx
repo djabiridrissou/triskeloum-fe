@@ -45,21 +45,21 @@ const Modal2: React.FC<ModalProps> = ({
     return (
         <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex items-center justify-center min-h-full p-4">
-                {/* Overlay avec backdrop blur */}
+                {/* Overlay with backdrop blur */}
                 <div
-                    className="fixed  inset-0 inset-0 bg-black/40 backdrop-blur-sm transition-all duration-300 bg-opacity-50 transition-opacity"
+                    className="fixed inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm transition-all duration-300"
                     onClick={onClose}
                 />
 
-                {/* Modal content */}
-                <div className={`relative bg-white/95 backdrop-blur-md rounded-lg shadow-xl w-full ${sizeClasses[size]} transform transition-all`}>
+                {/* Modal content with premium theme */}
+                <div className={`relative bg-white dark:bg-bg-tertiary rounded-xl shadow-2xl w-full ${sizeClasses[size]} transform transition-all border border-gray-200 dark:border-gray-800`}>
                     {/* Header */}
                     {title && (
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200/50">
-                            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-text-primary">{title}</h3>
                             <button
                                 onClick={onClose}
-                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                             >
                                 <XMarkIcon className="w-6 h-6" />
                             </button>
@@ -67,7 +67,7 @@ const Modal2: React.FC<ModalProps> = ({
                     )}
 
                     {/* Content */}
-                    <div className="max-h-[80vh] overflow-y-auto">
+                    <div className="max-h-[85vh] overflow-y-auto">
                         {children}
                     </div>
                 </div>

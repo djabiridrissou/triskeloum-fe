@@ -31,10 +31,10 @@ const CourseDetails: React.FC<CourseDetailsProps> = ({
   console.log(course);
 
   return (
-    <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+    <div className="max-w-6xl mx-auto bg-white dark:bg-bg-tertiary rounded-xl shadow-lg overflow-hidden border border-gray-200 dark:border-gray-800">
       {/* Header avec image de couverture et infos principales */}
       <CourseHeader course={course} />
-      
+
       {/* Actions rapides */}
       <CourseActions
         course={course}
@@ -42,11 +42,11 @@ const CourseDetails: React.FC<CourseDetailsProps> = ({
         onDelete={onDelete}
         onTogglePublish={onTogglePublish}
       />
-      
+
       <div className="p-8 space-y-8">
         {/* Statistiques et métriques */}
         <CourseStats course={course} />
-        
+
         {/* Description et légende */}
         <CourseDescription legend={course.legend} />
 

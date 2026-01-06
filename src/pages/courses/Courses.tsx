@@ -1,6 +1,6 @@
 // src/pages/admin/Courses.tsx
 import React, { useState, useEffect } from 'react';
-import { PlusIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, AcademicCapIcon, CheckCircleIcon, DocumentTextIcon, Squares2X2Icon, ListBulletIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from '../../components/SearchBar';
@@ -13,9 +13,12 @@ import { courseService } from '../../services/courses';
 import Modal2 from '../../components/Modal2';
 import CourseDetails from './CourseDetails';
 import CourseFormModal from '../../components/CourseFormModal';
+import AdminCourseListItem from '../../components/AdminCourseListItem';
 
 const Courses: React.FC = () => {
     const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(12);
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('');
@@ -47,9 +50,14 @@ const Courses: React.FC = () => {
         return () => clearTimeout(timer);
     }, [search]);
 
+    // Reset page when limit changes
+    useEffect(() => {
+        setPage(1);
+    }, [limit]);
+
     const { data: coursesData, isLoading, refetch } = useGetAllCoursesQuery({
         page,
-        limit: 6,
+        limit,
         search: debouncedSearch,
         status: statusFilter,
         level: levelFilter,
@@ -82,14 +90,9 @@ const Courses: React.FC = () => {
         }
     };
 
-    const handleCardClick = (courseId: number) => {
-        setSelectedCourseId(courseId);
+    const handleViewDetails = (course: Course) => {
+        setSelectedCourseId(course.id);
         setIsDetailModalOpen(true);
-    };
-
-    const handleViewDetails = (courseId: number) => {
-        // Navigation vers la page de détails séparée
-        navigate(`/admin/courses/${courseId}`);
     };
 
     const handleTogglePublish = async (course: Course) => {
@@ -160,26 +163,37 @@ const Courses: React.FC = () => {
             toast.error(error?.response?.data?.message || error?.message || 'Une erreur est survenue');
         }
     };
+
     const courses = coursesData?.payload?.courses || [];
     const totalPages = coursesData?.payload?.pagination?.totalPages || 1;
+    const paginationTotal = coursesData?.payload?.pagination?.total || 0;
+
+    // Calculate stats from backend pagination data
     const stats = {
-        total: coursesData?.payload?.pagination?.total || courses?.length,
-        published: courses?.filter((c: any) => c.published).length,
-        draft: courses?.filter((c: any) => !c.published).length,
+        total: paginationTotal,
+        published: coursesData?.payload?.stats?.published || 0,
+        draft: coursesData?.payload?.stats?.draft || 0,
     };
 
     return (
-        <div className="flex-1 flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 p-4 sm:p-6 lg:p-8 overflow-auto">
+        <div className="flex-1 flex flex-col bg-gray-50 dark:bg-bg-primary p-4 sm:p-6 lg:p-8 overflow-auto transition-colors duration-300">
             <div className="max-w-8xl mx-auto w-full">
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Cours</h1>
-                        <p className="text-gray-600 mt-1 text-sm sm:text-base">Gérez tous vos cours</p>
+                        <h1 className="text-2xl sm:text-3xl font-bold mb-1"
+                            style={{
+                                background: 'linear-gradient(135deg, #D4AF37 0%, #FFD700 100%)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}>
+                            Cours
+                        </h1>
+                        <p className="text-gray-600 dark:text-text-tertiary mt-1 text-sm sm:text-base">Gérez tous vos cours</p>
                     </div>
                     <button
                         onClick={handleCreate}
-                        className="inline-flex items-center px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors shadow-md w-full sm:w-auto justify-center sm:justify-start"
+                        className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black font-medium rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 w-full sm:w-auto justify-center sm:justify-start"
                     >
                         <PlusIcon className="w-5 h-5 mr-2" />
                         Nouveau cours
@@ -187,53 +201,47 @@ const Courses: React.FC = () => {
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
-                    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">Total</p>
-                                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">
-                                    {stats.total}
-                                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    {/* Total */}
+                    <div className="relative bg-gradient-to-br from-amber-50/30 to-white dark:from-transparent dark:to-transparent dark:bg-bg-tertiary rounded-xl p-6 border border-gray-200 dark:border-gray-800 hover:border-amber-500 dark:hover:border-amber-500 transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-md">
+                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent dark:from-amber-500/5 dark:to-transparent" />
+                        <div className="relative">
+                            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#D4AF37] to-[#FFD700] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                                <AcademicCapIcon className="h-6 w-6 text-black" />
                             </div>
-                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <span className="text-2xl">📚</span>
-                            </div>
+                            <h3 className="text-sm font-medium text-gray-600 dark:text-text-tertiary mb-1">Total Cours</h3>
+                            <p className="text-2xl font-bold text-gray-900 dark:text-text-primary">{stats.total}</p>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">Publiés</p>
-                                <p className="text-2xl sm:text-3xl font-bold text-green-600 mt-2">
-                                    {stats.published}
-                                </p>
+                    {/* Published */}
+                    <div className="relative bg-gradient-to-br from-amber-50/30 to-white dark:from-transparent dark:to-transparent dark:bg-bg-tertiary rounded-xl p-6 border border-gray-200 dark:border-gray-800 hover:border-amber-500 dark:hover:border-amber-500 transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-md">
+                        <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent dark:from-green-500/5 dark:to-transparent" />
+                        <div className="relative">
+                            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                                <CheckCircleIcon className="h-6 w-6 text-white" />
                             </div>
-                            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                <span className="text-2xl">✅</span>
-                            </div>
+                            <h3 className="text-sm font-medium text-gray-600 dark:text-text-tertiary mb-1">Cours Publiés</h3>
+                            <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.published}</p>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">Brouillons</p>
-                                <p className="text-2xl sm:text-3xl font-bold text-gray-600 mt-2">
-                                    {stats.draft}
-                                </p>
+                    {/* Drafts */}
+                    <div className="relative bg-gradient-to-br from-amber-50/30 to-white dark:from-transparent dark:to-transparent dark:bg-bg-tertiary rounded-xl p-6 border border-gray-200 dark:border-gray-800 hover:border-amber-500 dark:hover:border-amber-500 transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-md">
+                        <div className="absolute inset-0 bg-gradient-to-br from-gray-500/5 to-transparent dark:from-gray-500/5 dark:to-transparent" />
+                        <div className="relative">
+                            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                                <DocumentTextIcon className="h-6 w-6 text-white" />
                             </div>
-                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                                <span className="text-2xl">📝</span>
-                            </div>
+                            <h3 className="text-sm font-medium text-gray-600 dark:text-text-tertiary mb-1">Brouillons</h3>
+                            <p className="text-2xl font-bold text-gray-700 dark:text-gray-300">{stats.draft}</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Filters */}
-                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                {/* Filters and Controls */}
+                <div className="bg-gradient-to-br from-amber-50/30 to-white dark:from-transparent dark:to-transparent dark:bg-bg-tertiary rounded-xl shadow-sm hover:shadow-md p-6 mb-6 border border-gray-200 dark:border-gray-800 transition-all duration-300">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
                         <SearchBar
                             value={search}
                             onChange={setSearch}
@@ -246,7 +254,7 @@ const Courses: React.FC = () => {
                                 setStatusFilter(e.target.value);
                                 setPage(1);
                             }}
-                            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent text-sm transition-all"
                         >
                             <option value="">Tous les statuts</option>
                             <option value="published">Publiés</option>
@@ -259,7 +267,7 @@ const Courses: React.FC = () => {
                                 setLevelFilter(e.target.value);
                                 setPage(1);
                             }}
-                            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                            className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent text-sm transition-all"
                         >
                             <option value="">Tous les niveaux</option>
                             {levels.map((level: any) => (
@@ -268,6 +276,43 @@ const Courses: React.FC = () => {
                                 </option>
                             ))}
                         </select>
+
+                        <select
+                            value={limit}
+                            onChange={(e) => setLimit(Number(e.target.value))}
+                            className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent text-sm transition-all"
+                        >
+                            <option value="6">6 par page</option>
+                            <option value="12">12 par page</option>
+                            <option value="24">24 par page</option>
+                            <option value="48">48 par page</option>
+                        </select>
+
+                        {/* View Toggle - Compact */}
+                        <div className="flex items-center justify-center">
+                            <div className="inline-flex rounded-lg border border-gray-300 dark:border-gray-700 overflow-hidden">
+                                <button
+                                    onClick={() => setViewMode('grid')}
+                                    className={`px-3 py-2 text-sm font-medium transition-colors ${
+                                        viewMode === 'grid'
+                                            ? 'bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black'
+                                            : 'bg-white dark:bg-bg-secondary text-gray-700 dark:text-text-primary hover:bg-gray-50 dark:hover:bg-gray-800'
+                                    }`}
+                                >
+                                    <Squares2X2Icon className="h-4 w-4" />
+                            </button>
+                                <button
+                                    onClick={() => setViewMode('list')}
+                                    className={`px-3 py-2 text-sm font-medium transition-colors border-l border-gray-300 dark:border-gray-700 ${
+                                        viewMode === 'list'
+                                            ? 'bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black'
+                                            : 'bg-white dark:bg-bg-secondary text-gray-700 dark:text-text-primary hover:bg-gray-50 dark:hover:bg-gray-800'
+                                    }`}
+                                >
+                                    <ListBulletIcon className="h-4 w-4" />
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -275,14 +320,14 @@ const Courses: React.FC = () => {
                 {isLoading ? (
                     <LoadingSkeleton />
                 ) : courses.length === 0 ? (
-                    <div className="bg-white rounded-lg shadow-md p-8 sm:p-12 text-center">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <span className="text-3xl">📚</span>
+                    <div className="bg-white dark:bg-bg-tertiary rounded-xl shadow-md border border-gray-200 dark:border-gray-800 p-8 sm:p-12 text-center transition-colors">
+                        <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <AcademicCapIcon className="h-8 w-8 text-amber-600 dark:text-amber-400" />
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-text-primary mb-2">
                             {debouncedSearch ? 'Aucun cours trouvé' : 'Aucun cours'}
                         </h3>
-                        <p className="text-gray-600 mb-6 text-sm sm:text-base">
+                        <p className="text-gray-600 dark:text-text-tertiary mb-6 text-sm sm:text-base">
                             {debouncedSearch
                                 ? 'Essayez de modifier vos filtres de recherche'
                                 : 'Commencez par créer votre premier cours'}
@@ -290,7 +335,7 @@ const Courses: React.FC = () => {
                         {!debouncedSearch && (
                             <button
                                 onClick={handleCreate}
-                                className="inline-flex items-center px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                                className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black font-medium rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200"
                             >
                                 <PlusIcon className="w-5 h-5 mr-2" />
                                 Créer un cours
@@ -299,24 +344,34 @@ const Courses: React.FC = () => {
                     </div>
                 ) : (
                     <>
-                        {/* Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                            {courses.map((course: any) => (
-                                <div
-                                    key={course.id}
-                                    className="cursor-pointer transition-transform hover:scale-[1.02]"
-                                    onClick={() => handleCardClick(course.id)}
-                                >
+                        {/* Grid or List View */}
+                        {viewMode === 'grid' ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                                {courses.map((course: any) => (
                                     <AdminCourseCard
+                                        key={course.id}
                                         course={course}
+                                        onView={handleViewDetails}
                                         onEdit={handleEdit}
                                         onDelete={handleDelete}
                                         onTogglePublish={handleTogglePublish}
-                                        onViewDetails={() => handleViewDetails(course.id)}
                                     />
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {courses.map((course: any) => (
+                                    <AdminCourseListItem
+                                        key={course.id}
+                                        course={course}
+                                        onView={handleViewDetails}
+                                        onEdit={handleEdit}
+                                        onDelete={handleDelete}
+                                        onTogglePublish={handleTogglePublish}
+                                    />
+                                ))}
+                            </div>
+                        )}
 
                         {/* Pagination */}
                         {totalPages > 1 && (

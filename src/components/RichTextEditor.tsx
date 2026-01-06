@@ -84,7 +84,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm max-w-none focus:outline-none min-h-[200px] p-4'
+        class: 'prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[200px] p-4 text-gray-900 dark:text-text-primary'
       }
     }
   });
@@ -116,72 +116,72 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   if (!editor) return null;
 
   return (
-    <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
+    <div className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-bg-secondary">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 p-2 bg-gray-50 border-b border-gray-300">
+      <div className="flex flex-wrap items-center gap-1 p-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-700">
         {/* Text styles */}
-        <div className="flex items-center gap-1 border-r border-gray-300 pr-2">
+        <div className="flex items-center gap-1 border-r border-gray-300 dark:border-gray-700 pr-2">
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleBold().run()}
-            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
-              editor.isActive('bold') ? 'bg-gray-300' : ''
+            className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
+              editor.isActive('bold') ? 'bg-gray-300 dark:bg-gray-600' : ''
             }`}
             title="Gras (Ctrl+B)"
           >
-            <BoldIcon className="w-4 h-4" />
+            <BoldIcon className="w-4 h-4 text-gray-700 dark:text-text-secondary" />
           </button>
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleItalic().run()}
-            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
-              editor.isActive('italic') ? 'bg-gray-300' : ''
+            className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
+              editor.isActive('italic') ? 'bg-gray-300 dark:bg-gray-600' : ''
             }`}
             title="Italique (Ctrl+I)"
           >
-            <ItalicIcon className="w-4 h-4" />
+            <ItalicIcon className="w-4 h-4 text-gray-700 dark:text-text-secondary" />
           </button>
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleUnderline().run()}
-            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
-              editor.isActive('underline') ? 'bg-gray-300' : ''
+            className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
+              editor.isActive('underline') ? 'bg-gray-300 dark:bg-gray-600' : ''
             }`}
             title="Souligné (Ctrl+U)"
           >
-            <UnderlineIcon className="w-4 h-4" />
+            <UnderlineIcon className="w-4 h-4 text-gray-700 dark:text-text-secondary" />
           </button>
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleStrike().run()}
-            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
-              editor.isActive('strike') ? 'bg-gray-300' : ''
+            className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
+              editor.isActive('strike') ? 'bg-gray-300 dark:bg-gray-600' : ''
             }`}
             title="Barré"
           >
-            <StrikethroughIcon className="w-4 h-4" />
+            <StrikethroughIcon className="w-4 h-4 text-gray-700 dark:text-text-secondary" />
           </button>
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleHighlight().run()}
-            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
-              editor.isActive('highlight') ? 'bg-gray-300' : ''
+            className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
+              editor.isActive('highlight') ? 'bg-gray-300 dark:bg-gray-600' : ''
             }`}
             title="Surligner"
           >
-            <PaintBrushIcon className="w-4 h-4" />
+            <PaintBrushIcon className="w-4 h-4 text-gray-700 dark:text-text-secondary" />
           </button>
         </div>
 
         {/* Headings */}
-        <div className="flex items-center gap-1 border-r border-gray-300 pr-2">
+        <div className="flex items-center gap-1 border-r border-gray-300 dark:border-gray-700 pr-2">
           {[1, 2, 3, 4].map((level) => (
             <button
               key={level}
               type="button"
               onClick={() => editor.chain().focus().toggleHeading({ level: level as any }).run()}
-              className={`px-2 py-1 rounded hover:bg-gray-200 transition-colors text-sm font-medium ${
-                editor.isActive('heading', { level }) ? 'bg-gray-300' : ''
+              className={`px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm font-medium text-gray-700 dark:text-text-secondary ${
+                editor.isActive('heading', { level }) ? 'bg-gray-300 dark:bg-gray-600' : ''
               }`}
               title={`Titre ${level}`}
             >
@@ -191,40 +191,40 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         </div>
 
         {/* Lists */}
-        <div className="flex items-center gap-1 border-r border-gray-300 pr-2">
+        <div className="flex items-center gap-1 border-r border-gray-300 dark:border-gray-700 pr-2">
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleBulletList().run()}
-            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
-              editor.isActive('bulletList') ? 'bg-gray-300' : ''
+            className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
+              editor.isActive('bulletList') ? 'bg-gray-300 dark:bg-gray-600' : ''
             }`}
             title="Liste à puces"
           >
-            <ListBulletIcon className="w-4 h-4" />
+            <ListBulletIcon className="w-4 h-4 text-gray-700 dark:text-text-secondary" />
           </button>
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
-            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
-              editor.isActive('orderedList') ? 'bg-gray-300' : ''
+            className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
+              editor.isActive('orderedList') ? 'bg-gray-300 dark:bg-gray-600' : ''
             }`}
             title="Liste numérotée"
           >
-            <ListBulletIcon className="w-4 h-4" />
+            <ListBulletIcon className="w-4 h-4 text-gray-700 dark:text-text-secondary" />
           </button>
         </div>
 
         {/* Code */}
-        <div className="flex items-center gap-1 border-r border-gray-300 pr-2">
+        <div className="flex items-center gap-1 border-r border-gray-300 dark:border-gray-700 pr-2">
           <button
             type="button"
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
-              editor.isActive('codeBlock') ? 'bg-gray-300' : ''
+            className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
+              editor.isActive('codeBlock') ? 'bg-gray-300 dark:bg-gray-600' : ''
             }`}
             title="Bloc de code"
           >
-            <CodeBracketIcon className="w-4 h-4" />
+            <CodeBracketIcon className="w-4 h-4 text-gray-700 dark:text-text-secondary" />
           </button>
         </div>
 
@@ -233,20 +233,20 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           <button
             type="button"
             onClick={setLink}
-            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
-              editor.isActive('link') ? 'bg-gray-300' : ''
+            className={`p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ${
+              editor.isActive('link') ? 'bg-gray-300 dark:bg-gray-600' : ''
             }`}
             title="Insérer un lien"
           >
-            <LinkIcon className="w-4 h-4" />
+            <LinkIcon className="w-4 h-4 text-gray-700 dark:text-text-secondary" />
           </button>
           <button
             type="button"
             onClick={addImage}
-            className="p-2 rounded hover:bg-gray-200 transition-colors"
+            className="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             title="Insérer une image"
           >
-            <PhotoIcon className="w-4 h-4" />
+            <PhotoIcon className="w-4 h-4 text-gray-700 dark:text-text-secondary" />
           </button>
         </div>
       </div>

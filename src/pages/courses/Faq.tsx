@@ -1,6 +1,7 @@
 // src/pages/courses/Faq.tsx
 import React, { useState, useEffect } from 'react';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { HelpCircle, CheckCircle, Eye, BarChart3 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import SearchBar from '../../components/SearchBar';
 import LoadingSkeleton from '../../components/LoadingSkeleton';
@@ -143,17 +144,24 @@ const Faq: React.FC = () => {
     };
 
     return (
-        <div className="flex-1 flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 p-4 sm:p-6 lg:p-8 overflow-auto">
+        <div className="flex-1 flex flex-col bg-gray-50 dark:bg-bg-primary p-4 sm:p-6 lg:p-8 overflow-auto">
             <div className="max-w-8xl mx-2 w-full">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">FAQs</h1>
-                        <p className="text-gray-600 mt-1 text-sm sm:text-base">Gérez les questions fréquemment posées</p>
+                        <h1 className="text-2xl sm:text-3xl font-bold mb-1"
+                            style={{
+                                background: 'linear-gradient(135deg, #D4AF37 0%, #FFD700 100%)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                            }}>
+                            FAQs
+                        </h1>
+                        <p className="text-gray-600 dark:text-text-tertiary mt-1 text-sm sm:text-base">Gérez les questions fréquemment posées</p>
                     </div>
                     <button
                         onClick={handleCreate}
-                        className="inline-flex items-center px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors shadow-md w-full sm:w-auto justify-center sm:justify-start"
+                        className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black rounded-lg hover:from-[#B8860B] hover:to-[#D4AF37] transition-colors shadow-md w-full sm:w-auto justify-center sm:justify-start font-medium"
                     >
                         <PlusIcon className="w-5 h-5 mr-2" />
                         Nouvelle FAQ
@@ -162,45 +170,57 @@ const Faq: React.FC = () => {
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
-                    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">Total</p>
-                                <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">{stats.total}</p>
-                            </div>
-                            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <span className="text-2xl">❓</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">Publiées</p>
-                                <p className="text-2xl sm:text-3xl font-bold text-green-600 mt-2">{stats.published}</p>
-                            </div>
-                            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                <span className="text-2xl">✅</span>
+                    <div className="relative bg-gradient-to-br from-amber-50/30 to-white dark:from-transparent dark:to-transparent dark:bg-bg-tertiary rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-800 hover:border-amber-500 dark:hover:border-amber-500 transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-md">
+                        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent dark:from-amber-500/5 dark:to-transparent" />
+                        <div className="relative">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-gray-600 dark:text-text-tertiary">Total</p>
+                                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-text-primary mt-2">{stats.total}</p>
+                                </div>
+                                <div className="w-12 h-12 bg-gradient-to-br from-[#D4AF37] to-[#FFD700] rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <HelpCircle className="w-6 h-6 text-black" />
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600">Total des vues</p>
-                                <p className="text-2xl sm:text-3xl font-bold text-purple-600 mt-2">👁️ {stats.views}</p>
+                    <div className="relative bg-gradient-to-br from-green-50/30 to-white dark:from-transparent dark:to-transparent dark:bg-bg-tertiary rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-800 hover:border-green-500 dark:hover:border-green-500 transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-md">
+                        <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent dark:from-green-500/5 dark:to-transparent" />
+                        <div className="relative">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-gray-600 dark:text-text-tertiary">Publiées</p>
+                                    <p className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400 mt-2">{stats.published}</p>
+                                </div>
+                                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+                                </div>
                             </div>
-                            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                                <span className="text-2xl">📊</span>
+                        </div>
+                    </div>
+
+                    <div className="relative bg-gradient-to-br from-purple-50/30 to-white dark:from-transparent dark:to-transparent dark:bg-bg-tertiary rounded-xl p-4 sm:p-6 border border-gray-200 dark:border-gray-800 hover:border-purple-500 dark:hover:border-purple-500 transition-all duration-300 group overflow-hidden shadow-sm hover:shadow-md">
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent dark:from-purple-500/5 dark:to-transparent" />
+                        <div className="relative">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-gray-600 dark:text-text-tertiary">Total des vues</p>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <Eye className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                                        <p className="text-2xl sm:text-3xl font-bold text-purple-600 dark:text-purple-400">{stats.views}</p>
+                                    </div>
+                                </div>
+                                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                    <BarChart3 className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Filters */}
-                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6">
+                <div className="bg-white dark:bg-bg-tertiary rounded-lg shadow-md p-4 sm:p-6 mb-6 border border-gray-200 dark:border-gray-800">
                     <SearchBar
                         value={search}
                         onChange={setSearch}
@@ -212,15 +232,15 @@ const Faq: React.FC = () => {
                 {isLoading ? (
                     <LoadingSkeleton />
                 ) : faqs.length === 0 ? (
-                    <div className="bg-white rounded-lg shadow-md p-8 sm:p-12 text-center">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <span className="text-3xl">❓</span>
+                    <div className="bg-white dark:bg-bg-tertiary rounded-lg shadow-md p-8 sm:p-12 text-center border border-gray-200 dark:border-gray-800">
+                        <div className="w-16 h-16 bg-gradient-to-br from-[#D4AF37]/10 to-[#FFD700]/10 dark:from-[#D4AF37]/20 dark:to-[#FFD700]/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-[#D4AF37]/30 dark:border-[#D4AF37]/50">
+                            <HelpCircle className="w-8 h-8 text-amber-600 dark:text-amber-400" />
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Aucune FAQ</h3>
-                        <p className="text-gray-600 mb-6 text-sm sm:text-base">Commencez par créer votre première FAQ</p>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-text-primary mb-2">Aucune FAQ</h3>
+                        <p className="text-gray-600 dark:text-text-tertiary mb-6 text-sm sm:text-base">Commencez par créer votre première FAQ</p>
                         <button
                             onClick={handleCreate}
-                            className="inline-flex items-center px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                            className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black rounded-lg hover:from-[#B8860B] hover:to-[#D4AF37] transition-colors font-medium"
                         >
                             <PlusIcon className="w-5 h-5 mr-2" />
                             Créer une FAQ
@@ -229,35 +249,40 @@ const Faq: React.FC = () => {
                 ) : (
                     <>
                         {/* Table */}
-                        <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+                        <div className="bg-white dark:bg-bg-tertiary rounded-lg shadow-md overflow-x-auto border border-gray-200 dark:border-gray-800">
                             <table className="w-full">
-                                <thead className="bg-gray-50 border-b">
+                                <thead className="bg-gradient-to-r from-[#D4AF37]/10 to-[#FFD700]/10 dark:from-[#D4AF37]/20 dark:to-[#FFD700]/20 border-b border-gray-200 dark:border-gray-800">
                                     <tr>
-                                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Question</th>
-                                        <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Catégorie</th>
-                                        <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Vues</th>
-                                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Statut</th>
-                                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Actions</th>
+                                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-text-primary uppercase tracking-wider">Question</th>
+                                        <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-text-primary uppercase tracking-wider">Catégorie</th>
+                                        <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-text-primary uppercase tracking-wider">Vues</th>
+                                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-text-primary uppercase tracking-wider">Statut</th>
+                                        <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-text-primary uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {faqs.map((faq: any) => (
-                                        <tr key={faq.id} className="border-b hover:bg-gray-50">
-                                            <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 font-medium truncate">
+                                        <tr key={faq.id} className="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                            <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 dark:text-text-primary font-medium truncate">
                                                 <div className="line-clamp-1">{faq.question}</div>
                                             </td>
-                                            <td className="hidden sm:table-cell px-6 py-4 text-xs text-gray-600">
-                                                <span className="px-2 py-1 bg-gray-100 rounded text-xs font-medium">
+                                            <td className="hidden sm:table-cell px-6 py-4 text-xs text-gray-600 dark:text-text-secondary">
+                                                <span className="px-2 py-1 bg-gradient-to-r from-[#D4AF37]/10 to-[#FFD700]/10 dark:from-[#D4AF37]/20 dark:to-[#FFD700]/20 border border-[#D4AF37]/30 dark:border-[#D4AF37]/50 rounded text-xs font-medium text-gray-900 dark:text-text-primary">
                                                     {FAQ_CATEGORIES.find(c => c.value === faq.category)?.label || faq.category}
                                                 </span>
                                             </td>
-                                            <td className="hidden lg:table-cell px-6 py-4 text-xs text-gray-600">👁️ {faq.views || 0}</td>
+                                            <td className="hidden lg:table-cell px-6 py-4">
+                                                <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-text-secondary">
+                                                    <Eye className="w-3.5 h-3.5" />
+                                                    <span>{faq.views || 0}</span>
+                                                </div>
+                                            </td>
                                             <td className="px-4 sm:px-6 py-4">
                                                 <span
-                                                    className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium ${
+                                                    className={`px-2 sm:px-3 py-1 rounded-full text-xs font-medium border ${
                                                         faq.is_published
-                                                            ? 'bg-green-100 text-green-800'
-                                                            : 'bg-gray-100 text-gray-800'
+                                                            ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-700'
+                                                            : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700'
                                                     }`}
                                                 >
                                                     {faq.is_published ? 'Publiée' : 'Brouillon'}
@@ -268,14 +293,14 @@ const Faq: React.FC = () => {
                                                     <button
                                                         onClick={() => handleEdit(faq)}
                                                         title="Modifier"
-                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                        className="p-2 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 rounded-lg transition-colors"
                                                     >
                                                         <PencilIcon className="w-4 h-4" />
                                                     </button>
                                                     <button
                                                         onClick={() => handleDelete(faq.id)}
                                                         title="Supprimer"
-                                                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                        className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                                                     >
                                                         <TrashIcon className="w-4 h-4" />
                                                     </button>
@@ -309,41 +334,41 @@ const Faq: React.FC = () => {
                         <form onSubmit={handleFormSubmit} className="space-y-6">
                             {/* Question */}
                             <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-2">
                             Question *
                         </label>
                         <input
                             type="text"
                             value={formData.question}
                             onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-bg-secondary border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-text-primary focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent transition-all"
                             placeholder="Entrez la question"
                         />
                     </div>
 
                     {/* Answer */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-2">
                             Réponse *
                         </label>
                         <textarea
                             value={formData.answer}
                             onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
                             rows={5}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-bg-secondary border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-text-primary focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent resize-none transition-all"
                             placeholder="Entrez la réponse détaillée"
                         />
                     </div>
 
                     {/* Category */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-2">
                             Catégorie *
                         </label>
                         <select
                             value={formData.category}
                             onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-bg-secondary border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-text-primary focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent transition-all"
                         >
                             {FAQ_CATEGORIES.map(cat => (
                                 <option key={cat.value} value={cat.value}>
@@ -355,18 +380,18 @@ const Faq: React.FC = () => {
 
                     {/* Order */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-2">
                             Ordre d'affichage
                         </label>
                         <input
                             type="number"
                             value={formData.order || 0}
                             onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-bg-secondary border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-text-primary focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent transition-all"
                             placeholder="0"
                             min="0"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Les FAQs sont triées par ordre croissant</p>
+                        <p className="text-xs text-gray-500 dark:text-text-tertiary mt-1">Les FAQs sont triées par ordre croissant</p>
                     </div>
 
                     {/* Published */}
@@ -376,9 +401,9 @@ const Faq: React.FC = () => {
                             id="is_published"
                             checked={formData.is_published}
                             onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
-                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            className="w-4 h-4 text-amber-600 dark:text-amber-500 border-gray-300 dark:border-gray-700 rounded focus:ring-amber-500"
                         />
-                        <label htmlFor="is_published" className="ml-2 text-sm text-gray-900">
+                        <label htmlFor="is_published" className="ml-2 text-sm text-gray-900 dark:text-text-primary">
                             Publier cette FAQ
                         </label>
                     </div>
@@ -388,14 +413,14 @@ const Faq: React.FC = () => {
                         <button
                             type="button"
                             onClick={() => setIsFormModalOpen(false)}
-                            className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                            className="px-4 py-2 text-gray-700 dark:text-text-primary bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                         >
                             Annuler
                         </button>
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                            className="px-4 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black rounded-lg hover:from-[#B8860B] hover:to-[#D4AF37] transition-colors disabled:opacity-50 font-medium"
                         >
                             {isSubmitting ? 'Traitement...' : selectedFaq ? 'Modifier' : 'Créer'}
                         </button>

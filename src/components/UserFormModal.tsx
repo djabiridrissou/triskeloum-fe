@@ -148,17 +148,17 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 inset-0 bg-black/40 backdrop-blur-sm transition-all duration-300 bg-opacity-50 transition-opacity flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm transition-all duration-300 flex items-center justify-center z-50">
+      <div className="bg-white dark:bg-bg-tertiary rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-800">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">
+        <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-800">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-text-primary">
             {user ? 'Modifier l\'utilisateur' : 'Créer un utilisateur'}
           </h2>
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
+            className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50 transition-colors"
           >
             <XMarkIcon className="h-6 w-6" />
           </button>
@@ -168,7 +168,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Firstname */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-1">
               Prénom
             </label>
             <input
@@ -177,16 +177,16 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
               value={formData.firstname}
               onChange={handleChange}
               disabled={isLoading}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 ${
-                errors.firstname ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 disabled:bg-gray-50 dark:disabled:bg-gray-900 disabled:opacity-50 transition-all ${
+                errors.firstname ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-700'
               }`}
             />
-            {errors.firstname && <p className="text-red-500 text-sm mt-1">{errors.firstname}</p>}
+            {errors.firstname && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.firstname}</p>}
           </div>
 
           {/* Lastname */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-1">
               Nom
             </label>
             <input
@@ -195,16 +195,16 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
               value={formData.lastname}
               onChange={handleChange}
               disabled={isLoading}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 ${
-                errors.lastname ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 disabled:bg-gray-50 dark:disabled:bg-gray-900 disabled:opacity-50 transition-all ${
+                errors.lastname ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-700'
               }`}
             />
-            {errors.lastname && <p className="text-red-500 text-sm mt-1">{errors.lastname}</p>}
+            {errors.lastname && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.lastname}</p>}
           </div>
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-1">
               Email
             </label>
             <input
@@ -213,16 +213,16 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
               value={formData.email}
               onChange={handleChange}
               disabled={isLoading || !!user}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 ${
-                errors.email ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 disabled:bg-gray-50 dark:disabled:bg-gray-900 disabled:opacity-50 transition-all ${
+                errors.email ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-700'
               }`}
             />
-            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+            {errors.email && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.email}</p>}
           </div>
 
           {/* Phone */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-1">
               Téléphone (optionnel)
             </label>
             <input
@@ -231,7 +231,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
               value={formData.phone}
               onChange={handleChange}
               disabled={isLoading}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 disabled:bg-gray-50 dark:disabled:bg-gray-900 disabled:opacity-50 transition-all"
             />
           </div>
 
@@ -239,14 +239,14 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
           {!user && (
             <div>
               <div className="flex justify-between items-center mb-1">
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 dark:text-text-primary">
                   Mot de passe
                 </label>
                 <button
                   type="button"
                   onClick={generateRandomPassword}
                   disabled={isLoading}
-                  className="inline-flex items-center gap-1 text-xs px-2 py-1 text-blue-600 hover:bg-blue-50 rounded disabled:opacity-50 disabled:hover:bg-transparent"
+                  className="inline-flex items-center gap-1 text-xs px-2 py-1 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
                   title="Générer un mot de passe aléatoire"
                 >
                   <SparklesIcon className="h-3 w-3" />
@@ -260,17 +260,17 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                 onChange={handleChange}
                 disabled={isLoading}
                 placeholder="Entrez un mot de passe ou cliquez sur Auto-générer"
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50 ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary placeholder-gray-400 dark:placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 disabled:bg-gray-50 dark:disabled:bg-gray-900 disabled:opacity-50 transition-all ${
+                  errors.password ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-700'
                 }`}
               />
-              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+              {errors.password && <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.password}</p>}
             </div>
           )}
 
           {/* Role */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-1">
               Rôle
             </label>
             <select
@@ -278,7 +278,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
               value={formData.role}
               onChange={handleChange}
               disabled={isLoading}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 disabled:bg-gray-50 dark:disabled:bg-gray-900 disabled:opacity-50 transition-all"
             >
               <option value="user">Utilisateur</option>
               <option value="admin">Administrateur</option>
@@ -288,7 +288,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
           {/* Level */}
           {levels.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-1">
                 Niveau (optionnel)
               </label>
               <select
@@ -296,7 +296,7 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
                 value={formData.level}
                 onChange={handleChange}
                 disabled={isLoading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 disabled:bg-gray-50 dark:disabled:bg-gray-900 disabled:opacity-50 transition-all"
               >
                 <option value="">Sélectionner un niveau</option>
                 {levels.map(level => (
@@ -314,16 +314,16 @@ const UserFormModal: React.FC<UserFormModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50"
+              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-text-primary rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
             >
               Annuler
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black font-medium rounded-md hover:shadow-lg hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-2 transition-all duration-200"
             >
-              {isLoading && <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />}
+              {isLoading && <div className="animate-spin h-4 w-4 border-2 border-black border-t-transparent rounded-full" />}
               {user ? 'Modifier' : 'Créer'}
             </button>
           </div>

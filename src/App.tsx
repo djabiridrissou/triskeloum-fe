@@ -22,24 +22,28 @@ import Users from "./pages/admin/Users";
 import CRM from "./pages/admin/CRM";
 import VoiceRooms from "./pages/admin/VoiceRooms";
 import Notifications from "./pages/admin/Notifications";
+import Settings from "./pages/admin/Settings";
+import LandingPageSettings from "./pages/admin/LandingPageSettings";
 import LandingPage from "./pages/public/LandingPage";
 import { SocketProvider } from "./contexts/SocketContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 
 const App = () => {
   return (
-    <SocketProvider>
-      <div>
-        <Toaster toastOptions={{
-          duration: 5000,
-          success: {
-            duration: 3000,
-          },
-          error: {
-            duration: 8000,
-          }
-        }}
-          position="top-right" />
+    <ThemeProvider defaultTheme="dark">
+      <SocketProvider>
+        <div>
+          <Toaster toastOptions={{
+            duration: 5000,
+            success: {
+              duration: 3000,
+            },
+            error: {
+              duration: 8000,
+            }
+          }}
+            position="top-right" />
         <Router>
           <Routes>
             <Route path="/" element={<LandingPage />} />
@@ -65,6 +69,8 @@ const App = () => {
               <Route path="/admin/crm/rooms/:roomId" element={<CRM />} />
               <Route path="/admin/voice-rooms" element={<VoiceRooms />} />
               <Route path="/admin/notifications" element={<Notifications />} />
+              <Route path="/admin/settings" element={<Settings />} />
+              <Route path="/admin/landing-page-settings" element={<LandingPageSettings />} />
               <Route path="/admin/courses/categories" element={<Categories />} />
               <Route path="/admin/levels" element={<Levels />} />
               <Route path="/admin/courses/exercises" element={<Exercises />} />
@@ -80,8 +86,9 @@ const App = () => {
             <Route path="*" element={<UnderConstruction />} />
           </Routes>
         </Router>
-      </div>
-    </SocketProvider>
+        </div>
+      </SocketProvider>
+    </ThemeProvider>
   );
 };
 

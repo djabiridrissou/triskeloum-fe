@@ -1,20 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from 'antd';
 import {
   DashboardOutlined,
-  MenuUnfoldOutlined,
   BookOutlined,
-  AppstoreOutlined,
-  UnorderedListOutlined,
-  DownOutlined,
-  BarsOutlined,
-  FireOutlined,
   TeamOutlined,
   MessageOutlined,
-  FileTextOutlined,
+  FireOutlined,
   VideoCameraOutlined,
+  FileTextOutlined,
   QuestionCircleOutlined,
-  AudioOutlined
+  AudioOutlined,
+  BarsOutlined,
+  GlobalOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -22,15 +18,12 @@ interface MenuItem {
   key: string;
   icon: React.ReactNode;
   label: string;
-  path?: string;
-  children?: MenuItem[];
+  path: string;
 }
 
 const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(false);
   const [selectedKey, setSelectedKey] = useState('1');
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
-  const [openKeys, setOpenKeys] = useState<string[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -38,389 +31,83 @@ const Sidebar = () => {
     const pathToKey: Record<string, string> = {
       '/admin': '1',
       '/admin/users': '2',
-      '/admin/crm': '3',
-      '/admin/voice-rooms': '3-1',
-      '/admin/courses/exercises': '4',
-      '/admin/courses/reels': '5',
-      '/admin/courses/quotes': '6',
-      '/admin/courses/faqs': '7',
-      '/admin/courses': '8',
-      '/admin/courses/categories': '8-1',
-      '/admin/levels': '9',
-      '/admin/courses/list': '8-3',
+      '/admin/levels': '3',
+      '/admin/courses/list': '4',
+      '/admin/courses/exercises': '5',
+      '/admin/crm': '6',
+      '/admin/voice-rooms': '7',
+      '/admin/courses/reels': '8',
+      '/admin/courses/quotes': '9',
+      '/admin/courses/faqs': '10',
+      '/admin/landing-page-settings': '11',
     };
 
     const currentKey = pathToKey[location.pathname] || '1';
     setSelectedKey(currentKey);
-
-    if (currentKey.startsWith('8-')) {
-      setOpenKeys(prev => [...new Set([...prev, '8'])]);
-    }
   }, [location.pathname]);
 
-  const toggleCollapsed = () => {
-    setCollapsed(!collapsed);
-    // ✅ Fermer tous les menus quand on collapse
-    if (!collapsed) {
-      setOpenKeys([]);
-    }
-  };
-
-  const getMenuItems = (): MenuItem[] => {
-    return [
-      {
-        key: '1',
-        icon: <DashboardOutlined />,
-        label: 'Dashboard',
-        path: '/admin',
-      },
-      {
-        key: '2',
-        icon: <TeamOutlined />,
-        label: 'Utilisateurs',
-        path: '/admin/users',
-      },
-      {
-        key: '9',
-        icon: <BarsOutlined />,
-        label: 'Niveaux',
-        path: '/admin/levels',
-      },
-      {
-        key: '8',
-        icon: <BookOutlined />,
-        label: 'Cours',
-        children: [
-          {
-            key: '8-1',
-            icon: <AppstoreOutlined />,
-            label: 'Catégories',
-            path: '/admin/courses/categories',
-          },
-         
-          {
-            key: '8-3',
-            icon: <UnorderedListOutlined />,
-            label: 'Liste',
-            path: '/admin/courses/list',
-          },
-        ],
-      },
-      {
-        key: '4',
-        icon: <FireOutlined />,
-        label: 'Exercices',
-        path: '/admin/courses/exercises',
-      },
-      {
-        key: '3',
-        icon: <MessageOutlined />,
-        label: 'Chat',
-        path: '/admin/crm',
-      },
-      {
-        key: '3-1',
-        icon: <AudioOutlined />,
-        label: 'Salons Vocaux',
-        path: '/admin/voice-rooms',
-      },
-      {
-        key: '5',
-        icon: <VideoCameraOutlined />,
-        label: 'Reels',
-        path: '/admin/courses/reels',
-      },
-      {
-        key: '6',
-        icon: <FileTextOutlined />,
-        label: 'Citations',
-        path: '/admin/courses/quotes',
-      },
-      {
-        key: '7',
-        icon: <QuestionCircleOutlined />,
-        label: 'FAQs',
-        path: '/admin/courses/faqs',
-      },
-     
-    ];
-  };
-
-  const menuItems = getMenuItems();
+  const menuItems: MenuItem[] = [
+    { key: '1', icon: <DashboardOutlined />, label: 'Dashboard', path: '/admin' },
+    { key: '2', icon: <TeamOutlined />, label: 'Utilisateurs', path: '/admin/users' },
+    { key: '3', icon: <BarsOutlined />, label: 'Niveaux', path: '/admin/levels' },
+    { key: '4', icon: <BookOutlined />, label: 'Cours', path: '/admin/courses/list' },
+    { key: '5', icon: <FireOutlined />, label: 'Exercices', path: '/admin/courses/exercises' },
+    { key: '6', icon: <MessageOutlined />, label: 'Chat', path: '/admin/crm' },
+    { key: '7', icon: <AudioOutlined />, label: 'Salons', path: '/admin/voice-rooms' },
+    { key: '8', icon: <VideoCameraOutlined />, label: 'Reels', path: '/admin/courses/reels' },
+    { key: '9', icon: <FileTextOutlined />, label: 'Citations', path: '/admin/courses/quotes' },
+    { key: '10', icon: <QuestionCircleOutlined />, label: 'FAQs', path: '/admin/courses/faqs' },
+    { key: '11', icon: <GlobalOutlined />, label: 'Page d\'accueil', path: '/admin/landing-page-settings' },
+  ];
 
   const handleMenuClick = (item: MenuItem) => {
     setSelectedKey(item.key);
-    
-    if (item.children) {
-      setOpenKeys(prev => 
-        prev.includes(item.key) 
-          ? prev.filter(k => k !== item.key)
-          : [...prev, item.key]
-      );
-    }
-    
-    if (item.path) {
-      navigate(item.path);
-    }
+    navigate(item.path);
   };
 
-  const isOpen = (key: string) => openKeys.includes(key);
-
-  const getItemStyle = (itemKey: string, isChild = false) => {
-    const isSelected = selectedKey === itemKey;
-    const isHovered = hoveredKey === itemKey;
-    
-    return {
-      display: 'flex',
-      alignItems: 'center',
-      padding: collapsed ? '16px 0' : isChild ? '12px 24px 12px 52px' : '16px 24px',
-      margin: collapsed ? '8px 12px' : isChild ? '4px 16px 4px 16px' : '8px 16px',
-      borderRadius: '12px',
-      cursor: 'pointer',
-      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      position: 'relative' as const,
-      background: isSelected 
-        ? 'black' 
-        : isHovered 
-        ? '#f8fafc' 
-        : 'transparent',
-      color: isSelected ? '#ffffff' : '#64748b',
-      fontWeight: isSelected ? '600' : '500',
-      fontSize: isChild ? '13px' : '14px',
-      transform: isHovered && !isSelected ? 'translateX(4px)' : 'translateX(0)',
-      boxShadow: isSelected 
-        ? '0 8px 25px rgba(0, 0, 0, 0.2)' 
-        : isHovered 
-        ? '0 2px 8px rgba(0, 0, 0, 0.08)' 
-        : 'none',
-      justifyContent: collapsed ? 'center' : 'flex-start',
-    };
-  };
-
-  const getIconStyle = (itemKey: string) => {
-    const isSelected = selectedKey === itemKey;
-    return {
-      fontSize: '18px',
-      marginRight: collapsed ? '0' : '12px',
-      color: isSelected ? '#ffffff' : '#94a3b8',
-      transition: 'all 0.3s ease',
-    };
-  };
-
-  const renderMenuItem = (item: MenuItem, isChild = false) => {
-    const hasChildren = item.children && item.children.length > 0;
-    const isItemOpen = isOpen(item.key);
-
-    return (
-      <div key={item.key}>
-        {/* Menu item */}
-        <div
-          style={getItemStyle(item.key, isChild)}
-          onClick={() => handleMenuClick(item)}
-          onMouseEnter={() => setHoveredKey(item.key)}
-          onMouseLeave={() => setHoveredKey(null)}
-        >
-          <div style={getIconStyle(item.key)}>
-            {item.icon}
-          </div>
-          
-          {!collapsed && (
-            <>
-              <span
-                style={{
-                  fontSize: isChild ? '13px' : '14px',
-                  fontWeight: selectedKey === item.key ? '600' : '500',
-                  transition: 'all 0.3s ease',
-                  flex: 1,
-                }}
-              >
-                {item.label}
-              </span>
-
-              {/* ✅ Flèche pour les items avec children */}
-              {hasChildren && (
-                <div
-                  style={{
-                    marginLeft: '8px',
-                    transition: 'transform 0.3s ease',
-                    transform: isItemOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
-                    color: selectedKey === item.key ? '#ffffff' : '#94a3b8',
-                  }}
-                >
-                  <DownOutlined style={{ fontSize: '10px' }} />
-                </div>
-              )}
-
-              {/* Active indicator pour items sans children */}
-              {selectedKey === item.key && !hasChildren && (
-                <div
-                  style={{
-                    width: '6px',
-                    height: '6px',
-                    borderRadius: '50%',
-                    background: '#ffffff',
-                    opacity: 0.8,
-                    marginLeft: '8px',
-                  }}
-                />
-              )}
-            </>
-          )}
-        </div>
-
-        {/* ✅ Sous-menu (children) */}
-        {hasChildren && !collapsed && (
-          <div
-            style={{
-              maxHeight: isItemOpen ? '500px' : '0',
-              overflow: 'hidden',
-              transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-          >
-            {item.children!.map(child => renderMenuItem(child, true))}
-          </div>
-        )}
-      </div>
-    );
-  };
+  const isSelected = (key: string) => selectedKey === key;
+  const isHovered = (key: string) => hoveredKey === key;
 
   return (
-    <div
-      style={{
-        height: '100vh',
-        background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
-        borderRight: '1px solid #e2e8f0',
-        display: 'flex',
-        flexDirection: 'column',
-        width: collapsed ? '80px' : '280px',
-        transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Accent line */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '4px',
-          height: '100%',
-          background: 'linear-gradient(180deg, #000000 0%, #333333 100%)',
-        }}
-      />
-
-      {/* Header avec logo/titre */}
-      {!collapsed && (
-        <div
+    <div className="h-screen w-[200px] bg-white dark:bg-bg-secondary border-r border-gray-200 dark:border-gray-800 flex flex-col transition-colors duration-300">
+      {/* Header */}
+      <div className="px-4 py-6 border-b border-gray-200 dark:border-gray-800">
+        <h2 className="text-base font-bold tracking-wider text-center"
           style={{
-            padding: '24px',
-            borderBottom: '1px solid #e2e8f0',
-          }}
-        >
-          <h2
-            style={{
-              margin: 0,
-              fontSize: '20px',
-              fontWeight: '700',
-              color: '#1e293b',
-            }}
-          >
-            Admin Panel
-          </h2>
-          <p
-            style={{
-              margin: '4px 0 0 0',
-              fontSize: '12px',
-              color: '#94a3b8',
-            }}
-          >
-            Gestion de la plateforme
-          </p>
-        </div>
-      )}
-
-      {/* Expand button for collapsed state */}
-      {collapsed && (
-        <div
-          style={{
-            padding: '16px',
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
-          <Button
-            type="text"
-            icon={<MenuUnfoldOutlined />}
-            onClick={toggleCollapsed}
-            style={{
-              color: '#64748b',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              width: '36px',
-              height: '36px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          />
-        </div>
-      )}
-
-      {/* Menu items */}
-      <div
-        style={{
-          flex: 1,
-          padding: '24px 0',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            marginBottom: '16px',
-            padding: collapsed ? '0' : '0 24px',
-            fontSize: '11px',
-            fontWeight: '600',
-            color: '#94a3b8',
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-            display: collapsed ? 'none' : 'block',
-          }}
-        >
-          Navigation
-        </div>
-
-        {menuItems.map(item => renderMenuItem(item))}
+            background: 'linear-gradient(135deg, #D4AF37 0%, #FFD700 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}>
+          SERANOUN
+        </h2>
       </div>
 
-      {/* Footer avec bouton collapse */}
-      {!collapsed && (
-        <div
-          style={{
-            padding: '16px 24px',
-            borderTop: '1px solid #e2e8f0',
-          }}
-        >
-          <Button
-            type="text"
-            icon={<MenuUnfoldOutlined />}
-            onClick={toggleCollapsed}
-            style={{
-              width: '100%',
-              color: '#64748b',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              height: '36px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+      {/* Menu items */}
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {menuItems.map((item) => (
+          <button
+            key={item.key}
+            onClick={() => handleMenuClick(item)}
+            onMouseEnter={() => setHoveredKey(item.key)}
+            onMouseLeave={() => setHoveredKey(null)}
+            className={`
+              w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+              transition-all duration-200
+              ${isSelected(item.key)
+                ? 'bg-gradient-to-r from-[#D4AF37] to-[#FFD700] text-black shadow-md'
+                : isHovered(item.key)
+                ? 'bg-amber-50 dark:bg-amber-900/10 text-gray-900 dark:text-amber-400'
+                : 'text-gray-600 dark:text-text-tertiary hover:text-gray-900 dark:hover:text-amber-400'
+              }
+            `}
           >
-            Réduire
-          </Button>
-        </div>
-      )}
+            <span className={`text-lg ${isSelected(item.key) ? 'text-black' : ''}`}>
+              {item.icon}
+            </span>
+            <span className="flex-1 text-left text-xs">{item.label}</span>
+          </button>
+        ))}
+      </nav>
     </div>
   );
 };

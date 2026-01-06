@@ -85,8 +85,8 @@ export const team: TeamMember[] = [
     {
         id: 'taj',
         name: 'Taj Rasmoon',
-        roleFr: 'PDG Triskeloum - Maître spirituel',
-        roleEn: 'CEO Triskeloum - Spiritual Master',
+        roleFr: 'PDG Seranoun - Maître spirituel',
+        roleEn: 'CEO Seranoun - Spiritual Master',
         image: '/placeholder-taj.jpg',
     },
     {

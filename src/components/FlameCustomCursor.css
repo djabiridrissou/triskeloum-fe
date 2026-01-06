@@ -1,0 +1,236 @@
+/* Flame Cursor Container - Position at cursor edge */
+.flame-cursor-container {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(12px, -24px); /* Position flame at top-right edge of cursor */
+  will-change: transform;
+  transition: left 0.08s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              top 0.08s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.flame-cursor-svg {
+  filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
+  animation: flameFlicker 0.12s ease-in-out infinite;
+}
+
+/* Main Flame Flicker - Smooth organic motion */
+@keyframes flameFlicker {
+  0% {
+    transform: scaleY(1) scaleX(1) rotate(-2deg);
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5)) brightness(1);
+  }
+  20% {
+    transform: scaleY(1.08) scaleX(0.96) rotate(1deg);
+    filter: drop-shadow(0 0 5px rgba(255, 165, 0, 0.6)) brightness(1.12);
+  }
+  40% {
+    transform: scaleY(0.95) scaleX(1.04) rotate(-1deg);
+    filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.4)) brightness(0.92);
+  }
+  60% {
+    transform: scaleY(1.04) scaleX(0.98) rotate(2deg);
+    filter: drop-shadow(0 0 5px rgba(255, 140, 0, 0.55)) brightness(1.08);
+  }
+  80% {
+    transform: scaleY(0.98) scaleX(1.02) rotate(-1deg);
+    filter: drop-shadow(0 0 4px rgba(255, 200, 0, 0.5)) brightness(0.96);
+  }
+  100% {
+    transform: scaleY(1.06) scaleX(0.97) rotate(1deg);
+    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.65)) brightness(1.15);
+  }
+}
+
+/* Flame Glow Animation - Smooth pulsing */
+.flame-glow {
+  animation: glowPulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes glowPulse {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(1.1);
+  }
+}
+
+/* Flame Body Morphing - Shape-shifting animation */
+.flame-morph-1 {
+  animation: bodyMorph1 1.2s ease-in-out infinite;
+}
+
+.flame-morph-2 {
+  animation: bodyMorph2 1.2s ease-in-out infinite;
+}
+
+@keyframes bodyMorph1 {
+  0% {
+    opacity: 1;
+    d: path("M 9 1 C 8.2 2, 7 3.5, 6.5 5 C 6 6.5, 5.5 8.5, 5.2 10.5 C 5 12.5, 5 14.5, 5.5 16 C 6 17.5, 7 19, 8 20 C 8.5 20.5, 9 21, 9 21 C 9 21, 9.5 20.5, 10 20 C 11 19, 12 17.5, 12.5 16 C 13 14.5, 13 12.5, 12.8 10.5 C 12.5 8.5, 12 6.5, 11.5 5 C 11 3.5, 9.8 2, 9 1 Z");
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes bodyMorph2 {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+    d: path("M 9 1.5 C 8.5 2.5, 7.5 4, 7 5.5 C 6.5 7, 6 9, 5.8 11 C 5.6 13, 5.8 15, 6.5 16.5 C 7 18, 8 19.5, 8.5 20.5 C 9 21, 9 21, 9 21 C 9 21, 9 21, 9.5 20.5 C 10 19.5, 11 18, 11.5 16.5 C 12.2 15, 12.4 13, 12.2 11 C 12 9, 11.5 7, 11 5.5 C 10.5 4, 9.5 2.5, 9 1.5 Z");
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Simplified morphing for better browser support */
+.flame-body {
+  animation: bodyShapeShift 0.8s ease-in-out infinite;
+}
+
+@keyframes bodyShapeShift {
+  0% {
+    opacity: 1;
+    transform: scaleY(1) scaleX(1);
+  }
+  25% {
+    opacity: 0.95;
+    transform: scaleY(1.06) scaleX(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(0.97) scaleX(1.04);
+  }
+  75% {
+    opacity: 0.96;
+    transform: scaleY(1.04) scaleX(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleY(1) scaleX(1);
+  }
+}
+
+/* Left Flame Lick - Dancing motion */
+.flame-lick-left {
+  animation: lickLeft 0.35s ease-in-out infinite alternate;
+  transform-origin: 7px 8px;
+}
+
+@keyframes lickLeft {
+  0% {
+    opacity: 0.5;
+    transform: translateX(0) translateY(0) scaleY(1) rotate(0deg);
+  }
+  33% {
+    opacity: 0.7;
+    transform: translateX(-0.8px) translateY(-0.5px) scaleY(1.12) rotate(-3deg);
+  }
+  66% {
+    opacity: 0.6;
+    transform: translateX(-0.3px) translateY(0.3px) scaleY(0.96) rotate(2deg);
+  }
+  100% {
+    opacity: 0.75;
+    transform: translateX(-1px) translateY(-0.8px) scaleY(1.15) rotate(-4deg);
+  }
+}
+
+/* Right Flame Lick - Dancing motion */
+.flame-lick-right {
+  animation: lickRight 0.3s ease-in-out infinite alternate;
+  transform-origin: 11px 8px;
+}
+
+@keyframes lickRight {
+  0% {
+    opacity: 0.5;
+    transform: translateX(0) translateY(0) scaleY(1) rotate(0deg);
+  }
+  33% {
+    opacity: 0.72;
+    transform: translateX(0.7px) translateY(-0.6px) scaleY(1.1) rotate(3deg);
+  }
+  66% {
+    opacity: 0.58;
+    transform: translateX(0.4px) translateY(0.2px) scaleY(0.94) rotate(-2deg);
+  }
+  100% {
+    opacity: 0.78;
+    transform: translateX(1.2px) translateY(-1px) scaleY(1.18) rotate(5deg);
+  }
+}
+
+/* Inner Core Animation - Organic flickering */
+.flame-core {
+  animation: coreFlicker 0.2s ease-in-out infinite;
+}
+
+@keyframes coreFlicker {
+  0% {
+    opacity: 0.8;
+    transform: scaleY(1) scaleX(1);
+  }
+  33% {
+    opacity: 0.92;
+    transform: scaleY(1.08) scaleX(0.96);
+  }
+  66% {
+    opacity: 0.85;
+    transform: scaleY(0.95) scaleX(1.03);
+  }
+  100% {
+    opacity: 0.88;
+    transform: scaleY(1.05) scaleX(0.98);
+  }
+}
+
+/* Hotspot Animation - Rapid organic flickering */
+.flame-hotspot {
+  animation: hotspotFlicker 0.1s ease-in-out infinite;
+}
+
+@keyframes hotspotFlicker {
+  0% {
+    opacity: 0.75;
+    transform: scale(1) translateY(0);
+  }
+  16% {
+    opacity: 0.88;
+    transform: scale(1.12) translateY(-0.3px);
+  }
+  33% {
+    opacity: 0.82;
+    transform: scale(0.96) translateY(0.2px);
+  }
+  50% {
+    opacity: 0.92;
+    transform: scale(1.08) translateY(-0.2px);
+  }
+  66% {
+    opacity: 0.78;
+    transform: scale(0.92) translateY(0.3px);
+  }
+  83% {
+    opacity: 0.95;
+    transform: scale(1.15) translateY(-0.4px);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1.02) translateY(0.1px);
+  }
+}

@@ -68,55 +68,55 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
       <div className="space-y-6">
         {/* Title */}
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-1">
             Titre du cours *
           </label>
           <input
             id="title"
             type="text"
             {...register('title', { required: 'Le titre est requis' })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary rounded-md focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent"
             placeholder="Entrez le titre du cours"
           />
           {errors.title && (
-            <p className="mt-1 text-sm text-red-600">{errors.title.message as string}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.title.message as string}</p>
           )}
         </div>
-        
+
         {/* Legend */}
         <div>
-          <label htmlFor="legend" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="legend" className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-1">
             Légende du cours *
           </label>
           <textarea
             id="legend"
             {...register('legend', { required: 'La légende est requise' })}
             rows={3}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary rounded-md focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent"
             placeholder="Brève description du cours"
           />
           {errors.legend && (
-            <p className="mt-1 text-sm text-red-600">{errors.legend.message as string}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.legend.message as string}</p>
           )}
         </div>
-        
+
         {/* Estimated time */}
         <div>
-          <label htmlFor="est_time_min" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="est_time_min" className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-1">
             Durée estimée (minutes) *
           </label>
           <input
             id="est_time_min"
             type="number"
             min="1"
-            {...register('est_time_min', { 
+            {...register('est_time_min', {
               required: 'La durée est requise',
               min: { value: 1, message: 'La durée doit être positive' }
             })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary rounded-md focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent"
           />
           {errors.est_time_min && (
-            <p className="mt-1 text-sm text-red-600">{errors.est_time_min.message as string}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.est_time_min.message as string}</p>
           )}
         </div>
       </div>
@@ -125,7 +125,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
       <div className="space-y-6">
         {/* Cover image */}
         <div>
-          <label htmlFor="cover" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="cover" className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-1">
             Image de couverture
           </label>
           <div className="flex items-center space-x-4">
@@ -135,22 +135,22 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
                 type="file"
                 accept="image/*"
                 onChange={handleCoverChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary rounded-md focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent"
               />
             </div>
             {coverPreview && (
               <div className="relative">
-                <div className="w-16 h-16 rounded-md overflow-hidden border-2 border-gray-200">
-                  <img 
-                    src={coverPreview} 
-                    alt="Cover preview" 
+                <div className="w-16 h-16 rounded-md overflow-hidden border-2 border-[#D4AF37]/30 dark:border-[#D4AF37]/50">
+                  <img
+                    src={coverPreview}
+                    alt="Cover preview"
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={handleRemoveCover}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                  className="absolute -top-2 -right-2 bg-red-500 dark:bg-red-600 text-white rounded-full p-1 hover:bg-red-600 dark:hover:bg-red-700 transition-colors"
                   title="Supprimer l'image"
                 >
                   ✕
@@ -162,10 +162,10 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
         
         {/* Levels (Multi-select) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Niveaux * <span className="text-xs text-gray-500">(sélectionner 1 ou plusieurs)</span>
+          <label className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-2">
+            Niveaux * <span className="text-xs text-gray-500 dark:text-text-tertiary">(sélectionner 1 ou plusieurs)</span>
           </label>
-          <div className="space-y-2 border border-gray-300 rounded-md p-3 bg-white max-h-48 overflow-y-auto">
+          <div className="space-y-2 border border-gray-300 dark:border-gray-700 rounded-md p-3 bg-white dark:bg-bg-secondary max-h-48 overflow-y-auto">
             {levels.map((level: Level) => (
               <div key={level.id} className="flex items-center">
                 <input
@@ -179,31 +179,31 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
                     setSelectedLevels(newLevels);
                     setValue('levels', newLevels);
                   }}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-amber-600 dark:text-amber-500 focus:ring-amber-500 border-gray-300 dark:border-gray-700 rounded"
                 />
-                <label htmlFor={`level_${level.id}`} className="ml-2 text-sm text-gray-700 cursor-pointer">
+                <label htmlFor={`level_${level.id}`} className="ml-2 text-sm text-gray-700 dark:text-text-secondary cursor-pointer">
                   {level.name}
                 </label>
               </div>
             ))}
           </div>
           {errors.levels && (
-            <p className="mt-1 text-sm text-red-600">{errors.levels.message as string}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.levels.message as string}</p>
           )}
           {selectedLevels.length === 0 && (
-            <p className="mt-1 text-sm text-red-600">Sélectionnez au moins un niveau</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">Sélectionnez au moins un niveau</p>
           )}
         </div>
-        
+
         {/* Category */}
         <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-text-primary mb-1">
             Catégorie *
           </label>
           <select
             id="category"
             {...register('category', { required: 'La catégorie est requise' })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-bg-secondary text-gray-900 dark:text-text-primary rounded-md focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 focus:border-transparent"
           >
             <option value="">Sélectionnez une catégorie</option>
             {categories.map((category: Category) => (
@@ -213,19 +213,19 @@ const BasicInfo: React.FC<BasicInfoProps> = ({
             ))}
           </select>
           {errors.category && (
-            <p className="mt-1 text-sm text-red-600">{errors.category.message as string}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.category.message as string}</p>
           )}
         </div>
-        
+
         {/* Published status */}
         <div className="flex items-center space-x-2 mt-4">
           <input
             id="published"
             type="checkbox"
             {...register('published')}
-            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            className="h-4 w-4 text-amber-600 dark:text-amber-500 focus:ring-amber-500 border-gray-300 dark:border-gray-700 rounded"
           />
-          <label htmlFor="published" className="text-sm font-medium text-gray-700">
+          <label htmlFor="published" className="text-sm font-medium text-gray-700 dark:text-text-primary">
             Publier immédiatement
           </label>
         </div>

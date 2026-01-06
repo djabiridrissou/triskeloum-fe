@@ -64,51 +64,16 @@ const Header = () => {
           {/* Logo */}
           <a href="#home" className="flex items-center gap-3 group">
             <div className="relative w-12 h-12">
-              {/* Animated Triskelion Logo */}
-              <svg viewBox="0 0 100 100" className="w-full h-full">
-                <defs>
-                  <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#D4AF37" />
-                    <stop offset="50%" stopColor="#FFD700" />
-                    <stop offset="100%" stopColor="#B8860B" />
-                  </linearGradient>
-                </defs>
-                <circle 
-                  cx="50" cy="50" r="45" 
-                  fill="none" 
-                  stroke="url(#goldGrad)" 
-                  strokeWidth="2"
-                  className="group-hover:animate-pulse"
-                />
-                {/* Spirals */}
-                <g className="origin-center group-hover:animate-spin" style={{ animationDuration: '20s' }}>
-                  <path 
-                    d="M50 50 Q50 30 35 25 Q20 20 25 35 Q30 50 50 50" 
-                    fill="none" 
-                    stroke="url(#goldGrad)" 
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                  />
-                  <path 
-                    d="M50 50 Q70 50 75 65 Q80 80 65 75 Q50 70 50 50" 
-                    fill="none" 
-                    stroke="url(#goldGrad)" 
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                  />
-                  <path 
-                    d="M50 50 Q30 70 35 75 Q40 80 55 70 Q70 60 50 50" 
-                    fill="none" 
-                    stroke="url(#goldGrad)" 
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                  />
-                </g>
-              </svg>
+              {/* Seranoun Logo */}
+              <img
+                src="/images/rmvLogoSeranoun.png"
+                alt="SERANOUN Logo"
+                className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
+              />
             </div>
             <div className="hidden sm:block">
               <span className="text-xl font-light tracking-[0.3em] text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-500 to-amber-600">
-                TRISKELOUM
+                SERANOUN
               </span>
               <p className="text-[10px] text-amber-500/60 tracking-widest">
                 {t('Cabinet de développement spirituel', 'Spiritual Development Practice')}

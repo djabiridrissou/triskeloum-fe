@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { useGetLandingPageContentQuery } from '../../../services/api';
 
 const BioGeometrySection = () => {
   const { lang, t } = useLanguage();
+  const { data: contentData } = useGetLandingPageContentQuery();
+  const contactSection = contentData?.payload?.find((section: any) => section.section === 'contact');
+  const whatsapp = contactSection?.metadata?.whatsapp || '22890000000';
+
 
   const benefits = [
     {
@@ -91,30 +96,30 @@ const BioGeometrySection = () => {
                     <stop offset="100%" stopColor="#B8860B" />
                   </linearGradient>
                   <filter id="glow">
-                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur" />
                     <feMerge>
-                      <feMergeNode in="coloredBlur"/>
-                      <feMergeNode in="SourceGraphic"/>
+                      <feMergeNode in="coloredBlur" />
+                      <feMergeNode in="SourceGraphic" />
                     </feMerge>
                   </filter>
                 </defs>
-                
+
                 {/* Outer circle */}
                 <circle cx="100" cy="100" r="90" fill="none" stroke="url(#bgGold)" strokeWidth="1" opacity="0.3" />
-                
+
                 {/* Inner rotating elements */}
                 <g filter="url(#glow)" className="animate-spin-slow origin-center" style={{ transformOrigin: '100px 100px' }}>
                   {/* Vesica Piscis */}
                   <circle cx="70" cy="100" r="50" fill="none" stroke="url(#bgGold)" strokeWidth="1.5" />
                   <circle cx="130" cy="100" r="50" fill="none" stroke="url(#bgGold)" strokeWidth="1.5" />
                 </g>
-                
+
                 {/* Center elements */}
                 <g className="animate-pulse">
                   <circle cx="100" cy="100" r="15" fill="none" stroke="url(#bgGold)" strokeWidth="2" />
                   <circle cx="100" cy="100" r="5" fill="url(#bgGold)" />
                 </g>
-                
+
                 {/* BG3 text */}
                 <text x="100" y="180" textAnchor="middle" fill="#D4AF37" fontSize="12" fontWeight="bold" letterSpacing="4">BG3</text>
               </svg>
@@ -144,7 +149,7 @@ const BioGeometrySection = () => {
             </p>
 
             <a
-              href="https://wa.me/22890000000"
+              href={`https://wa.me/${whatsapp}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 bg-amber-900/30 border border-amber-600/50 rounded-full text-amber-400 hover:bg-amber-800/40 transition-all duration-300"

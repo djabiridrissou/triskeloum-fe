@@ -1,7 +1,21 @@
 import { useLanguage } from "../contexts/LanguageContext";
+import { useGetLandingPageContentQuery } from "../services/api";
+import { Facebook, Instagram, Twitter, Linkedin, Youtube, Github } from "lucide-react";
 
 const Footer = () => {
     const { lang, t } = useLanguage();
+    const { data: contentData } = useGetLandingPageContentQuery();
+
+    const socialSection = contentData?.payload?.find((s: any) => s.section === 'social');
+    const socials = socialSection?.metadata || {};
+    const socialLinks = [
+        { key: 'facebook', icon: Facebook, url: socials.facebook },
+        { key: 'instagram', icon: Instagram, url: socials.instagram },
+        { key: 'twitter', icon: Twitter, url: socials.twitter },
+        { key: 'linkedin', icon: Linkedin, url: socials.linkedin },
+        { key: 'youtube', icon: Youtube, url: socials.youtube },
+        { key: 'github', icon: Github, url: socials.github },
+    ].filter(s => !!s.url);
 
     const links = {
         services: [
@@ -29,20 +43,13 @@ const Footer = () => {
                     {/* Brand */}
                     <div className="lg:col-span-2">
                         <div className="flex items-center gap-3 mb-6">
-                            {/* Logo */}
-                            <svg viewBox="0 0 50 50" className="w-10 h-10">
-                                <defs>
-                                    <linearGradient id="footerGold" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stopColor="#D4AF37" />
-                                        <stop offset="100%" stopColor="#B8860B" />
-                                    </linearGradient>
-                                </defs>
-                                <circle cx="25" cy="25" r="23" fill="none" stroke="url(#footerGold)" strokeWidth="1.5" />
-                                {[0, 90, 180, 270].map((r, i) => (
-                                    <path key={i} d="M25 25 Q25 18 20 15 Q14 12 13 17 Q12 23 20 25" fill="none" stroke="url(#footerGold)" strokeWidth="1.5" transform={`rotate(${r} 25 25)`} />
-                                ))}
-                            </svg>
-                            <span className="text-xl font-light tracking-[0.2em] text-amber-400">TRISKELOUM</span>
+                            {/* Seranoun Logo */}
+                            <img
+                                src="/images/rmvLogoSeranoun.png"
+                                alt="SERANOUN Logo"
+                                className="w-10 h-10 object-contain"
+                            />
+                            <span className="text-xl font-light tracking-[0.2em] text-amber-400">SERANOUN</span>
                         </div>
                         <p className="text-gray-500 text-sm leading-relaxed mb-6 max-w-sm">
                             {t(
@@ -50,14 +57,21 @@ const Footer = () => {
                                 "Digital spiritual development practice. Healing the wounds of the soul and guiding each person on a deep journey of self-discovery."
                             )}
                         </p>
-                        <div className="flex gap-4">
-                            {/* Social placeholder icons */}
-                            {['instagram', 'facebook', 'youtube'].map((social) => (
-                                <a key={social} href="#" className="w-10 h-10 rounded-full bg-amber-900/20 border border-amber-700/30 flex items-center justify-center text-amber-500 hover:bg-amber-800/30 hover:border-amber-600/50 transition-colors">
-                                    <span className="text-xs uppercase">{social[0]}</span>
-                                </a>
-                            ))}
-                        </div>
+                        {socialLinks.length > 0 && (
+                            <div className="flex gap-4">
+                                {socialLinks.map(({ key, icon: Icon, url }) => (
+                                    <a
+                                        key={key}
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-10 h-10 rounded-full bg-amber-900/20 border border-amber-700/30 flex items-center justify-center text-amber-500 hover:bg-amber-800/30 hover:border-amber-600/50 transition-colors"
+                                    >
+                                        <Icon className="w-5 h-5" />
+                                    </a>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Services */}
@@ -106,7 +120,7 @@ const Footer = () => {
                 {/* Bottom */}
                 <div className="mt-12 pt-8 border-t border-amber-900/20 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p className="text-gray-600 text-sm">
-                        © {new Date().getFullYear()} Triskeloum. {t('Tous droits réservés.', 'All rights reserved.')}
+                        © {new Date().getFullYear()} Seranoun. {t('Tous droits réservés.', 'All rights reserved.')}
                     </p>
                     <p className="text-gray-600 text-sm italic">
                         "{t("L'éveil spirituel est un briseur d'illusions", "Spiritual awakening is a breaker of illusions")}"

@@ -18,33 +18,30 @@ const CourseStats: React.FC<CourseStatsProps> = ({ course }) => {
       label: 'Sections',
       value: course.sections?.length || 0,
       icon: '📑',
-      color: 'blue'
+      color: 'gold'
     },
     {
       label: 'Parties',
       value: totalParts,
       icon: '📝',
-      color: 'green'
+      color: 'gold'
     },
     {
       label: 'Durée estimée',
       value: `${course.est_time_min} min`,
       icon: '⏱️',
-      color: 'purple'
+      color: 'gold'
     },
     {
       label: 'Niveau',
       value: course.levels?.[0]?.name || 'Non défini',
       icon: '🎯',
-      color: 'orange'
+      color: 'gold'
     }
   ];
 
   const colorClasses = {
-    blue: 'bg-blue-50 text-blue-600 border-blue-200',
-    green: 'bg-green-50 text-green-600 border-green-200',
-    purple: 'bg-purple-50 text-purple-600 border-purple-200',
-    orange: 'bg-orange-50 text-orange-600 border-orange-200'
+    gold: 'bg-gradient-to-br from-[#D4AF37]/10 to-[#FFD700]/10 dark:from-[#D4AF37]/20 dark:to-[#FFD700]/20 border-[#D4AF37]/30 dark:border-[#D4AF37]/50'
   };
 
   return (
@@ -52,11 +49,11 @@ const CourseStats: React.FC<CourseStatsProps> = ({ course }) => {
       {stats.map((stat, index) => (
         <div
           key={index}
-          className={`border rounded-lg p-1 text-center ${colorClasses[stat.color as keyof typeof colorClasses]}`}
+          className={`border rounded-lg p-4 text-center ${colorClasses[stat.color as keyof typeof colorClasses]}`}
         >
           <div className="text-xl mb-2">{stat.icon}</div>
-          <div className="text-xl font-bold mb-1">{stat.value}</div>
-          <div className="text-xs font-medium opacity-75">{stat.label}</div>
+          <div className="text-xl font-bold mb-1 text-gray-900 dark:text-text-primary">{stat.value}</div>
+          <div className="text-xs font-medium text-gray-600 dark:text-text-secondary">{stat.label}</div>
         </div>
       ))}
     </div>
